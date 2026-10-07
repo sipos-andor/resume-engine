@@ -1,8 +1,9 @@
 @namespace Sipos.Resume.Theme.Operandor.Layout
 
 @* The whole HTML document of a page. The order in <head> follows operandor.io: the policy first, then the settings
-   and the theme script synchronously before the stylesheets, so the stored theme applies before the first paint;
-   the paths before <base> are absolute. HeadOutlet writes the title, description, canonical and hreflang links,
+   and the theme script synchronously before the stylesheets, so the stored theme applies before the first paint.
+   Every path is root-relative and the page has no <base>, so a bare #anchor stays on the page with its query
+   (?focus=, ?tech=, ?view=) instead of loading the page again without it. HeadOutlet writes the title, description, canonical and hreflang links,
    share tags and structured data of the page's SeoHead. *@
 <!DOCTYPE html>
 <html lang="@Lang">
@@ -13,27 +14,26 @@
     <meta http-equiv="Content-Security-Policy" content="@ContentSecurityPolicy.For(Settings)" />
     <script src="/site-config.js" suppress-error="BL9992"></script>
     <script src="/_content/Operandor.SharedKernel.UI/theme.js" suppress-error="BL9992"></script>
-    <base href="/" />
-    <link rel="stylesheet" href="_content/Operandor.DesignSystem/operandor.css" />
-    <link rel="stylesheet" href="_content/Sipos.Resume.Theme.Operandor/css/cv.css" />
-    <link rel="icon" type="image/svg+xml" href="_content/Sipos.Resume.Theme.Operandor/favicon.svg" />
+    <link rel="stylesheet" href="/_content/Operandor.DesignSystem/operandor.css" />
+    <link rel="stylesheet" href="/_content/Sipos.Resume.Theme.Operandor/css/cv.css" />
+    <link rel="icon" type="image/svg+xml" href="/_content/Sipos.Resume.Theme.Operandor/favicon.svg" />
     @Head
     <HeadOutlet />
 </head>
 <body>
     @* First in <body>: the head with the hreflang links is parsed, nothing is painted yet, and a visitor who enters on
        the root page is sent to the version in their browser's language (the shared kernel's script). *@
-    <script src="_content/Operandor.SharedKernel.UI/language.js" suppress-error="BL9992"></script>
+    <script src="/_content/Operandor.SharedKernel.UI/language.js" suppress-error="BL9992"></script>
     @ChildContent
     @if (Interactive)
     {
-        <script type="module" src="_content/Sipos.Resume.Theme.Operandor/js/cv.js" suppress-error="BL9992"></script>
+        <script type="module" src="/_content/Sipos.Resume.Theme.Operandor/js/cv.js" suppress-error="BL9992"></script>
     }
     @if (Settings.AnalyticsToken is not null)
     {
         @* Cloudflare Web Analytics is cookieless and needs no consent; the script loads the beacon with the token
            from site-config.js. *@
-        <script src="_content/Operandor.SharedKernel.UI/analytics/cloudflare-web-analytics.js" suppress-error="BL9992"></script>
+        <script src="/_content/Operandor.SharedKernel.UI/analytics/cloudflare-web-analytics.js" suppress-error="BL9992"></script>
     }
 </body>
 </html>

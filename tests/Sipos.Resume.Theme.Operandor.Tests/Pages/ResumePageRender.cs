@@ -29,7 +29,7 @@ public class ResumePageRender
         document.Title.ShouldBe("Example Ann – Önéletrajz: Szoftverarchitekt");
         document.QuerySelector("link[rel=canonical]")!.GetAttribute("href").ShouldBe("https://cv.example.com/hu/");
         document.QuerySelectorAll("link[rel=alternate][hreflang]").Select(link => link.GetAttribute("hreflang")).ShouldBe(["en", "hu", "x-default"]);
-        document.QuerySelector("link[rel=alternate][type='text/markdown']")!.GetAttribute("href").ShouldBe("hu/index.md");
+        document.QuerySelector("link[rel=alternate][type='text/markdown']")!.GetAttribute("href").ShouldBe("/hu/index.md");
         document.QuerySelector("meta[property='og:type']")!.GetAttribute("content").ShouldBe("profile");
         document.QuerySelector("meta[property='og:image']")!.GetAttribute("content").ShouldBe("https://cv.example.com/og/hu.png");
         var graph = JsonDocument.Parse(document.QuerySelector("script[type='application/ld+json']")!.TextContent).RootElement.GetProperty("@graph");
@@ -117,14 +117,18 @@ public class ResumePageRender
         links.ShouldAllBe(link => link.GetAttribute("tabindex") == "-1");
     }
 
-    // Under <base href="/"> a bare "#experience" would lead to the root page.
+    // A bare #anchor keeps the address's query (?focus=, ?tech=, ?view=), so following it scrolls instead of loading
+    // the page again without the reader's view; every other link is root-relative, as the page has no <base>.
     [Fact]
-    public async Task LinksSectionsThroughPagePathGivenOtherLanguage()
+    public async Task LinksWithinPageByAnchorAndElsewhereByRootPathGivenOtherLanguage()
     {
         var document = await ThemePages.RenderAsync(ThemePages.Sample(), 1);
 
-        document.QuerySelector("#experience .cv-anchor")!.GetAttribute("href").ShouldBe("hu/#experience");
-        document.QuerySelectorAll("a[href^='#']").ShouldBeEmpty();
+        document.QuerySelector("base").ShouldBeNull();
+        document.QuerySelector("#experience .cv-anchor")!.GetAttribute("href").ShouldBe("#experience");
+        var references = document.QuerySelectorAll("[href], [src]").Select(element => element.GetAttribute("href") ?? element.GetAttribute("src")!).ToList();
+        references.ShouldNotBeEmpty();
+        references.ShouldAllBe(reference => reference.StartsWith('/') || reference.StartsWith('#') || reference.Contains(':'));
     }
 
     [Fact]
@@ -156,7 +160,7 @@ public class ResumePageRender
         var document = await ThemePages.RenderAsync(pages, 1);
 
         document.QuerySelectorAll("#downloads a.cv-download").Select(link => link.GetAttribute("href"))
-            .ShouldBe(pages[1].Downloads.Select(download => download.Path.TrimStart('/')), ignoreOrder: true);
+            .ShouldBe(pages[1].Downloads.Select(download => download.Path), ignoreOrder: true);
     }
 
     [Fact]
@@ -198,7 +202,7 @@ public class ResumePageRender
         var document = await ThemePages.RenderNotFoundAsync(ThemePages.Sample());
 
         document.QuerySelector("meta[name=robots]")!.GetAttribute("content").ShouldBe("noindex, follow");
-        document.QuerySelectorAll(".op-notfound__languages a").Select(link => (link.GetAttribute("href"), link.GetAttribute("hreflang"))).ShouldBe([("", "en"), ("hu/", "hu")]);
+        document.QuerySelectorAll(".op-notfound__languages a").Select(link => (link.GetAttribute("href"), link.GetAttribute("hreflang"))).ShouldBe([("/", "en"), ("/hu/", "hu")]);
         document.Scripts.ShouldNotContain(script => script.Source != null && script.Source.EndsWith("cv.js", StringComparison.Ordinal));
     }
 }

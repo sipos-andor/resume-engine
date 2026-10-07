@@ -189,7 +189,7 @@ if (data && tools && main) {
         for (const [id, title] of found) {
             byId.get(id)?.classList.add("cv-hit");
             const link = document.createElement("a");
-            link.href = `${location.pathname}#${encodeURIComponent(id)}`;
+            link.href = `#${encodeURIComponent(id)}`;
             link.textContent = title;
             results.append(link);
         }

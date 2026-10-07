@@ -27,14 +27,18 @@ internal sealed record ResumeView(SitePage Page, IStringLocalizer<ThemeText> Tex
     public CultureInfo Culture => Page.Document.Language.Culture;
 
     /// <summary>
-    /// A link to a site path, relative to the pages' <c>base href="/"</c>, such as <c>hu/</c> for <c>/hu/</c>.
+    /// A link to a site path: the path itself, root-relative, so it leads to the same file from any page, the
+    /// not-found page served at any address included, such as <c>/hu/</c>.
     /// </summary>
     /// <param name="path">A site path starting with <c>/</c>.</param>
-    public static string Href(string path) => path.TrimStart('/');
+    public static string Href(string path) => path;
 
-    /// <summary>A link to an element of this page, such as <c>hu/#experience</c>; a bare <c>#experience</c> would lead to the root under <c>base href="/"</c>.</summary>
+    /// <summary>
+    /// A link to an element of this page, such as <c>#experience</c>: it keeps the address's query, so following it
+    /// scrolls within the page and keeps the reader's focus, technology and view.
+    /// </summary>
     /// <param name="id">The element's id.</param>
-    public string Anchor(string id) => Href(Page.Path) + "#" + id;
+    public string Anchor(string id) => "#" + id;
 
     /// <summary>A period in the page's words, such as <c>2022. november – jelenleg</c>.</summary>
     /// <param name="period">The period.</param>
