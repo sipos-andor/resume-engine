@@ -12,6 +12,23 @@ public sealed record DownloadSpec(DownloadFormat Format, DocumentVariant Variant
     /// <summary>The site path the file is published at, such as <c>/downloads/Andor_Sipos_CV_HU.pdf</c>.</summary>
     public string Path => $"/downloads/{FileName}";
 
+    /// <summary>The format's short name for menus and lists: <c>PDF</c>, <c>DOCX</c>, <c>TXT</c>, <c>Markdown</c> or <c>JSON Resume</c>.</summary>
+    public string FormatName => Format switch
+    {
+        DownloadFormat.Pdf => "PDF",
+        DownloadFormat.Docx => "DOCX",
+        DownloadFormat.PlainText => "TXT",
+        DownloadFormat.Markdown => "Markdown",
+        _ => "JSON Resume",
+    };
+
+    /// <summary>Names the file for a menu or a list, such as <c>PDF</c>, <c>DOCX · ATS</c> or <c>PDF · Software architect</c>.</summary>
+    /// <param name="focusLabel">The label of the file's position profile in the CV's language, for a tailored file.</param>
+    public string Describe(string? focusLabel = null) =>
+        FocusId is not null && focusLabel is not null ? $"{FormatName} · {focusLabel}"
+        : Variant == DocumentVariant.Ats ? $"{FormatName} · ATS"
+        : FormatName;
+
     /// <summary>The MIME type of the file.</summary>
     public string MediaType => Format switch
     {

@@ -30,4 +30,13 @@ public class DownloadCatalogFor
         downloads.Single(d => d.Format == DownloadFormat.Docx && d.FocusId is null && d.Variant == DocumentVariant.Ats).MediaType
             .ShouldBe("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
     }
+
+    [Fact]
+    public void DescribesFilesForMenusGivenLayoutAndFocus()
+    {
+        var downloads = DownloadCatalog.For(LanguageCatalog.Describe("en", null, true), "Ann_CV", ["architect"]);
+
+        downloads.Select(d => d.Describe(d.FocusId is null ? null : "Software architect")).ShouldBe(
+            ["PDF", "DOCX", "PDF · ATS", "DOCX · ATS", "TXT · ATS", "Markdown", "JSON Resume", "PDF · Software architect", "DOCX · Software architect"]);
+    }
 }
