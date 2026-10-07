@@ -291,6 +291,18 @@ public class DocxDocumentWriterWrite
         Part(bytes, "docProps/core.xml").Root!.Element(Terms + "modified")!.Value.ShouldBe("1980-01-01T00:00:00Z");
     }
 
+    // A ZIP entry holds 1980 to 2107 only; the document's own properties keep the content's date.
+    [Theory]
+    [InlineData(1979, 12, 31, 1980, 1, 1)]
+    [InlineData(2200, 1, 1, 2107, 12, 31)]
+    public void KeepsEntryDatesWithinZipRangeGivenLastModifiedOutsideIt(int year, int month, int day, int zipYear, int zipMonth, int zipDay)
+    {
+        var bytes = Write(Context(SampleDocuments.English() with { LastModified = new DateOnly(year, month, day) }, DocumentVariant.Ats));
+
+        EntryTimes(bytes).ShouldAllBe(time => time == new DateTime(zipYear, zipMonth, zipDay));
+        Part(bytes, "docProps/core.xml").Root!.Element(Terms + "modified")!.Value.ShouldStartWith($"{year:0000}-{month:00}-{day:00}");
+    }
+
     private static List<string> Fonts(byte[] bytes)
     {
         string[] attributes = ["ascii", "hAnsi", "cs", "eastAsia"];
