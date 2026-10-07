@@ -25,8 +25,28 @@ public static class ParityValidator
         foreach (var (source, resume) in others)
         {
             var actual = Facts(resume);
+            var missingProjectIds = new HashSet<string>(StringComparer.Ordinal);
+            for (var i = 0; i < Math.Min(reference.Resume.Projects.Count, resume.Projects.Count); i++)
+            {
+                var project = resume.Projects[i];
+                var original = reference.Resume.Projects[i];
+                if (!string.Equals(original.Name, project.Name, StringComparison.Ordinal)
+                    && (string.IsNullOrEmpty(original.Id) || string.IsNullOrEmpty(project.Id)))
+                {
+                    var path = $"/projects/{i}/x-id";
+                    missingProjectIds.Add(path);
+                    var missingSource = string.IsNullOrEmpty(project.Id) ? source : reference.Source;
+                    issues.Add(new ValidationIssue(missingSource, path, "Projects with different names across languages need the same explicit x-id in every language."));
+                }
+            }
+
             foreach (var (path, value) in expected)
             {
+                if (missingProjectIds.Contains(path))
+                {
+                    continue;
+                }
+
                 if (!actual.TryGetValue(path, out var other))
                 {
                     issues.Add(new ValidationIssue(source, path, $"Is missing; {reference.Source} has '{value}'."));

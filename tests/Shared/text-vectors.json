@@ -5,7 +5,8 @@
     { "text": "Sípos Andor – ŐŰ őű", "folded": "sipos andor – ou ou" },
     { "text": "Čačak, Đurđevo, Šid, Žabalj, Ćuprija", "folded": "cacak, durdevo, sid, zabalj, cuprija" },
     { "text": "Straße Łódź Ærø", "folded": "strasse lodz aero" },
-    { "text": "İstanbul İş Bankası, ΟΔΟΣ", "folded": "istanbul is bankası, οδοσ" }
+    { "text": "İstanbul İş Bankası, ΟΔΟΣ", "folded": "istanbul is bankası, οδοσ" },
+    { "text": "A\uD834\uDD67B\uD838\uDC00 😀", "folded": "ab 😀" }
   ],
   "tokens": [
     { "text": "C#, .NET / .NET Core and ASP.NET Core", "tokens": ["c#", ".net", ".net", "core", "and", "asp.net", "core"] },
@@ -13,6 +14,7 @@
     { "text": "Azure Service Bus (message-based)", "tokens": ["azure", "service", "bus", "message", "based"] },
     { "text": "MS SQL Server; T-SQL; 13+ years", "tokens": ["ms", "sql", "server", "t", "sql", "13+", "years"] },
     { "text": "Szoftverarchitekt. Vodeći programer", "tokens": ["szoftverarchitekt", "vodeci", "programer"] },
-    { "text": "...", "tokens": [] }
+    { "text": "...", "tokens": [] },
+    { "text": "A\uD834\uDD67B\uD838\uDC00", "tokens": ["ab"] }
   ]
 }

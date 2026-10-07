@@ -8,7 +8,8 @@ namespace Sipos.Resume.Core.Mapping;
 /// <remarks>
 /// Decision: an item without <c>x-id</c> still gets an identifier, a slug of its name and start date.
 /// Why: a plain JSON Resume has no identifiers, and anchors, the timeline and the focus views need one; organization
-/// names and dates are the same in every language, so the made-up identifier is too.
+/// names and dates are the same in every language, so a position's made-up identifier is too. Projects with different
+/// names across languages must supply the same explicit <c>x-id</c> in every language.
 /// </remarks>
 public static class Identifiers
 {

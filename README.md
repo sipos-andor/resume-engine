@@ -50,6 +50,8 @@ number of items must match the default language's, so a translation cannot drift
 [`samples/plain-json-resume`](samples/plain-json-resume)); the optional `x-` extensions add identifiers, a tagline,
 a contact link, availability, strengths, position profiles (`?focus=` and tailored documents), the one-page view and
 aliases for job ad matching. They are documented on the types in `Sipos.Resume.Core.Content`.
+Projects whose names differ across languages must provide the same explicit `x-id` in every language; otherwise
+their identifiers are generated from their names and start dates.
 
 **No e-mail address in the content.** A file with an e-mail address anywhere is refused: a published address is
 harvested. An address may appear only in the PDFs, drawn as an image, from the `RESUME_CONTACT_EMAIL` environment

@@ -22,11 +22,11 @@ public static partial class TextNormalizer
     {
         var lower = Transliterate(text.ToLowerInvariant()).Normalize(NormalizationForm.FormD);
         var builder = new StringBuilder(lower.Length);
-        foreach (var c in lower)
+        foreach (var rune in lower.EnumerateRunes())
         {
-            if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+            if (Rune.GetUnicodeCategory(rune) != UnicodeCategory.NonSpacingMark)
             {
-                builder.Append(c);
+                builder.Append(rune.ToString());
             }
         }
 
