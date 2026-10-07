@@ -41,6 +41,16 @@ public class ResumeReaderRead
         result.Issues.Single().Path.ShouldBe("/work");
     }
 
+    // Windows editors often save UTF-8 with a byte order mark, which RFC 8259 lets a reader ignore.
+    [Fact]
+    public void ReadsFileGivenByteOrderMark()
+    {
+        var result = ResumeReader.Read("resume.en.json", (byte[])[.. Encoding.UTF8.GetPreamble(), .. Encoding.UTF8.GetBytes(Samples.English)]);
+
+        result.Issues.ShouldBeEmpty();
+        result.Resume!.Basics!.Name.ShouldBe("Ann Example");
+    }
+
     // A file may not even hold an address, whatever the field.
     [Fact]
     public void ReportsAddressGivenAddressInSummary()

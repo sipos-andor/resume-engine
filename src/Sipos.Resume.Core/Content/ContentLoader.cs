@@ -163,7 +163,7 @@ public static partial class ContentLoader
         SiteFile? site;
         try
         {
-            site = JsonSerializer.Deserialize(file.Content.Span, ResumeJsonContext.Default.SiteFile);
+            site = JsonSerializer.Deserialize(ResumeReader.WithoutByteOrderMark(file.Content).Span, ResumeJsonContext.Default.SiteFile);
         }
         catch (JsonException exception)
         {
