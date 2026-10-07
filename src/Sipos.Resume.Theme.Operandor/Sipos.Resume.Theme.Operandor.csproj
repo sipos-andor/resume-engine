@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>The operandor look of the resume engine's pages: Razor components on the operandor design system, light and dark themes, and the scripts of the interactive features.</Description>
+    <!-- Static assets are served from _content/{PackageId}/, so the id stays the assembly name. -->
+    <PackageId>Sipos.Resume.Theme.Operandor</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="Operandor.DesignSystem" />
+    <PackageReference Include="Operandor.SharedKernel.UI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Sipos.Resume.Core/Sipos.Resume.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sipos.Resume.Theme.Operandor.Tests" />
+  </ItemGroup>
+
+</Project>

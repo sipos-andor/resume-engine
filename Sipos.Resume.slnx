@@ -1,8 +1,14 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Sipos.Resume.Core/Sipos.Resume.Core.csproj" />
+    <Project Path="src/Sipos.Resume.Documents.Pdf/Sipos.Resume.Documents.Pdf.csproj" />
+    <Project Path="src/Sipos.Resume.Generation/Sipos.Resume.Generation.csproj" />
+    <Project Path="src/Sipos.Resume.Theme.Operandor/Sipos.Resume.Theme.Operandor.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Sipos.Resume.Core.Tests/Sipos.Resume.Core.Tests.csproj" />
+    <Project Path="tests/Sipos.Resume.Documents.Pdf.Tests/Sipos.Resume.Documents.Pdf.Tests.csproj" />
+    <Project Path="tests/Sipos.Resume.Generation.Tests/Sipos.Resume.Generation.Tests.csproj" />
+    <Project Path="tests/Sipos.Resume.Theme.Operandor.Tests/Sipos.Resume.Theme.Operandor.Tests.csproj" />
   </Folder>
 </Solution>

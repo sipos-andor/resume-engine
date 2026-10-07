@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <ItemGroup>
+    <PackageReference Include="bunit" />
+    <PackageReference Include="Jint" />
+    <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+    <Using Include="Bunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Sipos.Resume.Theme.Operandor/Sipos.Resume.Theme.Operandor.csproj" />
+  </ItemGroup>
+
+</Project>

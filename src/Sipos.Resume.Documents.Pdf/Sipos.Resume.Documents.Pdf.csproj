@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>Designed and ATS PDFs of a CV with QuestPDF: tagged PDF/UA-1 and PDF/A-3a, embedded IBM Plex, a QR code to the online CV and an optional e-mail address drawn as an image. QuestPDF has its own licence.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QRCoder" />
+    <PackageReference Include="QuestPDF" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Sipos.Resume.Core/Sipos.Resume.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sipos.Resume.Documents.Pdf.Tests" />
+  </ItemGroup>
+
+</Project>
