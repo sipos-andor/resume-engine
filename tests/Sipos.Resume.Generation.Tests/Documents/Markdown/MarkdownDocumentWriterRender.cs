@@ -55,6 +55,14 @@ public class MarkdownDocumentWriterRender
     [Fact]
     public void EscapesMarkupGivenTextWithAsterisks() => MarkdownText.Escape("*bold* [x] <b>").ShouldBe("\\*bold\\* \\[x\\] \\<b\\>");
 
+    [Fact]
+    public void KeepsHtmlEntitiesLiteralGivenMarkdownText()
+    {
+        var html = Markdig.Markdown.ToHtml(MarkdownText.Escape("&copy; &#35;"));
+
+        html.ShouldContain("&amp;copy; &amp;#35;");
+    }
+
     // A line break in a value would end the list item or the paragraph it is written into.
     [Fact]
     public void JoinsLinesGivenTextWithLineBreaks() => MarkdownText.Escape("one\r\ntwo\rthree\nfour").ShouldBe("one two three four");

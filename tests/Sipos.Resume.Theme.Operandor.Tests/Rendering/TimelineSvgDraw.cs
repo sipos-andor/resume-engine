@@ -47,4 +47,15 @@ public class TimelineSvgDraw
 
         TimelineSvg.Draw(timeline, id => "#" + id, given => given == period ? "2015 – 2018" : "invented").ShouldContain(": 2015 – 2018</title>");
     }
+
+    [Fact]
+    public void DrawsOngoingBarGivenMaximumDate()
+    {
+        var timeline = ResumeInsights.Analyze(SampleDocuments.English(), DateOnly.MaxValue).Timeline;
+
+        var svg = TimelineSvg.Draw(timeline, id => "#" + id, period => period.ToString());
+
+        timeline.Bars.ShouldContain(bar => bar.End == DateOnly.MaxValue);
+        svg.ShouldContain("cv-timeline__bar--ongoing");
+    }
 }

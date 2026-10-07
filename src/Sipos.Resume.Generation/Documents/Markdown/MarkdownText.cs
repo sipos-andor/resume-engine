@@ -14,7 +14,7 @@ internal static partial class MarkdownText
         var escaped = new StringBuilder(text.Length + 8);
         foreach (var character in text.ReplaceLineEndings(" "))
         {
-            if (character is '\\' or '`' or '*' or '_' or '[' or ']' or '<' or '>' or '|')
+            if (character is '\\' or '`' or '*' or '_' or '[' or ']' or '<' or '>' or '|' or '&')
             {
                 escaped.Append('\\');
             }

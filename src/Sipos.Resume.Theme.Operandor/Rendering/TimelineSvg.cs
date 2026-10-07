@@ -53,7 +53,8 @@ internal static class TimelineSvg
         foreach (var bar in model.Bars)
         {
             var x = X(bar.Start);
-            var width = Math.Max(X(bar.End.AddDays(1)) - x, 3);
+            var end = bar.End == DateOnly.MaxValue ? Width : X(bar.End.AddDays(1));
+            var width = Math.Max(end - x, 3);
             var y = Top(bar);
             var kind = bar.Kind == TimelineBarKind.Position ? "position" : "engagement";
             var ongoing = bar.Ongoing ? " cv-timeline__bar--ongoing" : "";

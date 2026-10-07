@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Net.Mail;
 using Microsoft.Extensions.Logging;
 using Sipos.Resume.Core.Artifacts;
 using Sipos.Resume.Core.Content;
@@ -316,13 +317,22 @@ public sealed partial class ResumeGenerator
         }
 
         var email = _environment(ContactEmailVariable);
+        email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        if (email is not null && (!MailAddress.TryCreate(email, out var address)
+            || !string.Equals(address.Address, email, StringComparison.OrdinalIgnoreCase)
+            || address.DisplayName.Length > 0))
+        {
+            error = $"{ContactEmailVariable} must be a single e-mail address.";
+            return false;
+        }
+
         options = new BuildOptions
         {
             ContentFolder = content,
             OutputFolder = output,
             AssetsFolder = assets,
             Today = date,
-            ContactEmail = string.IsNullOrWhiteSpace(email) ? null : email.Trim(),
+            ContactEmail = email,
             AnalyticsToken = _environment(AnalyticsTokenVariable),
             Clean = clean,
             RequireContactEmail = requireEmail,

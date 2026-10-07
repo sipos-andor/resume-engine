@@ -27,6 +27,17 @@ public class ResumeSeoPerson
         ResumeSeo.Person(page with { Document = document }).WorksFor!.Id.ShouldBe("https://operandor.io/#organization");
     }
 
+    [Theory]
+    [InlineData("https://example.com/company?ref=cv", "https://example.com/company?ref=cv#organization")]
+    [InlineData("https://example.com/company#old", "https://example.com/company#organization")]
+    public void UsesOrganizationUriFragmentGivenCompanyUrl(string url, string expected)
+    {
+        var page = ThemePages.Sample()[0];
+        var document = page.Document with { Positions = [page.Document.Positions[0] with { Url = url }] };
+
+        ResumeSeo.Person(page with { Document = document }).WorksFor!.Id.ShouldBe(expected);
+    }
+
     [Fact]
     public void CutsDescriptionAtWordGivenLongFirstSentence()
     {

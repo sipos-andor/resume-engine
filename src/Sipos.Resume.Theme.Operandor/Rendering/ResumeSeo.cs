@@ -136,5 +136,7 @@ internal static partial class ResumeSeo
     // any other organization's is its address with "#organization".
     // Why: a search engine joins two nodes into one entity only by identifier.
     private static string OrganizationId(string url) =>
-        new Uri(url).Host.Equals("operandor.io", StringComparison.OrdinalIgnoreCase) ? OperandorOrganizationId : url.TrimEnd('/') + "/#organization";
+        new Uri(url).Host.Equals("operandor.io", StringComparison.OrdinalIgnoreCase)
+            ? OperandorOrganizationId
+            : new UriBuilder(url) { Fragment = "organization" }.Uri.AbsoluteUri;
 }

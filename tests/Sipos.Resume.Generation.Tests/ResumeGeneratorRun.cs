@@ -169,6 +169,21 @@ public class ResumeGeneratorRun
         (await Generator(folder, null, "--require-email").RunAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
     }
 
+    [Theory]
+    [InlineData("ann.example.com")]
+    [InlineData("Ann Example <ann@example.com>")]
+    public async Task ReturnsUsageErrorGivenInvalidContactEmail(string email)
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+
+        var code = await Generator(folder, new Dictionary<string, string> { [ResumeGenerator.ContactEmailVariable] = email })
+            .RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(2);
+        Directory.Exists(Path.Combine(folder.Path, "dist")).ShouldBeFalse();
+    }
+
     [Fact]
     public async Task AllowsAnalyticsHostsGivenTokenInEnvironment()
     {
