@@ -79,11 +79,10 @@ public static partial class EmailGuard
 
     // The text as a reader sees it: character references decoded (HtmlDecode knows HTML 4's, &commat; is HTML5's) and
     // percent-encoding undone, again and again until nothing changes, so ann&amp;#64; or ann%2540 comes out as ann@.
-    // Decoding only shortens the text, so the loop ends; the bound keeps a pathological text cheap.
     private static string Shown(string text)
     {
         var shown = text;
-        for (var pass = 0; pass < 8; pass++)
+        while (true)
         {
             var next = Uri.UnescapeDataString(WebUtility.HtmlDecode(shown).Replace("&commat;", "@", StringComparison.OrdinalIgnoreCase));
             if (next == shown)

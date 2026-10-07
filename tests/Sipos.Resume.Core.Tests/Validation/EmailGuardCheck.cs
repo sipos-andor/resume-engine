@@ -18,6 +18,18 @@ public class EmailGuardCheck
     [InlineData("ann@example.xn--p1ai")]
     public void FindsAddressGivenText(string text) => EmailGuard.ContainsAddress(text).ShouldBeTrue();
 
+    [Fact]
+    public void FindsAddressGivenMoreThanEightLevelsOfEncoding()
+    {
+        var text = "ann&#64;example.org";
+        for (var pass = 0; pass < 9; pass++)
+        {
+            text = text.Replace("&", "&amp;", StringComparison.Ordinal);
+        }
+
+        EmailGuard.ContainsAddress(text).ShouldBeTrue();
+    }
+
     [Theory]
     [InlineData("C# @ scale")]
     [InlineData("https://operandor.io/hu/kapcsolat?intent=general")]
