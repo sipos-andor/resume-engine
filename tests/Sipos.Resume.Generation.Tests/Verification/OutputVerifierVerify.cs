@@ -1,7 +1,7 @@
 using Sipos.Resume.Core.Artifacts;
 using Sipos.Resume.Generation.Documents.Json;
 using Sipos.Resume.Generation.Documents.Markdown;
-using Sipos.Resume.Generation.Documents.Text;
+using Sipos.Resume.Generation.Documents.PlainText;
 using Sipos.Resume.Generation.Tests.Helpers;
 using Sipos.Resume.Generation.Verification;
 

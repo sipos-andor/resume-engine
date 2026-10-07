@@ -1,9 +1,9 @@
 using System.Text;
 using Sipos.Resume.Core.Artifacts;
-using Sipos.Resume.Generation.Documents.Text;
+using Sipos.Resume.Generation.Documents.PlainText;
 using Sipos.Resume.Generation.Tests.Helpers;
 
-namespace Sipos.Resume.Generation.Tests.Documents.Text;
+namespace Sipos.Resume.Generation.Tests.Documents.PlainText;
 
 public class PlainTextDocumentWriterRender
 {

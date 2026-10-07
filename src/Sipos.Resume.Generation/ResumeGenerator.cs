@@ -7,7 +7,7 @@ using Sipos.Resume.Generation.Building;
 using Sipos.Resume.Generation.Content;
 using Sipos.Resume.Generation.Documents.Json;
 using Sipos.Resume.Generation.Documents.Markdown;
-using Sipos.Resume.Generation.Documents.Text;
+using Sipos.Resume.Generation.Documents.PlainText;
 using Sipos.Resume.Generation.Output;
 using Sipos.Resume.Generation.Verification;
 

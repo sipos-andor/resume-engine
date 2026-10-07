@@ -2,7 +2,7 @@ using System.Text;
 using Sipos.Resume.Core.Artifacts;
 using Sipos.Resume.Core.Model;
 
-namespace Sipos.Resume.Generation.Documents.Text;
+namespace Sipos.Resume.Generation.Documents.PlainText;
 
 /// <summary>
 /// Writes the ATS layout of a CV as plain UTF-8 text: what an applicant tracking system reads best and what a portal's
