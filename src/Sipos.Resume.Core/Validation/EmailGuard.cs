@@ -78,9 +78,24 @@ public static partial class EmailGuard
     }
 
     // The text as a reader sees it: character references decoded (HtmlDecode knows HTML 4's, &commat; is HTML5's) and
-    // a percent-encoded @ written out.
-    private static string Shown(string text) =>
-        WebUtility.HtmlDecode(text).Replace("&commat;", "@", StringComparison.OrdinalIgnoreCase).Replace("%40", "@", StringComparison.OrdinalIgnoreCase);
+    // percent-encoding undone, again and again until nothing changes, so ann&amp;#64; or ann%2540 comes out as ann@.
+    // Decoding only shortens the text, so the loop ends; the bound keeps a pathological text cheap.
+    private static string Shown(string text)
+    {
+        var shown = text;
+        for (var pass = 0; pass < 8; pass++)
+        {
+            var next = Uri.UnescapeDataString(WebUtility.HtmlDecode(shown).Replace("&commat;", "@", StringComparison.OrdinalIgnoreCase));
+            if (next == shown)
+            {
+                break;
+            }
+
+            shown = next;
+        }
+
+        return shown;
+    }
 
     // JSON pointer escaping (RFC 6901): ~ becomes ~0 and / becomes ~1.
     private static string Escape(string name) => name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
