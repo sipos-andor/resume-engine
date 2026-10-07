@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Sipos.Resume.Core.Artifacts;
-using Sipos.Resume.Core.Languages;
 
 namespace Sipos.Resume.Core.Site;
 
@@ -33,7 +32,6 @@ public interface IResumeTheme
 
     /// <summary>Registers the services the theme's components inject.</summary>
     /// <param name="services">The render scope's services.</param>
-    /// <param name="settings">The site's settings.</param>
-    /// <param name="languages">The site's languages, default first.</param>
-    void ConfigureServices(IServiceCollection services, SiteSettings settings, IReadOnlyList<ResumeLanguage> languages);
+    /// <param name="pages">Every language's page, the default first, with the site's settings.</param>
+    void ConfigureServices(IServiceCollection services, IReadOnlyList<SitePage> pages);
 }

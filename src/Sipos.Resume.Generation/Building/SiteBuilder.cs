@@ -65,7 +65,7 @@ internal sealed partial class SiteBuilder(IResumeTheme theme, IReadOnlyList<IDoc
             LogLanguage(page.Document.Language.Tag, page.Downloads.Count);
         }
 
-        var renderer = new StaticPageRenderer(theme, set.Settings, set.Languages, loggerFactory);
+        var renderer = new StaticPageRenderer(theme, pages, loggerFactory);
         foreach (var page in pages)
         {
             var html = await renderer.RenderAsync(theme.PageComponent, new Dictionary<string, object?> { ["Page"] = page }, page.Path, page.Document.Language.Culture).ConfigureAwait(false);

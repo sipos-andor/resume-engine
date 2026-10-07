@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using Sipos.Resume.Core.Artifacts;
-using Sipos.Resume.Core.Languages;
 using Sipos.Resume.Core.Site;
 
 namespace Sipos.Resume.Generation.Tests.Helpers;
@@ -23,7 +22,7 @@ internal sealed class FakeTheme : IResumeTheme
 
     public IReadOnlyList<ThemeFile> Files(SiteSettings settings) => [new("/site-config.js", $"window.config = {{ themeKey: '{settings.ThemeStorageKey}' }};\n")];
 
-    public void ConfigureServices(IServiceCollection services, SiteSettings settings, IReadOnlyList<ResumeLanguage> languages) =>
+    public void ConfigureServices(IServiceCollection services, IReadOnlyList<SitePage> pages) =>
         services.AddSingleton(new FakeGreeting("rendered by the fake theme"));
 
     internal static string Head(SiteSettings settings, string title) =>

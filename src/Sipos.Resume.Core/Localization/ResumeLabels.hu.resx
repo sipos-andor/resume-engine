@@ -40,7 +40,7 @@
   <data name="Location" xml:space="preserve"><value>Helyszín</value></data>
   <data name="EmailImage" xml:space="preserve"><value>E-mail-cím</value></data>
   <data name="CurriculumVitae" xml:space="preserve"><value>Önéletrajz</value></data>
-  <data name="QrCaption" xml:space="preserve"><value>Az online önéletrajzhoz olvasd be</value></data>
+  <data name="QrCaption" xml:space="preserve"><value>Olvassa be az online önéletrajzért</value></data>
   <data name="Focus" xml:space="preserve"><value>Fókusz</value></data>
   <data name="Highlights" xml:space="preserve"><value>Eredmények</value></data>
   <data name="OtherLanguages" xml:space="preserve"><value>Az önéletrajz más nyelveken</value></data>

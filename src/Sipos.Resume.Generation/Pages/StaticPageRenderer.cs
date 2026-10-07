@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
-using Sipos.Resume.Core.Languages;
 using Sipos.Resume.Core.Site;
 
 namespace Sipos.Resume.Generation.Pages;
@@ -24,11 +23,12 @@ namespace Sipos.Resume.Generation.Pages;
 /// </para>
 /// </remarks>
 /// <param name="theme">The theme whose components and services are rendered.</param>
-/// <param name="settings">The site's settings.</param>
-/// <param name="languages">The site's languages, the default first.</param>
+/// <param name="pages">Every language's page, the default first.</param>
 /// <param name="loggerFactory">The build's logging.</param>
-internal sealed class StaticPageRenderer(IResumeTheme theme, SiteSettings settings, IReadOnlyList<ResumeLanguage> languages, ILoggerFactory loggerFactory)
+internal sealed class StaticPageRenderer(IResumeTheme theme, IReadOnlyList<SitePage> pages, ILoggerFactory loggerFactory)
 {
+    private readonly SiteSettings _settings = pages[0].Settings;
+
     /// <summary>Renders a component as a whole HTML document.</summary>
     /// <param name="component">The component type, such as the theme's page component.</param>
     /// <param name="parameters">The component's parameters by name.</param>
@@ -39,8 +39,8 @@ internal sealed class StaticPageRenderer(IResumeTheme theme, SiteSettings settin
         var services = new ServiceCollection();
         services.AddSingleton(loggerFactory);
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-        theme.ConfigureServices(services, settings, languages);
-        services.AddScoped<NavigationManager>(_ => new StaticNavigationManager(settings.Url("/").AbsoluteUri, settings.Url(path).AbsoluteUri));
+        theme.ConfigureServices(services, pages);
+        services.AddScoped<NavigationManager>(_ => new StaticNavigationManager(_settings.Url("/").AbsoluteUri, _settings.Url(path).AbsoluteUri));
         services.AddScoped<IJSRuntime, UnavailableJSRuntime>();
 
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
