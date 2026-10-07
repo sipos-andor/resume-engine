@@ -129,22 +129,30 @@ if (data && tools && main) {
         history.replaceState(null, "", url);
     };
 
+    // A profile's order moves the elements themselves, not only their look (CSS order), so the keyboard and screen
+    // readers meet them in the order they are seen; without a profile the CV's own order comes back.
+    const reorder = (container, rank) => {
+        if (!container) {
+            return;
+        }
+        const children = [...container.children];
+        children.forEach((element, index) => { element.dataset.cvIndex ??= String(index); });
+        const place = (element) => {
+            const index = rank(element);
+            return index < 0 ? Number.MAX_SAFE_INTEGER : index;
+        };
+        children.sort((a, b) => place(a) - place(b) || Number(a.dataset.cvIndex) - Number(b.dataset.cvIndex));
+        container.append(...children);
+    };
+
     const applyFocus = () => {
         const view = data.focus.find((entry) => entry.id === state.focus);
         const emphasized = new Set(view?.emphasized ?? []);
         for (const item of items) {
             item.classList.toggle("cv-focus", emphasized.has(item.dataset.cvId) && item.dataset.cvTech !== undefined);
         }
-        const strengths = document.querySelector('[data-cv-order="strengths"]');
-        for (const element of strengths?.children ?? []) {
-            const index = view ? view.strengths.indexOf(element.dataset.cvId) : -1;
-            element.style.order = index < 0 ? "" : String(index);
-        }
-        const groups = document.querySelector('[data-cv-order="skill-groups"]');
-        for (const element of groups?.children ?? []) {
-            const index = view ? view.skillGroups.indexOf(Number(element.dataset.cvGroup)) : -1;
-            element.style.order = index < 0 ? "" : String(index);
-        }
+        reorder(document.querySelector('[data-cv-order="strengths"]'), (element) => view ? view.strengths.indexOf(element.dataset.cvId) : -1);
+        reorder(document.querySelector('[data-cv-order="skill-groups"]'), (element) => view ? view.skillGroups.indexOf(Number(element.dataset.cvGroup)) : -1);
         const skills = new Set(view?.skills ?? []);
         for (const skill of document.querySelectorAll("[data-cv-skill]")) {
             skill.classList.toggle("cv-skill--match", skills.has(skill.dataset.cvSkill));
