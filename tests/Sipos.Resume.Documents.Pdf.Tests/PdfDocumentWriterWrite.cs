@@ -55,6 +55,16 @@ public class PdfDocumentWriterWrite
     }
 
     // Plex has fi and fl ligatures; with them on, the text layer would hold one ligature glyph instead of two letters.
+    // Without a role the organization is the heading; its note must come with it, as in the designed PDF.
+    [Fact]
+    public void KeepsNoteGivenAtsPositionWithoutRole()
+    {
+        var english = SampleDocuments.English();
+        var document = english with { Positions = [english.Positions[0] with { Role = null, Note = "formerly a sole proprietorship" }] };
+
+        PdfSamples.Text(PdfSamples.Write(PdfSamples.Context(document, DocumentVariant.Ats))).ShouldContain("formerly a sole proprietorship");
+    }
+
     [Fact]
     public void KeepsLettersOfLigaturesGivenFiInText()
     {

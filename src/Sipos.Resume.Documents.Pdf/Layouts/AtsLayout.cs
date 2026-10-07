@@ -202,10 +202,11 @@ internal sealed class AtsLayout : IDocument
 
     private void Position(IContainer container, Position position) => container.EnsureSpace(60).Column(column =>
     {
-        column.Item().Heading(HeadingLevel.Entry).Text(position.Role ?? position.Organization).FontSize(10.5f).SemiBold();
+        // Without a role the organization, note included, is the heading, so the note is never lost.
+        var organization = position.Note is { } note ? $"{position.Organization} ({note})" : position.Organization;
+        column.Item().Heading(HeadingLevel.Entry).Text(position.Role ?? organization).FontSize(10.5f).SemiBold();
         column.Item().Text(text =>
         {
-            var organization = position.Note is { } note ? $"{position.Organization} ({note})" : position.Organization;
             Secondary(text.Span(string.Join(" | ", new[] { position.Role is null ? null : organization, position.Location, _outline.Period(position.Period) }.OfType<string>())));
         });
         Details(column, position.Summary, _outline.Highlights(position), position.Keywords);

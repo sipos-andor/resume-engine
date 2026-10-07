@@ -156,8 +156,9 @@ public sealed class PlainTextDocumentWriter : IDocumentWriter
 
     private static void WritePosition(StringBuilder text, DocumentOutline outline, Position position)
     {
-        Line(text, position.Role ?? position.Organization);
+        // Without a role the organization, note included, is the heading, so the note is never lost.
         var organization = position.Note is null ? position.Organization : $"{position.Organization} ({position.Note})";
+        Line(text, position.Role ?? organization);
         var facts = new[] { position.Role is null ? null : organization, outline.Period(position.Period), position.Location, position.Url };
         text.AppendLine(string.Join(" | ", facts.OfType<string>()));
         Line(text, position.Summary);

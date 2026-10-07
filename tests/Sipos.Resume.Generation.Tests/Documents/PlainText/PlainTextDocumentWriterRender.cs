@@ -30,6 +30,16 @@ public class PlainTextDocumentWriterRender
         text.ShouldContain("Contact: Get in touch – https://example.com/contact");
     }
 
+    // Without a role the organization is the heading; its note must come with it, as in the designed documents.
+    [Fact]
+    public void KeepsNoteGivenPositionWithoutRole()
+    {
+        var english = SampleDocuments.English();
+        var document = english with { Positions = [english.Positions[0] with { Role = null, Note = "formerly a sole proprietorship" }] };
+
+        PlainTextDocumentWriter.Render(Contexts.For(document, DownloadFormat.PlainText, DocumentVariant.Ats)).ShouldContain("acme (formerly a sole proprietorship)\n");
+    }
+
     [Fact]
     public void WritesLevelsInWordsGivenSkills() => English().ShouldContain(".NET platform: C# (Expert), LINQ (Expert), Blazor (Proficient)");
 
