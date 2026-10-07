@@ -38,8 +38,12 @@ public static partial class TextNormalizer
     public static IReadOnlyList<string> Tokens(string text) =>
         [.. Token().Matches(Fold(text)).Select(match => match.Value.TrimEnd('.')).Where(token => token.Length > 0 && token != ".")];
 
-    // Letters that do not decompose into a base letter and a mark; JavaScript maps the same ones.
+    // Letters that do not decompose into a base letter and a mark, and the two that lowercase differently in .NET and
+    // JavaScript: İ, which ToLowerInvariant keeps and toLowerCase turns into i and a dot, and the final ς, which
+    // toLowerCase writes at a word's end and ToLowerInvariant never; JavaScript maps the same ones.
     private static string Transliterate(string text) => text
+        .Replace("İ", "i", StringComparison.Ordinal)
+        .Replace("ς", "σ", StringComparison.Ordinal)
         .Replace("đ", "d", StringComparison.Ordinal)
         .Replace("ł", "l", StringComparison.Ordinal)
         .Replace("ø", "o", StringComparison.Ordinal)

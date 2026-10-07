@@ -4,7 +4,8 @@
     { "text": "Kódbázis", "folded": "kodbazis" },
     { "text": "Sípos Andor – ŐŰ őű", "folded": "sipos andor – ou ou" },
     { "text": "Čačak, Đurđevo, Šid, Žabalj, Ćuprija", "folded": "cacak, durdevo, sid, zabalj, cuprija" },
-    { "text": "Straße Łódź Ærø", "folded": "strasse lodz aero" }
+    { "text": "Straße Łódź Ærø", "folded": "strasse lodz aero" },
+    { "text": "İstanbul İş Bankası, ΟΔΟΣ", "folded": "istanbul is bankası, οδοσ" }
   ],
   "tokens": [
     { "text": "C#, .NET / .NET Core and ASP.NET Core", "tokens": ["c#", ".net", ".net", "core", "and", "asp.net", "core"] },

@@ -2,8 +2,9 @@
 // JobVocabulary.Match), so the page finds what the build indexed. The engine's tests run this module with Jint on the
 // same vectors as the C# (tests/Shared/text-vectors.json).
 
-// Letters that do not decompose into a base letter and a mark; the C# maps the same ones.
-const letters = [["đ", "d"], ["ł", "l"], ["ø", "o"], ["ß", "ss"], ["æ", "ae"], ["œ", "oe"]];
+// Letters that do not decompose into a base letter and a mark, and İ and the final ς, which toLowerCase treats unlike
+// .NET's ToLowerInvariant; the C# maps the same ones.
+const letters = [["İ", "i"], ["ς", "σ"], ["đ", "d"], ["ł", "l"], ["ø", "o"], ["ß", "ss"], ["æ", "ae"], ["œ", "oe"]];
 
 /** Lowercases, transliterates and removes accents: "Sípos Đurđevo" becomes "sipos durdevo". */
 export const fold = (text) => {
