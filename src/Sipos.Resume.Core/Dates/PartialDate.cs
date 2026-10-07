@@ -7,11 +7,54 @@ namespace Sipos.Resume.Core.Dates;
 /// A date as JSON Resume writes it: a year, a year and month, or a full date (<c>2025</c>, <c>2025-08</c>,
 /// <c>2025-08-14</c>).
 /// </summary>
-/// <param name="Year">The year.</param>
-/// <param name="Month">The month (1–12), or <see langword="null"/> when only the year is known.</param>
-/// <param name="Day">The day of the month, or <see langword="null"/> when only the year or month is known.</param>
-public readonly partial record struct PartialDate(int Year, int? Month = null, int? Day = null) : IComparable<PartialDate>
+public readonly partial record struct PartialDate : IComparable<PartialDate>
 {
+    /// <summary>Creates a date with year, month, or day precision.</summary>
+    /// <param name="Year">The year, from 1 through 9999.</param>
+    /// <param name="Month">The month (1–12), or <see langword="null"/> when only the year is known.</param>
+    /// <param name="Day">The day of the month, or <see langword="null"/> when only the year or month is known.</param>
+    /// <exception cref="ArgumentOutOfRangeException">A supplied date component is outside its valid range.</exception>
+    /// <exception cref="ArgumentException"><paramref name="Day"/> is supplied without <paramref name="Month"/>.</exception>
+    public PartialDate(int Year, int? Month = null, int? Day = null)
+    {
+        if (Year is < 1 or > 9999)
+        {
+            throw new ArgumentOutOfRangeException(nameof(Year), "The year must be between 1 and 9999.");
+        }
+
+        if (Month is < 1 or > 12)
+        {
+            throw new ArgumentOutOfRangeException(nameof(Month), "The month must be between 1 and 12.");
+        }
+
+        if (Day is not null && Month is null)
+        {
+            throw new ArgumentException("A day requires a month.", nameof(Day));
+        }
+
+        if (Day is { } day && (day < 1 || day > DateTime.DaysInMonth(Year, Month!.Value)))
+        {
+            throw new ArgumentOutOfRangeException(nameof(Day), "The day must exist in the specified month and year.");
+        }
+
+        this.Year = Year;
+        this.Month = Month;
+        this.Day = Day;
+    }
+
+    /// <summary>The year.</summary>
+    public int Year { get; init; }
+
+    /// <summary>The month (1–12), or <see langword="null"/> when only the year is known.</summary>
+    public int? Month { get; init; }
+
+    /// <summary>The day of the month, or <see langword="null"/> when only the year or month is known.</summary>
+    public int? Day { get; init; }
+
+    /// <summary>Deconstructs the date into its year, month and day components.</summary>
+    public void Deconstruct(out int Year, out int? Month, out int? Day) =>
+        (Year, Month, Day) = (this.Year, this.Month, this.Day);
+
     /// <summary>The first day the date can stand for, such as 1 August for <c>2025-08</c>.</summary>
     public DateOnly FirstDay => new(Year, Month ?? 1, Day ?? 1);
 
