@@ -45,7 +45,7 @@ A CV site is a content folder and a small build program.
 
 The default language is served at the root, every other one under its primary subtag (`/hu/`, `/sr/`). The build
 checks every file and compares the languages: identifiers, dates, company names, URLs, technologies, levels and the
-number of items must match the default language's, so a translation cannot drift. Plain JSON Resume works (see
+number of items must match the default language's, so a translation cannot drift. Plain JSON Resume (schema v1.2.1) works (see
 [`samples/plain-json-resume`](samples/plain-json-resume)); the optional `x-` extensions add identifiers, a tagline,
 a contact link, availability, strengths, position profiles (`?focus=` and tailored documents), the one-page view and
 aliases for job ad matching. They are documented on the types in `Sipos.Resume.Core.Content`.

@@ -8,7 +8,7 @@ internal static class Samples
 {
     public const string English = """
         {
-          "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.0.0/schema.json",
+          "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.2.1/schema.json",
           "basics": {
             "name": "Ann Example",
             "label": "Software Architect",

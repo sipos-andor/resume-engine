@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <None Include="../Shared/text-vectors.json" Link="Shared/text-vectors.json" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="../Shared/jsonresume-schema.json" Link="Shared/jsonresume-schema.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../Shared/jsonresume-schema-v1.2.1.json" Link="Shared/jsonresume-schema-v1.2.1.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="../../samples/plain-json-resume/content/resume.en.json" Link="Shared/plain-resume.en.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
