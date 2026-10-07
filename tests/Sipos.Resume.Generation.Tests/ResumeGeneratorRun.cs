@@ -5,6 +5,36 @@ namespace Sipos.Resume.Generation.Tests;
 
 public class ResumeGeneratorRun
 {
+    [Theory]
+    [InlineData("content", "")]
+    [InlineData("", "content")]
+    [InlineData("", "missing/dist")]
+    [InlineData("wwwroot", "")]
+    public async Task RefusesCleanGivenOutputThroughLinkedParent(string targetFolder, string suffix)
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        Sites.WriteAssets(folder);
+        var link = Path.Combine(folder.Path, "link");
+        DirectoryLink.Create(link, Path.Combine(folder.Path, targetFolder));
+        try
+        {
+            var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"),
+                "--output", Path.Combine(link, suffix), "--assets", Path.Combine(folder.Path, "wwwroot"), "--clean"])
+                .UseTheme(new FakeTheme())
+                .UseLogging(NullLoggerFactory.Instance)
+                .RunAsync(TestContext.Current.CancellationToken);
+
+            code.ShouldBe(2);
+            folder.Exists("content/resume.en.json").ShouldBeTrue();
+            Directory.Exists(Path.Combine(folder.Path, "missing")).ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(link);
+        }
+    }
+
     private static ResumeGenerator Generator(TempFolder folder, IReadOnlyDictionary<string, string>? environment = null, params string[] extra) =>
         ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"), "--output", Path.Combine(folder.Path, "dist"), "--assets", Path.Combine(folder.Path, "wwwroot"), "--today", "2026-10-07", .. extra])
             .UseTheme(new FakeTheme())

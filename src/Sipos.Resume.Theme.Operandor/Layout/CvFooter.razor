@@ -14,7 +14,14 @@
                 }
                 @if (view.Person.Phone is { } phone)
                 {
-                    <a href="tel:@view.Person.PhoneDial">@phone</a>
+                    @if (view.Person.PhoneDial is { } dial)
+                    {
+                        <a href="tel:@dial">@phone</a>
+                    }
+                    else
+                    {
+                        <span>@phone</span>
+                    }
                 }
             </SiteFooterColumn>
             <SiteFooterColumn Title="@T["FooterOnline"]">

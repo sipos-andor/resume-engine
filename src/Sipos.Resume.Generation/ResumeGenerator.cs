@@ -379,6 +379,10 @@ public sealed partial class ResumeGenerator
     private static string? OutputConflict(BuildOptions options)
     {
         var output = Full(options.OutputFolder);
+        if (OutputPaths.LinkIn(output) is { } link)
+        {
+            return $"--output {output} traverses a symbolic link or junction ({link}); name a folder without linked parents.";
+        }
         if (Path.GetPathRoot(output) is { } root && Same(Full(root), output))
         {
             return $"--output {output} is the root of a drive; name a folder for the site.";
@@ -423,6 +427,7 @@ public sealed partial class ResumeGenerator
     private static bool PrepareOutput(BuildOptions options, ILogger logger)
     {
         var folder = Path.GetFullPath(options.OutputFolder);
+        OutputPaths.Check(folder);
         if (Directory.Exists(folder) && Directory.EnumerateFileSystemEntries(folder).Any())
         {
             if (!options.Clean)
@@ -431,6 +436,7 @@ public sealed partial class ResumeGenerator
                 return false;
             }
 
+            OutputPaths.Check(folder);
             Directory.Delete(folder, recursive: true);
         }
 

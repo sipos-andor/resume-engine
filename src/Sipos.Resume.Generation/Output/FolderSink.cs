@@ -28,6 +28,8 @@ public sealed class FolderSink(string root) : IArtifactSink
     public async Task WriteAsync(string path, ReadOnlyMemory<byte> content, CancellationToken cancellationToken)
     {
         SitePaths.Check(path);
+        var file = Path.Combine(_root, path[1..].Replace('/', Path.DirectorySeparatorChar));
+        OutputPaths.Check(file);
         // Decision: a path is claimed case-insensitively and only once.
         // Why: GitHub Pages serves from a case-sensitive store, but a contributor's disk may not be, and two outputs
         // for one path mean one of them silently replaced the other.
@@ -41,8 +43,8 @@ public sealed class FolderSink(string root) : IArtifactSink
             _written.Add(path);
         }
 
-        var file = Path.Combine(_root, path[1..].Replace('/', Path.DirectorySeparatorChar));
         Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        OutputPaths.Check(file);
         await File.WriteAllBytesAsync(file, content.ToArray(), cancellationToken).ConfigureAwait(false);
     }
 }

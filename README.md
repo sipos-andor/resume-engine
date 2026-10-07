@@ -56,6 +56,9 @@ their identifiers are generated from their names and start dates.
 **No e-mail address in the content.** A file with an e-mail address anywhere is refused: a published address is
 harvested. An address may appear only in the PDFs, drawn as an image, from the `RESUME_CONTACT_EMAIL` environment
 variable; the build checks that no other file carries it.
+PDFs without an e-mail image declare PDF/UA-1 and PDF/A-3a conformance. When the address is drawn as an image,
+the PDF declares PDF/A-3b only: keeping the address out of text also prevents screen readers from reading it,
+so these files do not claim PDF/UA accessibility. The contact link remains available as text.
 
 **Packages.** The engine's packages are published to GitHub Packages, next to the operandor design system's
 (`Operandor.*`) that the theme depends on; that feed needs a token with `read:packages` even to read, and the operandor

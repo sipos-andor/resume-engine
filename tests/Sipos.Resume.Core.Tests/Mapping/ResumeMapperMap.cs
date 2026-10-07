@@ -61,6 +61,12 @@ public class ResumeMapperMap
     [InlineData("020 7946 0000", "02079460000")]
     [InlineData("(06) 30/123-4567", "06301234567")]
     [InlineData("on request", null)]
+    [InlineData("+1 555 123 4567 ext. 89", null)]
+    [InlineData("+1 555 123 4567 x89", null)]
+    [InlineData("+1 555 123 4567;ext=89", null)]
+    [InlineData("555+123", null)]
+    [InlineData("++555123", null)]
+    [InlineData("+1 (555) 123.4567", "+15551234567")]
     public void DialsNumberAsWrittenGivenPhone(string phone, string? dial)
     {
         var resume = Samples.Read(Samples.English);

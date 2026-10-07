@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <Description>Designed and ATS PDFs of a CV with QuestPDF: tagged PDF/UA-1 and PDF/A-3a, embedded IBM Plex, a QR code to the online CV and an optional e-mail address drawn as an image. QuestPDF has its own licence.</Description>
+    <Description>Designed and ATS PDFs of a CV with QuestPDF: PDF/UA-1 and PDF/A-3a without an e-mail image, PDF/A-3b with an image-only address, embedded IBM Plex and a QR code to the online CV. QuestPDF has its own licence.</Description>
   </PropertyGroup>
 
   <ItemGroup>

@@ -61,7 +61,16 @@
             {
                 <div class="cv-facts__row">
                     <dt><OpIcon Name="phone" Size="16" /><span class="op-visually-hidden">@View.Labels.Phone</span></dt>
-                    <dd><a href="tel:@View.Person.PhoneDial">@phone</a></dd>
+                    <dd>
+                        @if (View.Person.PhoneDial is { } dial)
+                        {
+                            <a href="tel:@dial">@phone</a>
+                        }
+                        else
+                        {
+                            @phone
+                        }
+                    </dd>
                 </div>
             }
             @if (View.Person.Location is { } location)

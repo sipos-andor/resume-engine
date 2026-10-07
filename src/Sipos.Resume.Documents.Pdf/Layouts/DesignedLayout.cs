@@ -61,7 +61,7 @@ internal sealed class DesignedLayout : IDocument
     public DocumentMetadata GetMetadata() => PdfMetadata.Of(_context, _outline);
 
     /// <inheritdoc/>
-    public DocumentSettings GetSettings() => PdfMetadata.Settings();
+    public DocumentSettings GetSettings() => PdfMetadata.Settings(_email is not null);
 
     /// <inheritdoc/>
     public void Compose(IDocumentContainer container) => container.Page(page =>

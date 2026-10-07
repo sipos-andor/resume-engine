@@ -20,14 +20,23 @@ internal static class PdfMetadata
     public const string Creator = "Sipos.Resume.Documents.Pdf";
 
     /// <summary>
-    /// Tagged PDF/UA-1 for screen readers and PDF/A-3a for archiving: embedded fonts, a structure tree, a language.
+    /// PDF/UA-1 and PDF/A-3a without an e-mail image; PDF/A-3b when the address must stay image-only.
     /// </summary>
-    public static DocumentSettings Settings() => new()
+    /// <param name="hasEmailImage">Whether the PDF includes an address that cannot have equivalent alternative text.</param>
+    public static DocumentSettings Settings(bool hasEmailImage)
     {
-        PDFUA_Conformance = PDFUA_Conformance.PDFUA_1,
-        PDFA_Conformance = PDFA_Conformance.PDFA_3A,
-        CompressDocument = true,
-    };
+        var settings = new DocumentSettings
+        {
+            PDFA_Conformance = hasEmailImage ? PDFA_Conformance.PDFA_3B : PDFA_Conformance.PDFA_3A,
+            CompressDocument = true,
+        };
+        if (!hasEmailImage)
+        {
+            settings.PDFUA_Conformance = PDFUA_Conformance.PDFUA_1;
+        }
+
+        return settings;
+    }
 
     /// <summary>The document information of a CV: title, author, subject, keywords, language and dates.</summary>
     /// <param name="context">The document's context.</param>

@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using Sipos.Resume.Core.Content;
 using Sipos.Resume.Core.Mapping;
 
@@ -183,6 +184,48 @@ public static class ParityValidator
             Add($"/x-aliases/{term}", aliases);
         }
 
+        // These standard sections are republished from Original even though the domain does not render them.
+        OriginalSection("volunteer", ["organization", "url", "startDate", "endDate"], ["highlights"]);
+        OriginalSection("publications", ["publisher", "releaseDate", "url"], []);
+        OriginalSection("interests", [], ["keywords"]);
+        OriginalSection("references", ["name"], []);
+
         return facts;
+
+        void OriginalSection(string name, string[] neutralFields, string[] translatedLists)
+        {
+            var original = resume.Original;
+            var count = original is { ValueKind: JsonValueKind.Object } json
+                && json.TryGetProperty(name, out var section) && section.ValueKind == JsonValueKind.Array
+                ? section.GetArrayLength() : 0;
+            Add($"/{name}", count);
+            if (count == 0)
+            {
+                return;
+            }
+
+            var index = 0;
+            foreach (var item in original!.Value.GetProperty(name).EnumerateArray())
+            {
+                if (item.ValueKind == JsonValueKind.Object)
+                {
+                    foreach (var field in neutralFields)
+                    {
+                        if (item.TryGetProperty(field, out var value) && value.ValueKind != JsonValueKind.Null)
+                        {
+                            Add($"/{name}/{index}/{field}", value.ToString());
+                        }
+                    }
+
+                    foreach (var field in translatedLists)
+                    {
+                        Add($"/{name}/{index}/{field}", item.TryGetProperty(field, out var value)
+                            && value.ValueKind == JsonValueKind.Array ? value.GetArrayLength() : 0);
+                    }
+                }
+
+                index++;
+            }
+        }
     }
 }

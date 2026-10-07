@@ -57,7 +57,8 @@ The spike also confirmed:
 - Publishing a console project with `Microsoft.NET.Sdk.Web` lays out the packages' static web assets under
   `wwwroot/_content/...`, ready to copy.
 - QuestPDF 2026.9.1 on SDK 10.0.401 produces PDF/UA-1 and PDF/A-3a output with IBM Plex embedded and subset,
-  extractable Hungarian, Croatian and Serbian letters, and an e-mail address drawn as an image with no text.
+  extractable Hungarian, Croatian and Serbian letters. An e-mail address can be drawn as an image with no text;
+  that image has no equivalent accessible text, so production PDFs with it declare only PDF/A-3b, without PDF/UA.
 
 ## Decision
 

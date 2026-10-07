@@ -32,7 +32,7 @@ public sealed record Person(
     /// <summary>
     /// The phone number as a <c>tel:</c> link dials it: <c>+</c> and the digits for a number written internationally,
     /// such as <c>+36309036622</c>; the digits alone for a local one, such as <c>02079460000</c>; or
-    /// <see langword="null"/>.
+    /// <see langword="null"/> when it includes an extension or characters other than number formatting.
     /// </summary>
     /// <remarks>
     /// Decision: a <c>+</c> only when the CV writes one.
@@ -47,8 +47,17 @@ public sealed record Person(
                 return null;
             }
 
-            var digits = new string([.. Phone.Where(char.IsAsciiDigit)]);
-            return digits.Length == 0 ? null : Phone.TrimStart().StartsWith('+') ? "+" + digits : digits;
+            var number = Phone.Trim();
+            var international = number.StartsWith('+');
+            var body = international ? number[1..] : number;
+            if (body.Any(character => !char.IsAsciiDigit(character) && !char.IsWhiteSpace(character)
+                && character is not ('(' or ')' or '-' or '.' or '/')))
+            {
+                return null;
+            }
+
+            var digits = new string([.. body.Where(char.IsAsciiDigit)]);
+            return digits.Length == 0 ? null : international ? "+" + digits : digits;
         }
     }
 }

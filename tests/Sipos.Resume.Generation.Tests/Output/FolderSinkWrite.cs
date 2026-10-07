@@ -5,6 +5,54 @@ namespace Sipos.Resume.Generation.Tests.Output;
 
 public class FolderSinkWrite
 {
+    [Theory]
+    [InlineData("/keep.txt")]
+    [InlineData("/new/keep.txt")]
+    public async Task RejectsLinkedParentBeforeWriting(string path)
+    {
+        using var folder = new TempFolder();
+        var target = Path.Combine(folder.Path, "target");
+        Directory.CreateDirectory(target);
+        folder.Write("target/keep.txt", "mine");
+        var link = Path.Combine(folder.Path, "link");
+        DirectoryLink.Create(link, target);
+        try
+        {
+            var sink = new FolderSink(link);
+            await Should.ThrowAsync<IOException>(() => sink.WriteAsync(path, "x"u8.ToArray(), TestContext.Current.CancellationToken));
+
+            sink.Written.ShouldBeEmpty();
+            folder.Read("target/keep.txt").ShouldBe("mine");
+            Directory.Exists(Path.Combine(target, "new")).ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(link);
+        }
+    }
+
+    [Fact]
+    public async Task RejectsLinkedChildBeforeWriting()
+    {
+        using var folder = new TempFolder();
+        var target = Path.Combine(folder.Path, "target");
+        Directory.CreateDirectory(target);
+        var root = Path.Combine(folder.Path, "dist");
+        Directory.CreateDirectory(root);
+        var link = Path.Combine(root, "downloads");
+        DirectoryLink.Create(link, target);
+        try
+        {
+            await Should.ThrowAsync<IOException>(() => new FolderSink(root)
+                .WriteAsync("/downloads/cv.txt", "x"u8.ToArray(), TestContext.Current.CancellationToken));
+            folder.Exists("target/cv.txt").ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(link);
+        }
+    }
+
     [Fact]
     public async Task WritesUnderRootGivenSitePath()
     {

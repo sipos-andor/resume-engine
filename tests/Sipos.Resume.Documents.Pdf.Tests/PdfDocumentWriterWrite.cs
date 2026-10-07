@@ -138,6 +138,41 @@ public class PdfDocumentWriterWrite
         document.GetPages().Sum(page => page.GetImages().Count()).ShouldBe(0);
     }
 
+    [Theory]
+    [InlineData(DocumentVariant.Designed, null)]
+    [InlineData(DocumentVariant.Ats, null)]
+    [InlineData(DocumentVariant.Designed, PdfSamples.Address)]
+    [InlineData(DocumentVariant.Ats, PdfSamples.Address)]
+    public void DeclaresAccessibilityOnlyGivenNoEmailImage(DocumentVariant variant, string? email)
+    {
+        var context = PdfSamples.Context(SampleDocuments.English(), variant, email);
+        var xmp = PdfSamples.Metadata(PdfSamples.Write(context)).Xmp;
+
+        if (email is null)
+        {
+            xmp.ShouldContain("<pdfuaid:part>1</pdfuaid:part>");
+            xmp.ShouldContain("<pdfaid:conformance>A</pdfaid:conformance>");
+        }
+        else
+        {
+            xmp.ShouldNotContain("<pdfuaid:part>");
+            xmp.ShouldContain("<pdfaid:conformance>B</pdfaid:conformance>");
+        }
+    }
+
+    [Theory]
+    [InlineData(DocumentVariant.Designed)]
+    [InlineData(DocumentVariant.Ats)]
+    public void KeepsPhoneAsTextGivenExtension(DocumentVariant variant)
+    {
+        var document = SampleDocuments.English();
+        document = document with { Person = document.Person with { Phone = "+1 555 123 4567 ext. 89" } };
+        var pdf = PdfSamples.Write(PdfSamples.Context(document, variant));
+
+        PdfSamples.Text(pdf).ShouldContain("+1 555 123 4567 ext. 89");
+        PdfSamples.LinkTargets(pdf).ShouldNotContain(target => target.StartsWith("tel:", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void DrawsOnlyQrCodeAsVectorGivenDesignedLayoutWithoutContactEmail() =>
         PdfSamples.ImageCount(PdfSamples.Write(DocumentVariant.Designed)).ShouldBe(0);

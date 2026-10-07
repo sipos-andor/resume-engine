@@ -9,7 +9,8 @@ using Sipos.Resume.Documents.Pdf.Layouts;
 namespace Sipos.Resume.Documents.Pdf;
 
 /// <summary>
-/// Writes the designed and the ATS PDF of a CV with QuestPDF: A4, tagged PDF/UA-1 and PDF/A-3a, IBM Plex embedded,
+/// Writes the designed and the ATS PDF of a CV with QuestPDF: A4, PDF/UA-1 and PDF/A-3a without an e-mail image
+/// (PDF/A-3b with one), IBM Plex embedded,
 /// the same bytes for the same content.
 /// </summary>
 /// <remarks>

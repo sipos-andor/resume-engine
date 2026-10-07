@@ -5,6 +5,59 @@ namespace Sipos.Resume.Core.Tests.Validation;
 
 public class ParityValidatorCompare
 {
+    [Theory]
+    [InlineData("volunteer", "organization")]
+    [InlineData("volunteer", "startDate")]
+    [InlineData("volunteer", "endDate")]
+    [InlineData("volunteer", "url")]
+    [InlineData("publications", "publisher")]
+    [InlineData("publications", "releaseDate")]
+    [InlineData("publications", "url")]
+    [InlineData("references", "name")]
+    public void ReportsUnmodeledFactGivenChangedOrMissingValue(string section, string field)
+    {
+        var original = Samples.Read($"{{\"{section}\":[{{\"{field}\":\"original\"}}]}}");
+        foreach (var translated in new[]
+        {
+            Samples.Read($"{{\"{section}\":[{{\"{field}\":\"changed\"}}]}}"),
+            Samples.Read($"{{\"{section}\":[{{}}]}}"),
+        })
+        {
+            ParityValidator.Compare(("en", original), [("hu", translated)])
+                .Select(issue => issue.Path).ShouldBe([$"/{section}/0/{field}"]);
+            ParityValidator.Compare(("hu", translated), [("en", original)])
+                .Select(issue => issue.Path).ShouldBe([$"/{section}/0/{field}"]);
+        }
+    }
+
+    [Theory]
+    [InlineData("volunteer")]
+    [InlineData("publications")]
+    [InlineData("interests")]
+    [InlineData("references")]
+    public void ReportsCountGivenDroppedUnmodeledSection(string section)
+    {
+        var original = Samples.Read($"{{\"{section}\":[{{}}]}}");
+        var translated = Samples.Read("{}");
+
+        ParityValidator.Compare(("en", original), [("hu", translated)])
+            .Select(issue => issue.Path).ShouldContain($"/{section}");
+    }
+
+    [Theory]
+    [InlineData("volunteer", "highlights")]
+    [InlineData("interests", "keywords")]
+    public void ComparesCountsGivenTranslatedUnmodeledLists(string section, string field)
+    {
+        var original = Samples.Read($"{{\"{section}\":[{{\"name\":\"English\",\"{field}\":[\"English\"]}}]}}");
+        var translated = Samples.Read($"{{\"{section}\":[{{\"name\":\"Magyar\",\"{field}\":[\"Magyar\"]}}]}}");
+        ParityValidator.Compare(("en", original), [("hu", translated)]).ShouldBeEmpty();
+
+        translated = Samples.Read($"{{\"{section}\":[{{\"{field}\":[]}}]}}");
+        ParityValidator.Compare(("en", original), [("hu", translated)])
+            .Select(issue => issue.Path).ShouldBe([$"/{section}/0/{field}"]);
+    }
+
     // Texts are translated, facts are not: names, titles and labels may differ.
     [Fact]
     public void FindsNothingGivenTranslatedTextsOnly() =>

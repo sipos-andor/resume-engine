@@ -8,6 +8,21 @@ namespace Sipos.Resume.Generation.Tests.Documents.Markdown;
 
 public class MarkdownDocumentWriterRender
 {
+    [Theory]
+    [InlineData("+1 555 123 4567 ext. 89")]
+    [InlineData("on request")]
+    public void KeepsPhoneAsTextGivenUndialableValue(string phone)
+    {
+        var context = Contexts.For(SampleDocuments.English(), DownloadFormat.Markdown, DocumentVariant.Designed);
+        var document = context.Document;
+        context = context with { Document = document with { Person = document.Person with { Phone = phone } } };
+
+        var markdown = MarkdownDocumentWriter.Render(context);
+
+        markdown.ShouldContain(phone);
+        markdown.ShouldNotContain("tel:");
+    }
+
     private static string English(string? focus = null) =>
         MarkdownDocumentWriter.Render(Contexts.For(SampleDocuments.English(), DownloadFormat.Markdown, DocumentVariant.Designed, focus));
 
