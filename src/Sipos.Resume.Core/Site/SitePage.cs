@@ -11,12 +11,14 @@ namespace Sipos.Resume.Core.Site;
 /// <param name="Languages">Every language of the site, default first.</param>
 /// <param name="Downloads">The page language's downloads.</param>
 /// <param name="Settings">The site's settings.</param>
+/// <param name="ShareImagePath">The path of the page's share image, or <see langword="null"/> when the build draws none.</param>
 public sealed record SitePage(
     ResumeDocument Document,
     ResumeInsights Insights,
     IReadOnlyList<ResumeLanguage> Languages,
     IReadOnlyList<DownloadSpec> Downloads,
-    SiteSettings Settings)
+    SiteSettings Settings,
+    string? ShareImagePath = null)
 {
     /// <summary>The page's canonical path, such as <c>/hu/</c>.</summary>
     public string Path => Document.Language.HomePath;

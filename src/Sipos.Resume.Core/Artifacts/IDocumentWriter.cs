@@ -1,3 +1,4 @@
+using Sipos.Resume.Core.Content;
 using Sipos.Resume.Core.Focus;
 using Sipos.Resume.Core.Insights;
 using Sipos.Resume.Core.Model;
@@ -15,6 +16,7 @@ namespace Sipos.Resume.Core.Artifacts;
 /// An e-mail address only a PDF shows, drawn as an image; <see langword="null"/> for every other format and when none
 /// is configured. It comes from the build's secrets, never from the content.
 /// </param>
+/// <param name="Source">The content file as read, which the JSON Resume download republishes; <see langword="null"/> when unknown.</param>
 public sealed record DocumentContext(
     ResumeDocument Document,
     ResumeInsights Insights,
@@ -22,7 +24,8 @@ public sealed record DocumentContext(
     FocusView? Focus,
     Uri PageUrl,
     DocumentTheme Theme,
-    string? ContactEmail);
+    string? ContactEmail,
+    JsonResume? Source = null);
 
 /// <summary>Writes one kind of document. The build calls every writer whose format a download needs.</summary>
 public interface IDocumentWriter

@@ -24,6 +24,10 @@ public interface IResumeTheme
     /// <summary>The theme's static assets the pages reference, as paths relative to the published web root.</summary>
     IReadOnlyList<string> RequiredAssets { get; }
 
+    /// <summary>The files the theme writes for a site, such as a script with the site's storage keys.</summary>
+    /// <param name="settings">The site's settings.</param>
+    IReadOnlyList<ThemeFile> Files(SiteSettings settings);
+
     /// <summary>Registers the services the theme's components inject.</summary>
     /// <param name="services">The render scope's services.</param>
     /// <param name="settings">The site's settings.</param>
