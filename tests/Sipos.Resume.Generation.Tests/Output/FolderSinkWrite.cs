@@ -33,6 +33,8 @@ public class FolderSinkWrite
     [InlineData("/../outside.txt")]
     [InlineData("/folder/")]
     [InlineData("/a//b.txt")]
+    [InlineData("/C:/windows.txt")]
+    [InlineData("/a/file.txt:stream")]
     public async Task ThrowsGivenPathOutsideSite(string path)
     {
         using var folder = new TempFolder();
