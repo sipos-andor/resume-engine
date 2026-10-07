@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using Sipos.Resume.Core.Artifacts;
 using Sipos.Resume.Core.Content;
 using Sipos.Resume.Core.Site;
+using Sipos.Resume.Core.Validation;
 using Sipos.Resume.Generation.Building;
 using Sipos.Resume.Generation.Content;
 using Sipos.Resume.Generation.Documents.Docx;
@@ -152,7 +153,8 @@ public sealed partial class ResumeGenerator
             var loaded = ContentLoader.Load(files, options.AnalyticsToken);
             foreach (var issue in loaded.Issues)
             {
-                Log.ContentIssue(logger, issue.ToString());
+                // An issue may quote a value, such as a parity difference; an address in it must not reach the log.
+                Log.ContentIssue(logger, EmailGuard.Redact(issue.ToString()));
             }
 
             if (loaded.Set is not { } set)
@@ -189,7 +191,7 @@ public sealed partial class ResumeGenerator
             var problems = OutputVerifier.Verify(sink.Root, pages, _theme!.RequiredAssets, options.ContactEmail);
             foreach (var problem in problems)
             {
-                Log.OutputIssue(logger, problem.ToString());
+                Log.OutputIssue(logger, EmailGuard.Redact(problem.ToString()));
             }
 
             if (problems.Count > 0)

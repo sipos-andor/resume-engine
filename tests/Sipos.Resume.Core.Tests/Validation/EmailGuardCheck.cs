@@ -18,6 +18,11 @@ public class EmailGuardCheck
     [InlineData("@sipos-andor")]
     public void FindsNothingGivenTextWithoutAddress(string text) => EmailGuard.ContainsAddress(text).ShouldBeFalse();
 
+    // An issue that quotes a value must not carry an address into the build log.
+    [Fact]
+    public void ReplacesAddressesGivenTextToLog() =>
+        EmailGuard.Redact("Is 'mailto:józsef@példa.hu' or ann@example.org, but en has a mailto: link").ShouldBe("Is '[e-mail address]' or [e-mail address], but en has a mailto: link");
+
     // The issue points at the value, so the author finds it in a large file.
     [Fact]
     public void PointsToEveryValueWithAddressGivenDocument()

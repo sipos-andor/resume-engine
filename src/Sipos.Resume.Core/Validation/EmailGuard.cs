@@ -17,6 +17,14 @@ public static partial class EmailGuard
     /// <param name="text">The text to check.</param>
     public static bool ContainsAddress(string text) => Address().IsMatch(text) || text.Contains("mailto:", StringComparison.OrdinalIgnoreCase);
 
+    /// <summary>Replaces every address and <c>mailto:</c> in a text, such as an issue that quotes a value, before it is logged.</summary>
+    /// <param name="text">A text that may quote content.</param>
+    public static string Redact(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        return Address().Replace(MailtoLink().Replace(text, "[e-mail address]"), "[e-mail address]");
+    }
+
     /// <summary>Returns an issue for every string value of a JSON document that contains an address.</summary>
     /// <param name="source">The file's name, for the issues.</param>
     /// <param name="root">The document's root element.</param>
@@ -61,6 +69,10 @@ public static partial class EmailGuard
 
     // JSON pointer escaping (RFC 6901): ~ becomes ~0 and / becomes ~1.
     private static string Escape(string name) => name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
+
+    // A mailto: link up to the quote, bracket or space that ends it, so "a mailto: link" in a message stays.
+    [GeneratedRegex(@"mailto:[^\s'""<>()\[\]]+", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    private static partial Regex MailtoLink();
 
     // Decision: letters, marks and digits of any script on both sides of the @, so an internationalized address such as
     // one with a Greek or Cyrillic local part or domain is caught too.

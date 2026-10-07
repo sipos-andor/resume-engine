@@ -62,6 +62,24 @@ public class ResumeGeneratorRun
         folder.Exists("dist/keep.txt").ShouldBeFalse();
     }
 
+    // An issue may quote a value, such as a parity difference; the address must not reach the build log.
+    [Fact]
+    public async Task LeavesAddressOutOfLogGivenAddressInContent()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        folder.Write("content/resume.en.json", Samples.English.Replace("https://github.com/ann", "mailto:ann@example.org", StringComparison.Ordinal));
+        var logging = new RecordingLoggerFactory();
+
+        var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"), "--validate-only"])
+            .UseLogging(logging)
+            .RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(1);
+        logging.Lines.ShouldContain(line => line.Contains("/basics/profiles/0/url", StringComparison.Ordinal));
+        logging.Lines.ShouldAllBe(line => !line.Contains("ann@", StringComparison.Ordinal) && !line.Contains("mailto:ann", StringComparison.Ordinal));
+    }
+
     [Fact]
     public async Task FailsGivenRequiredEmailNotSet()
     {
