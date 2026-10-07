@@ -29,8 +29,9 @@ if (theme && toggle) {
     };
     const icons = { light: "sun", dark: "moon", system: "monitor" };
     const labels = { dark: words.SwitchToDark, light: words.SwitchToLight, system: words.SwitchToSystem };
+    // The choice is kept here as well as in the browser's storage, which a privacy setting may block.
+    let preference = theme.getPreference();
     const show = () => {
-        const preference = theme.getPreference();
         const coming = next(preference, theme.getSystemTheme());
         const icon = toggle.querySelector(".op-icon");
         for (const property of ["mask-image", "-webkit-mask-image"]) {
@@ -45,7 +46,7 @@ if (theme && toggle) {
         }
     };
     toggle.addEventListener("click", () => {
-        theme.setPreference(next(theme.getPreference(), theme.getSystemTheme()));
+        preference = theme.setPreference(next(preference, theme.getSystemTheme()));
         show();
     });
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", show);
