@@ -108,6 +108,6 @@ public static partial class EmailGuard
     // addresses are caught too; a local part right after an @ is a Fediverse handle's user, not an address's.
     // Why: the guard is the privacy promise; an address it does not recognize is published as text. A handle is public
     // by design, and the build's own address is checked word for word besides.
-    [GeneratedRegex(@"(?<![@\p{L}\p{M}\p{N}._%+\-])(?:[\p{L}\p{M}\p{N}._%+\-]+|""(?:\\.|[^""\\\r\n])*"")@(?:[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.([\p{L}\p{M}]{2,}|xn--[a-z0-9\-]+)|\[(?:\\.|[^\]\\\r\n])+\])", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(?<![@\p{L}\p{M}\p{N}._%+\-!#$%&'*+/=?^_`{|}~])(?:[\p{L}\p{M}\p{N}._%+\-!#$%&'*+/=?^_`{|}~]+|""(?:\\.|[^""\\\r\n])*"")@(?:[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.([\p{L}\p{M}]{2,}|xn--[a-z0-9\-]+)|\[(?:\\.|[^\]\\\r\n])+\])", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex Address();
 }

@@ -8,6 +8,7 @@ public class EmailGuardCheck
     [Theory]
     [InlineData("name@example.com")]
     [InlineData("Write to first.last+cv@mail.example.co.uk today")]
+    [InlineData("ann!@example.com")]
     [InlineData("mailto:someone")]
     [InlineData("Írjon: józsef.árpád@példa.hu")]
     [InlineData("ann&#64;example.org")]
