@@ -90,6 +90,8 @@ public static class ParityValidator
         Add("/basics/image", basics?.Image);
         Add("/basics/x-givenName", basics?.GivenName);
         Add("/basics/x-familyName", basics?.FamilyName);
+        Add("/basics/location/countryCode", basics?.Location?.CountryCode);
+        Add("/basics/location/postalCode", basics?.Location?.PostalCode);
         Add("/basics/x-availability/status", basics?.Availability?.Status);
         Add("/basics/x-availability/from", basics?.Availability?.From);
         for (var i = 0; i < (basics?.Profiles.Count ?? 0); i++)

@@ -41,6 +41,42 @@ public class OutputVerifierVerify
         }
     }
 
+    [Theory]
+    [InlineData("https://cv.example.com/missing")]
+    [InlineData("HTTPS://CV.EXAMPLE.COM/missing")]
+    [InlineData("HTTPS://CV.EXAMPLE.COM:443/missing?query=value#section")]
+    [InlineData("https://Cv.Example.Com/%6dissing")]
+    public async Task ReportsBrokenLinkGivenSameOriginAbsoluteUrl(string reference)
+    {
+        var (folder, verify) = await BuildAsync();
+        using (folder)
+        {
+            folder.Write("dist/hu/index.html", folder.Read("dist/hu/index.html")
+                .Replace("</body>", $"<a href=\"{reference}\">x</a></body>", StringComparison.Ordinal));
+
+            verify().ShouldContain(issue => issue.Path == "/hu/index.html"
+                && issue.Message.Contains(reference, StringComparison.Ordinal));
+        }
+    }
+
+    [Theory]
+    [InlineData("HTTPS://CV.EXAMPLE.COM:443/hu/?query=value#section")]
+    [InlineData("http://cv.example.com/missing")]
+    [InlineData("https://other.example.com/missing")]
+    [InlineData("https://cv.example.com:444/missing")]
+    [InlineData("https://cv.example.com.other.example.com/missing")]
+    public async Task AcceptsLinkGivenExistingLocalPathOrDifferentOrigin(string reference)
+    {
+        var (folder, verify) = await BuildAsync();
+        using (folder)
+        {
+            folder.Write("dist/hu/index.html", folder.Read("dist/hu/index.html")
+                .Replace("</body>", $"<a href=\"{reference}\">x</a></body>", StringComparison.Ordinal));
+
+            verify().ShouldBeEmpty();
+        }
+    }
+
     [Fact]
     public async Task ReportsLanguagePolicyAndScriptGivenTamperedPage()
     {

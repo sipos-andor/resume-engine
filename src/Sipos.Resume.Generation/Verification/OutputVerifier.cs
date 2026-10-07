@@ -251,8 +251,21 @@ internal static class OutputVerifier
 
     private static string? LocalPath(string reference, SiteSettings settings)
     {
-        var origin = settings.Url("/").AbsoluteUri.TrimEnd('/');
-        var path = reference.StartsWith(origin + "/", StringComparison.Ordinal) ? reference[origin.Length..] : reference;
+        var path = reference;
+        if (!path.StartsWith('/'))
+        {
+            var origin = settings.Origin;
+            if (!Uri.TryCreate(reference, UriKind.Absolute, out var uri)
+                || !string.Equals(uri.Scheme, origin.Scheme, StringComparison.OrdinalIgnoreCase)
+                || !string.Equals(uri.Host, origin.Host, StringComparison.OrdinalIgnoreCase)
+                || uri.Port != origin.Port)
+            {
+                return null;
+            }
+
+            path = uri.AbsolutePath;
+        }
+
         if (!path.StartsWith('/') || path.StartsWith("//", StringComparison.Ordinal))
         {
             return null;

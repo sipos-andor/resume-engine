@@ -11,6 +11,45 @@ public class ParityValidatorCompare
         ParityValidator.Compare(("resume.en.json", Samples.Read(Samples.English)), [("resume.hu.json", Samples.Read(Samples.Hungarian))]).ShouldBeEmpty();
 
     [Theory]
+    [InlineData("countryCode", "GB", "HU")]
+    [InlineData("countryCode", "GB", null)]
+    [InlineData("countryCode", null, "HU")]
+    [InlineData("postalCode", "SW1A 1AA", "1011")]
+    [InlineData("postalCode", "SW1A 1AA", null)]
+    [InlineData("postalCode", null, "1011")]
+    public void ReportsLocationFactGivenDifferentOrMissingCode(string field, string? originalCode, string? translatedCode)
+    {
+        var original = Samples.Read(Samples.English);
+        var location = field == "countryCode"
+            ? new JsonResumeLocation { CountryCode = originalCode }
+            : new JsonResumeLocation { PostalCode = originalCode };
+        original = original with { Basics = original.Basics! with { Location = location } };
+        var translatedLocation = field == "countryCode"
+            ? location with { CountryCode = translatedCode }
+            : location with { PostalCode = translatedCode };
+        var translated = original with { Basics = original.Basics with { Location = translatedLocation } };
+
+        var issue = ParityValidator.Compare(("resume.en.json", original), [("resume.hu.json", translated)]).Single();
+
+        issue.Source.ShouldBe("resume.hu.json");
+        issue.Path.ShouldBe($"/basics/location/{field}");
+    }
+
+    [Fact]
+    public void AcceptsLocationGivenMatchingCodesAndTranslatedTexts()
+    {
+        var original = Samples.Read(Samples.English);
+        var location = new JsonResumeLocation { CountryCode = "GB", PostalCode = "SW1A 1AA", City = "London", Region = "England" };
+        original = original with { Basics = original.Basics! with { Location = location } };
+        var translated = original with
+        {
+            Basics = original.Basics with { Location = location with { City = "London", Region = "Anglia" } },
+        };
+
+        ParityValidator.Compare(("resume.en.json", original), [("resume.hu.json", translated)]).ShouldBeEmpty();
+    }
+
+    [Theory]
     [InlineData(null, null, "resume.hu.json")]
     [InlineData("portal", null, "resume.hu.json")]
     [InlineData(null, "portal", "resume.en.json")]
