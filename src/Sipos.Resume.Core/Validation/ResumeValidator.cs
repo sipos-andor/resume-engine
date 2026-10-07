@@ -67,7 +67,9 @@ public static partial class ResumeValidator
             CheckRequired(resume.Languages[i].Language, $"/languages/{i}/language", Fail);
         }
 
-        if (resume.Meta?.LastModified is { } modified && !DateOnly.TryParse(modified.Length >= 10 ? modified[..10] : modified, System.Globalization.CultureInfo.InvariantCulture, out _))
+        // The same test the mapper applies: the first ten characters as YYYY-MM-DD, so 2026-10-07T12:00:00Z passes too.
+        if (resume.Meta?.LastModified is { } modified
+            && !(modified.Length >= 10 && DateOnly.TryParseExact(modified[..10], "yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out _)))
         {
             Fail("/meta/lastModified", "Must start with a date in the form YYYY-MM-DD.");
         }

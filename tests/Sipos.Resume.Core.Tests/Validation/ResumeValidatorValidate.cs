@@ -154,6 +154,18 @@ public class ResumeValidatorValidate
         PathsOf(resume with { Aliases = new Dictionary<string, IReadOnlyList<string>> { ["!?"] = ["what"] } }).ShouldBe(["/x-aliases/!?"]);
     }
 
+    // The mapper reads the first ten characters as YYYY-MM-DD; any other form would pass here and fail there.
+    [Theory]
+    [InlineData("2026.10.07")]
+    [InlineData("10/07/2026")]
+    [InlineData("2026-1-7")]
+    public void RefusesLastModifiedGivenOtherThanIsoDate(string date)
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Meta = resume.Meta! with { LastModified = date } }).ShouldBe(["/meta/lastModified"]);
+    }
+
     [Theory]
     [InlineData("SR")]
     [InlineData("sr/latn")]
