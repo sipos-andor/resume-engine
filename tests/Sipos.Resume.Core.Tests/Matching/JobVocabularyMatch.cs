@@ -34,4 +34,28 @@ public class JobVocabularyMatch
 
     [Fact]
     public void LinksItemsThatUseTerm() => Vocabulary.Terms.Single(term => term.Term == "Azure").ItemIds.ShouldBe(["portal"]);
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void CanonicalizesSkillAliasBeforeDeduplicationAndEvidenceLookup(bool includeCanonicalSkill)
+    {
+        var english = SampleDocuments.English();
+        var group = english.SkillGroups[0];
+        var skill = group.Skills[0];
+        var document = english with
+        {
+            SkillGroups = [group with { Skills = includeCanonicalSkill ? [skill with { Name = "csharp" }, skill] : [skill with { Name = "csharp" }] }],
+            Aliases = new Dictionary<string, IReadOnlyList<string>> { ["C#"] = ["csharp"] }
+        };
+        var technologies = TechnologyIndex.Build(document);
+        var vocabulary = JobVocabulary.Build(document, technologies);
+
+        var match = vocabulary.Match("csharp").ShouldHaveSingleItem();
+        match.Term.ShouldBe("C#");
+        match.IsSkill.ShouldBeTrue();
+        match.ItemIds.ShouldBe(technologies.Find(technologies.KeyOf("C#"))!.ItemIds);
+        match.ItemIds.ShouldNotBeEmpty();
+        vocabulary.Match("C#").ShouldBe([match]);
+    }
 }

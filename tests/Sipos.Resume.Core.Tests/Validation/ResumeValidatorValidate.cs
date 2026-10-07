@@ -97,6 +97,40 @@ public class ResumeValidatorValidate
     }
 
     [Fact]
+    public void RefusesProjectEndDateGivenNoStartDate()
+    {
+        var resume = Samples.Read(Samples.English);
+        var projects = resume.Projects.ToList();
+        projects[0] = projects[0] with { StartDate = null, EndDate = "2025" };
+
+        PathsOf(resume with { Projects = projects }).ShouldBe(["/projects/0/startDate"]);
+    }
+
+    [Theory]
+    [InlineData(null, null)]
+    [InlineData(null, "")]
+    [InlineData("2024", null)]
+    [InlineData("2024", "2025")]
+    public void AcceptsProjectGivenNoDatesOrStartDate(string? start, string? end)
+    {
+        var resume = Samples.Read(Samples.English);
+        var projects = resume.Projects.ToList();
+        projects[0] = projects[0] with { StartDate = start, EndDate = end };
+
+        PathsOf(resume with { Projects = projects }).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void AllowsEducationEndDateGivenNoStartDate()
+    {
+        var resume = Samples.Read(Samples.English);
+        var education = resume.Education.ToList();
+        education[0] = education[0] with { StartDate = null, EndDate = "2025" };
+
+        PathsOf(resume with { Education = education }).ShouldBeEmpty();
+    }
+
+    [Fact]
     public void FindsDuplicateGivenSameIdentifierTwice()
     {
         var resume = Samples.Read(Samples.English);

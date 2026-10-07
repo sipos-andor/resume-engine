@@ -200,6 +200,11 @@ public static partial class ResumeValidator
             var path = $"/projects/{i}";
             CheckRequired(item.Name, $"{path}/name", fail);
             CheckPeriod(item.StartDate, item.EndDate, path, required: false, fail);
+            if (item.StartDate is null && item.EndDate is { Length: > 0 })
+            {
+                fail($"{path}/startDate", "Needs a start date when an end date is supplied.");
+            }
+
             CheckUrl(item.Url, $"{path}/url", fail);
             CheckIdentifier(Identifiers.Of(item), item.Id is not null, anchors, $"{path}/x-id", fail);
             if (item.Work is { } work && !workIds.Contains(work))

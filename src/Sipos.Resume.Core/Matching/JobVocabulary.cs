@@ -31,10 +31,16 @@ public sealed record JobVocabulary(IReadOnlyList<VocabularyTerm> Terms)
             aliases.TryAdd(Keys.Of(term), spellings);
         }
 
+        var canonical = TechnologyIndex.Canonical(document);
         var terms = new List<VocabularyTerm>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         void Add(string name, bool isSkill)
         {
+            if (canonical.TryGetValue(Keys.Of(name), out var target))
+            {
+                name = target;
+            }
+
             var key = Keys.Of(name);
             if (key.Length == 0 || !seen.Add(key))
             {
