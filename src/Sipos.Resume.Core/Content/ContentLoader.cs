@@ -61,11 +61,19 @@ public static partial class ContentLoader
         var site = ReadSite(files, issues);
 
         var resumes = new List<(string Name, string Tag, JsonResume Resume)>();
+        var tags = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         foreach (var file in files.Where(file => file.Name.StartsWith("resume.", StringComparison.Ordinal)).OrderBy(file => file.Name, StringComparer.Ordinal))
         {
             if (LanguageCatalog.TagOf(file.Name) is not { } tag)
             {
                 issues.Add(new ValidationIssue(file.Name, "", "The name must be resume.{language}.json with a BCP 47 language tag, such as resume.hu.json."));
+                continue;
+            }
+
+            // BCP 47 tags ignore case, so resume.en.json and resume.EN.json are one language twice.
+            if (!tags.TryAdd(tag, file.Name))
+            {
+                issues.Add(new ValidationIssue(file.Name, "", $"Is the same language as {tags[tag]}; keep one file per language."));
                 continue;
             }
 

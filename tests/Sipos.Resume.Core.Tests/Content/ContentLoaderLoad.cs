@@ -52,6 +52,17 @@ public class ContentLoaderLoad
         result.Issues.ShouldContain(issue => issue.Source == "resume.hu.json" && issue.Path.EndsWith("/startDate", StringComparison.Ordinal));
     }
 
+    // Language tags ignore case, so these are one language twice.
+    [Fact]
+    public void ReportsSecondFileGivenSameLanguageInOtherCase()
+    {
+        var issue = ContentLoader.Load([File("resume.en.json", Samples.English), File("resume.EN.json", Samples.English), File("site.json", Site)], null)
+            .Issues.ShouldHaveSingleItem();
+
+        issue.Source.ShouldBe("resume.en.json");
+        issue.Message.ShouldContain("resume.EN.json");
+    }
+
     [Fact]
     public void ReportsMissingSiteFileGivenNoSiteJson() =>
         ContentLoader.Load([File("resume.en.json", Samples.English)], null).Issues.ShouldContain(issue => issue.Source == "site.json" && issue.Path == "");
