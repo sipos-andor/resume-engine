@@ -3,13 +3,13 @@
 <article class="cv-item cv-engagement" id="@Engagement.Id" data-cv-id="@Engagement.Id" data-cv-tech="@View.TechnologyKeys(Engagement.Id)"
          data-cv-short="@Strengths.Flag(Engagement.IsShort)">
     <header class="cv-item__head">
-        <h4 class="cv-item__title">
+        <LevelHeading Level="HeadingLevel" Class="cv-item__title">
             @Engagement.Name
             @if (Engagement.Client is { } client)
             {
                 <span class="cv-item__client"><span class="op-visually-hidden">@View.Labels.Client: </span>@client</span>
             }
-        </h4>
+        </LevelHeading>
         <p class="cv-item__meta">
             @if (Engagement.Roles.Count > 0)
             {
@@ -39,4 +39,7 @@
 
     /// <summary>The project.</summary>
     [Parameter, EditorRequired] public Engagement Engagement { get; set; } = default!;
+
+    /// <summary>The level of the project's heading: 3 directly under a section, 5 under a position's client projects.</summary>
+    [Parameter] public int HeadingLevel { get; set; } = 3;
 }

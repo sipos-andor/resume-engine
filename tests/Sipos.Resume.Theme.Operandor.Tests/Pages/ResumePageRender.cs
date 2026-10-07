@@ -92,6 +92,18 @@ public class ResumePageRender
         own.ShouldAllBe(id => Anchors.IsReserved(id));
     }
 
+    // A position's projects sit under its "client projects" heading (h4); a project of its own is an h3 like a position.
+    [Fact]
+    public async Task NestsHeadingsInOrderGivenProjectsWithAndWithoutPosition()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        document.QuerySelector("#acme .cv-item__title")!.LocalName.ShouldBe("h3");
+        document.QuerySelector("#acme .cv-engagements__title")!.LocalName.ShouldBe("h4");
+        document.QuerySelector("#portal .cv-item__title")!.LocalName.ShouldBe("h5");
+        document.QuerySelector("#hobby .cv-item__title")!.LocalName.ShouldBe("h3");
+    }
+
     // Under <base href="/"> a bare "#experience" would lead to the root page.
     [Fact]
     public async Task LinksSectionsThroughPagePathGivenOtherLanguage()
