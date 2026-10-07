@@ -1,0 +1,67 @@
+using System.Text.Json;
+using System.Text.RegularExpressions;
+
+namespace Sipos.Resume.Core.Validation;
+
+/// <summary>Finds e-mail addresses and <c>mailto:</c> links anywhere in a content file's text values.</summary>
+/// <remarks>
+/// Decision: content may hold no e-mail address at all, in any field; the build fails on one.
+/// Why: everything in a content file is published (web pages, Markdown, JSON Resume, llms.txt), and an address on a
+/// public page is harvested. A contact form or a phone number stands in for it; an address meant for documents only
+/// reaches them at build time from a secret, never from the content.
+/// Considered: refusing only <c>basics.email</c>, which misses an address written into a summary.
+/// </remarks>
+public static partial class EmailGuard
+{
+    /// <summary>Whether a text contains an e-mail address or a <c>mailto:</c> link.</summary>
+    /// <param name="text">The text to check.</param>
+    public static bool ContainsAddress(string text) => Address().IsMatch(text) || text.Contains("mailto:", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>Returns an issue for every string value of a JSON document that contains an address.</summary>
+    /// <param name="source">The file's name, for the issues.</param>
+    /// <param name="root">The document's root element.</param>
+    public static IEnumerable<ValidationIssue> Check(string source, JsonElement root) => Walk(source, root, "");
+
+    private static IEnumerable<ValidationIssue> Walk(string source, JsonElement element, string path)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    var pointer = $"{path}/{Escape(property.Name)}";
+                    if (ContainsAddress(property.Name))
+                    {
+                        yield return new ValidationIssue(source, pointer, "A property name contains an e-mail address.");
+                    }
+
+                    foreach (var issue in Walk(source, property.Value, pointer))
+                    {
+                        yield return issue;
+                    }
+                }
+
+                break;
+            case JsonValueKind.Array:
+                var index = 0;
+                foreach (var item in element.EnumerateArray())
+                {
+                    foreach (var issue in Walk(source, item, $"{path}/{index++}"))
+                    {
+                        yield return issue;
+                    }
+                }
+
+                break;
+            case JsonValueKind.String when ContainsAddress(element.GetString()!):
+                yield return new ValidationIssue(source, path, "Contains an e-mail address or a mailto: link; content is published, so leave it out and link a contact page instead.");
+                break;
+        }
+    }
+
+    // JSON pointer escaping (RFC 6901): ~ becomes ~0 and / becomes ~1.
+    private static string Escape(string name) => name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
+
+    [GeneratedRegex(@"[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}", RegexOptions.CultureInvariant)]
+    private static partial Regex Address();
+}
