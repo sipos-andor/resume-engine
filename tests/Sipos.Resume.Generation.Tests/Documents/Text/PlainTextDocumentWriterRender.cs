@@ -1,0 +1,55 @@
+using System.Text;
+using Sipos.Resume.Core.Artifacts;
+using Sipos.Resume.Generation.Documents.Text;
+using Sipos.Resume.Generation.Tests.Helpers;
+
+namespace Sipos.Resume.Generation.Tests.Documents.Text;
+
+public class PlainTextDocumentWriterRender
+{
+    private static string English() => PlainTextDocumentWriter.Render(Contexts.For(SampleDocuments.English(), DownloadFormat.PlainText, DocumentVariant.Ats));
+
+    [Fact]
+    public void WritesStandardHeadingsInCapitalsGivenAtsLayout()
+    {
+        var lines = English().Split('\n');
+
+        lines.ShouldContain("SUMMARY");
+        lines.ShouldContain("SKILLS");
+        lines.ShouldContain("WORK EXPERIENCE");
+        lines.ShouldContain("CERTIFICATIONS");
+    }
+
+    [Fact]
+    public void WritesNumericDatesAndFullUrlsGivenPosition()
+    {
+        var text = English();
+
+        text.ShouldContain("acme | 11/2022 – present");
+        text.ShouldContain("Online CV: https://cv.example.com/");
+        text.ShouldContain("Contact: Get in touch – https://example.com/contact");
+    }
+
+    [Fact]
+    public void WritesLevelsInWordsGivenSkills() => English().ShouldContain(".NET platform: C# (Expert), LINQ (Expert), Blazor (Proficient)");
+
+    [Fact]
+    public void ListsStrengthsUnderSummaryGivenStrengths() => English().ShouldContain("Builds .NET systems.\n- Full-stack delivery: End to end.\n");
+
+    // Without the mark older Windows tools read the file as ANSI and garble accented names.
+    [Fact]
+    public void StartsWithByteOrderMarkGivenAnyCv()
+    {
+        using var output = new MemoryStream();
+        new PlainTextDocumentWriter().Write(Contexts.For(SampleDocuments.English(), DownloadFormat.PlainText, DocumentVariant.Ats), output);
+
+        output.ToArray().Take(3).ShouldBe(Encoding.UTF8.GetPreamble());
+    }
+
+    [Fact]
+    public void SupportsOnlyAtsLayoutGivenVariants()
+    {
+        new PlainTextDocumentWriter().Supports(DocumentVariant.Ats).ShouldBeTrue();
+        new PlainTextDocumentWriter().Supports(DocumentVariant.Designed).ShouldBeFalse();
+    }
+}
