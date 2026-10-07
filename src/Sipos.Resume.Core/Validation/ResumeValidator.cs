@@ -245,10 +245,12 @@ public static partial class ResumeValidator
         return true;
     }
 
-    // Two terms whose spellings fold to one key would be one technology twice, with two alias lists.
+    // Two terms whose spellings fold to one key would be one technology twice, with two alias lists; an alias that is
+    // another term, or another term's alias too, would count as one technology in the filter (the first term takes
+    // it) but match both in the job ad matcher.
     private static void CheckAliases(IReadOnlyDictionary<string, IReadOnlyList<string>> aliases, Action<string, string> fail)
     {
-        var keys = new Dictionary<string, string>(StringComparer.Ordinal);
+        var terms = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var term in aliases.Keys)
         {
             var key = Keys.Of(term);
@@ -256,9 +258,31 @@ public static partial class ResumeValidator
             {
                 fail($"/x-aliases/{Pointer(term)}", "The term has no letters or digits to match.");
             }
-            else if (!keys.TryAdd(key, term))
+            else if (!terms.TryAdd(key, term))
             {
-                fail($"/x-aliases/{Pointer(term)}", $"Is the same term as '{keys[key]}'; merge their aliases into one entry.");
+                fail($"/x-aliases/{Pointer(term)}", $"Is the same term as '{terms[key]}'; merge their aliases into one entry.");
+            }
+        }
+
+        var owners = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (term, spellings) in aliases)
+        {
+            for (var index = 0; index < spellings.Count; index++)
+            {
+                var key = Keys.Of(spellings[index]);
+                var path = $"/x-aliases/{Pointer(term)}/{index}";
+                if (key.Length == 0)
+                {
+                    fail(path, "The alias has no letters or digits to match.");
+                }
+                else if (terms.TryGetValue(key, out var other) && other != term)
+                {
+                    fail(path, $"Is the term '{other}' itself; an alias may stand for one term only.");
+                }
+                else if (!owners.TryAdd(key, term) && owners[key] != term)
+                {
+                    fail(path, $"Is an alias of '{owners[key]}' too; an alias may stand for one term only.");
+                }
             }
         }
     }

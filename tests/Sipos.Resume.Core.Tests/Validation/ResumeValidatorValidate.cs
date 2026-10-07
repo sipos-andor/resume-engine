@@ -146,6 +146,18 @@ public class ResumeValidatorValidate
         PathsOf(resume with { Aliases = aliases }).ShouldBe(["/x-aliases/CI~1CD"]);
     }
 
+    // The filter gives an alias to its first term, the job ad matcher to every term that lists it; they must agree.
+    [Theory]
+    [InlineData("csharp", "/x-aliases/F#/0")]
+    [InlineData("c#", "/x-aliases/F#/0")]
+    public void RefusesAliasGivenAnotherTermOrItsAlias(string alias, string path)
+    {
+        var resume = Samples.Read(Samples.English);
+        var aliases = new Dictionary<string, IReadOnlyList<string>> { ["C#"] = ["csharp"], ["F#"] = [alias] };
+
+        PathsOf(resume with { Aliases = aliases }).ShouldBe([path]);
+    }
+
     [Fact]
     public void RefusesTermGivenNoLettersOrDigits()
     {
