@@ -22,6 +22,7 @@ const announce = (message) => {
 const theme = window.OperandorSharedKernelUI?.theme;
 const toggle = document.querySelector("[data-cv-theme-toggle]");
 if (theme && toggle) {
+    toggle.hidden = false;
     const next = (preference, system) => {
         const opposite = system === "dark" ? "light" : "dark";
         return preference === "system" ? opposite : preference === opposite ? system : "system";

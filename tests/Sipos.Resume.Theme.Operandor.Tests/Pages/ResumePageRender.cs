@@ -125,6 +125,16 @@ public class ResumePageRender
         document.QuerySelector(".cv-facts__profile")!.ParentElement!.PreviousElementSibling!.TextContent.Trim().ShouldBe("Online");
     }
 
+    // The script drives the theme toggle; without it, as on the not-found page, the toggle would do nothing.
+    [Fact]
+    public async Task HidesThemeToggleUntilScriptGivenAnyPage()
+    {
+        var pages = ThemePages.Sample();
+
+        (await ThemePages.RenderAsync(pages, 0)).QuerySelector("[data-cv-theme-toggle]")!.HasAttribute("hidden").ShouldBeTrue();
+        (await ThemePages.RenderNotFoundAsync(pages)).QuerySelector("[data-cv-theme-toggle]")!.HasAttribute("hidden").ShouldBeTrue();
+    }
+
     // The same content and build date give the same page, whatever the clock says.
     [Fact]
     public async Task TakesCopyrightYearFromBuildDateGivenNoLastModified()
