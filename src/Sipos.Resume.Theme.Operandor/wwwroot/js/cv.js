@@ -79,14 +79,15 @@ for (const anchor of document.querySelectorAll("[data-cv-copy]")) {
             return;
         }
         event.preventDefault();
-        history.replaceState(null, "", anchor.href);
         try {
             await navigator.clipboard.writeText(anchor.href);
+            history.replaceState(null, "", anchor.href);
             anchor.classList.add("is-copied");
             announce(words.LinkCopied);
             setTimeout(() => anchor.classList.remove("is-copied"), 1600);
         } catch {
-            location.hash = new URL(anchor.href).hash;
+            // Copying was refused: follow the link as without the script.
+            location.assign(anchor.href);
         }
     });
 }
