@@ -22,6 +22,16 @@ public class JobVocabularyMatch
     [Fact]
     public void IgnoresPartOfWordGivenLongerWord() => Vocabulary.Match("rusty blazorise linqpad").ShouldBeEmpty();
 
+    // The validator refuses such content, but a document built without it still gets a vocabulary: the first term wins.
+    [Fact]
+    public void KeepsFirstTermGivenTwoSpellingsOfOneTerm()
+    {
+        var english = SampleDocuments.English();
+        var document = english with { Aliases = new Dictionary<string, IReadOnlyList<string>> { ["C#"] = ["csharp"], ["c#"] = ["c sharp"] } };
+
+        JobVocabulary.Build(document, TechnologyIndex.Build(document)).Match("csharp").Select(term => term.Term).ShouldBe(["C#"]);
+    }
+
     [Fact]
     public void LinksItemsThatUseTerm() => Vocabulary.Terms.Single(term => term.Term == "Azure").ItemIds.ShouldBe(["portal"]);
 }

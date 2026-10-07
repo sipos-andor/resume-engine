@@ -23,7 +23,14 @@ public sealed record JobVocabulary(IReadOnlyList<VocabularyTerm> Terms)
     /// <param name="technologies">The CV's technologies, for the items each one appears in.</param>
     public static JobVocabulary Build(ResumeDocument document, TechnologyIndex technologies)
     {
-        var aliases = document.Aliases.ToDictionary(pair => Keys.Of(pair.Key), pair => pair.Value, StringComparer.Ordinal);
+        // The validator refuses terms that fold to one key; the first one wins here too, so a document built without
+        // validation still has a vocabulary.
+        var aliases = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (var (term, spellings) in document.Aliases)
+        {
+            aliases.TryAdd(Keys.Of(term), spellings);
+        }
+
         var terms = new List<VocabularyTerm>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         void Add(string name, bool isSkill)
