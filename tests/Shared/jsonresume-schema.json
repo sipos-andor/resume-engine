@@ -32,7 +32,7 @@
         },
         "email": {
           "type": "string",
-          "description": "e.g. thomas@gmail.com",
+          "description": "An e-mail address (the example address of the original schema is left out of this copy).",
           "format": "email"
         },
         "phone": {
