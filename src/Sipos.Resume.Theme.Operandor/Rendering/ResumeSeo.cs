@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Operandor.SharedKernel.UI.Seo;
 using Operandor.SharedKernel.UI.Site;
 using Sipos.Resume.Core.Localization;
@@ -6,7 +7,7 @@ using Sipos.Resume.Core.Site;
 namespace Sipos.Resume.Theme.Operandor.Rendering;
 
 /// <summary>Describes a CV site to the shared kernel's <c>SeoHead</c>: alternates, locales, share images and the person.</summary>
-internal static class ResumeSeo
+internal static partial class ResumeSeo
 {
     /// <summary>The share image's size, which every share service expects for a large card.</summary>
     public const int ImageWidth = 1200;
@@ -59,8 +60,7 @@ internal static class ResumeSeo
             return page.Document.Person.Title;
         }
 
-        var end = summary.IndexOf(". ", StringComparison.Ordinal);
-        var sentence = end < 0 ? summary : summary[..(end + 1)];
+        var sentence = FirstSentence(summary);
         if (sentence.Length <= 160)
         {
             return sentence;
@@ -69,6 +69,31 @@ internal static class ResumeSeo
         var cut = sentence.LastIndexOf(' ', 157);
         return sentence[..(cut < 0 ? 157 : cut)].TrimEnd(',', ';', ' ') + "…";
     }
+
+    // Decision: a sentence ends at ". " only before a capital letter and after a word that is not a number.
+    // Why: Croatian and Serbian write ordinals and years with a dot ("od 2013. godine"), Hungarian too ("2015. március",
+    // "Kft. vezető"); cutting there would leave a description of "Od 2013.".
+    private static string FirstSentence(string text)
+    {
+        foreach (Match end in SentenceEnd().Matches(text))
+        {
+            if (!end.Groups["word"].Value.All(char.IsDigit))
+            {
+                return text[..(end.Index + end.Groups["word"].Length + 1)];
+            }
+        }
+
+        return text;
+    }
+
+    [GeneratedRegex(@"(?<word>\w+)\.\s+(?=\p{Lu})", RegexOptions.CultureInvariant)]
+    private static partial Regex SentenceEnd();
+
+    // Decision: an education entry is a degree in the structured data only when its type names one, such as BSc.
+    // Why: JSON Resume's education list also holds summer schools and courses; calling them degrees would tell search
+    // engines of degrees the person does not hold. The others stay credentials without a category.
+    [GeneratedRegex(@"\b(B\.?\s?Sc|M\.?\s?Sc|B\.?\s?A|M\.?\s?A|B\.?\s?Eng|M\.?\s?Eng|Ph\.?\s?D|MBA|LL\.?\s?[BM]|Bachelor|Master|Doctor)\b", RegexOptions.CultureInvariant)]
+    private static partial Regex Degree();
 
     /// <summary>
     /// The person as structured data, only with facts the page shows: names, title, profile, phone, profiles, the
@@ -98,7 +123,9 @@ internal static class ResumeSeo
             Credentials =
             [
                 .. document.Education.Where(study => study.StudyType is not null || study.Area is not null)
-                    .Select(study => new SeoCredential(string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>()), "degree")),
+                    .Select(study => new SeoCredential(
+                        string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>()),
+                        study.StudyType is { } type && Degree().IsMatch(type) ? "degree" : null)),
                 .. document.Certificates.Select(certificate => new SeoCredential(certificate.Name, "certificate")),
             ],
             Awards = [.. document.Awards.Select(award => award.Title)],

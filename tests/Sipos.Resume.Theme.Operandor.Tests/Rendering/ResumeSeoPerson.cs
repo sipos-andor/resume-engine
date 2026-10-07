@@ -39,4 +39,28 @@ public class ResumeSeoPerson
         description.Length.ShouldBeLessThanOrEqualTo(160);
         description.ShouldEndWith("modernisation…");
     }
+
+    // Croatian, Serbian and Hungarian write years and ordinals with a dot; the first sentence ends before a capital.
+    [Theory]
+    [InlineData("Od 2013. godine razvijam .NET sustave. Drugo.", "Od 2013. godine razvijam .NET sustave.")]
+    [InlineData("Az ALLWIN Kft. vezető fejlesztője 2015. március óta. Második.", "Az ALLWIN Kft. vezető fejlesztője 2015. március óta.")]
+    [InlineData("Builds .NET systems. As founder, leads.", "Builds .NET systems.")]
+    public void EndsDescriptionAtFirstSentenceGivenOrdinalsAndAbbreviations(string summary, string description)
+    {
+        var page = ThemePages.Sample()[0];
+        var document = page.Document with { Person = page.Document.Person with { Summary = summary } };
+
+        ResumeSeo.Description(page with { Document = document }).ShouldBe(description);
+    }
+
+    // A summer school is no degree; the structured data must not claim one.
+    [Fact]
+    public void CallsOnlyDegreesDegreesGivenEducation()
+    {
+        var page = ThemePages.Sample()[0];
+        var study = page.Document.Education[0];
+        var document = page.Document with { Education = [study, study with { StudyType = "Summer school", Area = "Web development" }, study with { StudyType = "Prvostupnik (BSc)" }] };
+
+        ResumeSeo.Person(page with { Document = document }).Credentials.Take(3).Select(credential => credential.Category).ShouldBe(["degree", null, "degree"]);
+    }
 }
