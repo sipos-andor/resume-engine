@@ -37,7 +37,8 @@ public readonly partial record struct PartialDate(int Year, int? Month = null, i
         var year = int.Parse(match.Groups["year"].Value, CultureInfo.InvariantCulture);
         int? month = match.Groups["month"].Success ? int.Parse(match.Groups["month"].Value, CultureInfo.InvariantCulture) : null;
         int? day = match.Groups["day"].Success ? int.Parse(match.Groups["day"].Value, CultureInfo.InvariantCulture) : null;
-        if (month is < 1 or > 12 || (day is { } d && (d < 1 || d > DateTime.DaysInMonth(year, month!.Value))))
+        // Year 0 matches the four digits but is no year DateOnly can hold.
+        if (year < 1 || month is < 1 or > 12 || (day is { } d && (d < 1 || d > DateTime.DaysInMonth(year, month!.Value))))
         {
             return false;
         }

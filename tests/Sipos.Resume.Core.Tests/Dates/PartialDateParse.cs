@@ -13,6 +13,7 @@ public class PartialDateParse
 
     [Theory]
     [InlineData("25")]
+    [InlineData("0000")]
     [InlineData("2025-8")]
     [InlineData("2025-13")]
     [InlineData("2023-02-29")]
