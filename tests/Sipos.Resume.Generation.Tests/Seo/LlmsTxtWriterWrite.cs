@@ -8,7 +8,7 @@ public class LlmsTxtWriterWrite
     [Fact]
     public void FollowsLlmsTxtShapeGivenDefaultPage()
     {
-        var pages = Pages.Sample();
+        var pages = SamplePages.Sample();
 
         var text = LlmsTxtWriter.Write(pages[0], pages);
 
@@ -25,7 +25,7 @@ public class LlmsTxtWriterWrite
     [Fact]
     public void WritesHeadingsInPageLanguageGivenOtherLanguage()
     {
-        var pages = Pages.Sample();
+        var pages = SamplePages.Sample();
 
         var text = LlmsTxtWriter.Write(pages[1], pages);
 

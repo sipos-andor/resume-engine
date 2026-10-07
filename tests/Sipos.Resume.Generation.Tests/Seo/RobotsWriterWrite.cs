@@ -7,5 +7,5 @@ public class RobotsWriterWrite
 {
     [Fact]
     public void AllowsEveryCrawlerAndNamesSitemapGivenSettings() =>
-        RobotsWriter.Write(Pages.Settings).ShouldBe("User-agent: *\nAllow: /\n\nSitemap: https://cv.example.com/sitemap.xml\n");
+        RobotsWriter.Write(SamplePages.Settings).ShouldBe("User-agent: *\nAllow: /\n\nSitemap: https://cv.example.com/sitemap.xml\n");
 }

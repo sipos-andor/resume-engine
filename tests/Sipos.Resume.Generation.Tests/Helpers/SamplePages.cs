@@ -6,7 +6,7 @@ using Sipos.Resume.Core.Site;
 namespace Sipos.Resume.Generation.Tests.Helpers;
 
 /// <summary>The pages of a two-language sample site: English at the root, Hungarian under /hu/.</summary>
-internal static class Pages
+internal static class SamplePages
 {
     public static readonly SiteSettings Settings = new(new Uri("https://cv.example.com"), "en", ["hu"], "Ann_Example_CV", "cv-theme", "cv-language", null);
 

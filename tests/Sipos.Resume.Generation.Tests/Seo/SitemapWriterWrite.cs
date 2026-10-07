@@ -12,7 +12,7 @@ public class SitemapWriterWrite
     [Fact]
     public void ListsEveryLanguagePageWithLastChangeGivenPages()
     {
-        var urls = XDocument.Parse(SitemapWriter.Write(Pages.Sample())).Root!.Elements(Sitemap + "url").ToList();
+        var urls = XDocument.Parse(SitemapWriter.Write(SamplePages.Sample())).Root!.Elements(Sitemap + "url").ToList();
 
         urls.Select(url => url.Element(Sitemap + "loc")!.Value).ShouldBe(["https://cv.example.com/", "https://cv.example.com/hu/"]);
         urls.ShouldAllBe(url => url.Element(Sitemap + "lastmod")!.Value == "2026-10-07");
@@ -22,7 +22,7 @@ public class SitemapWriterWrite
     [Fact]
     public void NamesEveryVersionAndDefaultGivenEachPage()
     {
-        var urls = XDocument.Parse(SitemapWriter.Write(Pages.Sample())).Root!.Elements(Sitemap + "url");
+        var urls = XDocument.Parse(SitemapWriter.Write(SamplePages.Sample())).Root!.Elements(Sitemap + "url");
 
         foreach (var url in urls)
         {

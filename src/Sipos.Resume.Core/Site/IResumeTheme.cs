@@ -15,7 +15,10 @@ public interface IResumeTheme
     /// <summary>The component of a CV's page; it takes a <see cref="SitePage"/> parameter named <c>Page</c>.</summary>
     Type PageComponent { get; }
 
-    /// <summary>The component of the not-found page; it takes the site's languages as a parameter named <c>Languages</c>.</summary>
+    /// <summary>
+    /// The component of the not-found page; it takes every language's <see cref="SitePage"/>, the default first, as a
+    /// parameter named <c>Pages</c>, so it can lead to each.
+    /// </summary>
     Type NotFoundComponent { get; }
 
     /// <summary>The colours and fonts of the designed documents.</summary>
