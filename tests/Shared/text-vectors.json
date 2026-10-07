@@ -1,0 +1,17 @@
+{
+  "description": "Folding and tokenizing cases that the C# TextNormalizer and the theme's JavaScript must both satisfy.",
+  "fold": [
+    { "text": "Kódbázis", "folded": "kodbazis" },
+    { "text": "Sípos Andor – ŐŰ őű", "folded": "sipos andor – ou ou" },
+    { "text": "Čačak, Đurđevo, Šid, Žabalj, Ćuprija", "folded": "cacak, durdevo, sid, zabalj, cuprija" },
+    { "text": "Straße Łódź Ærø", "folded": "strasse lodz aero" }
+  ],
+  "tokens": [
+    { "text": "C#, .NET / .NET Core and ASP.NET Core", "tokens": ["c#", ".net", ".net", "core", "and", "asp.net", "core"] },
+    { "text": "Node.js, C++ and TypeScript/React.", "tokens": ["node.js", "c++", "and", "typescript", "react"] },
+    { "text": "Azure Service Bus (message-based)", "tokens": ["azure", "service", "bus", "message", "based"] },
+    { "text": "MS SQL Server; T-SQL; 13+ years", "tokens": ["ms", "sql", "server", "t", "sql", "13+", "years"] },
+    { "text": "Szoftverarchitekt. Vodeći programer", "tokens": ["szoftverarchitekt", "vodeci", "programer"] },
+    { "text": "...", "tokens": [] }
+  ]
+}
