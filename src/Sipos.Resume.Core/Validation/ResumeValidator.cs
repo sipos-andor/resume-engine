@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Text.RegularExpressions;
 using Sipos.Resume.Core.Artifacts;
 using Sipos.Resume.Core.Content;
@@ -11,6 +12,10 @@ namespace Sipos.Resume.Core.Validation;
 public static partial class ResumeValidator
 {
     private static readonly string[] AvailabilityStatuses = ["available", "from", "on-request"];
+
+    // The characters XML 1.0 cannot hold: the C0 controls but tab and the line breaks, and the two noncharacters.
+    private static readonly SearchValues<char> NotInDocuments = SearchValues.Create(
+        [.. Enumerable.Range(0, 32).Where(code => code is not ('\t' or '\n' or '\r')).Select(code => (char)code), '\uFFFE', '\uFFFF']);
 
     /// <summary>Returns every problem of one document; none means it can be rendered.</summary>
     /// <param name="source">The file's name, for the issues.</param>
@@ -30,6 +35,7 @@ public static partial class ResumeValidator
         CheckStrengths(resume.Strengths, focusIds, anchors, Fail);
         CheckAliases(resume.Aliases, Fail);
         CheckMeta(resume.Meta, Fail);
+        CheckCharacters(resume, Fail);
 
         for (var i = 0; i < resume.Education.Count; i++)
         {
@@ -253,6 +259,20 @@ public static partial class ResumeValidator
             else if (!keys.TryAdd(key, term))
             {
                 fail($"/x-aliases/{Pointer(term)}", $"Is the same term as '{keys[key]}'; merge their aliases into one entry.");
+            }
+        }
+    }
+
+    // JSON may hold any control character as an escape, but XML 1.0, and so a Word document, holds none but tab and the
+    // line breaks; one in the text would stop the build while it writes the DOCX.
+    private static void CheckCharacters(JsonResume resume, Action<string, string> fail)
+    {
+        foreach (var (pointer, text) in ContentStrings.Of(resume))
+        {
+            var index = text.AsSpan().IndexOfAny(NotInDocuments);
+            if (index >= 0)
+            {
+                fail(pointer, $"Holds the control character U+{(int)text[index]:X4}, which documents cannot carry; remove it.");
             }
         }
     }

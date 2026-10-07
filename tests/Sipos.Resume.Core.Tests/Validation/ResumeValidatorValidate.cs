@@ -177,6 +177,18 @@ public class ResumeValidatorValidate
         PathsOf(resume with { Meta = resume.Meta! with { Path = path } }).ShouldBe(["/meta/x-path"]);
     }
 
+    // JSON may escape any control character, but a Word document cannot hold one; tab and line breaks are fine.
+    [Theory]
+    [InlineData("Builds\u0001 systems.", true)]
+    [InlineData("Builds\u0000 systems.", true)]
+    [InlineData("Builds\tsystems.\r\nWell.", false)]
+    public void RefusesControlCharacterGivenTextDocumentsCannotHold(string summary, bool refused)
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Basics = resume.Basics! with { Summary = summary } }).ShouldBe(refused ? ["/basics/summary"] : []);
+    }
+
     // A plain JSON Resume has no identifiers; the engine makes them from the name and date.
     [Fact]
     public void AcceptsItemsWithoutIdentifiersGivenPlainJsonResume()
