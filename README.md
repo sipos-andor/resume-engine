@@ -101,11 +101,13 @@ canonical URL, `hreflang` alternates and policy, and that no file holds an e-mai
 
 ## Developing
 
-The operandor design system comes from GitHub Packages, which needs a token even to read: add a personal access
-token with `read:packages` to the `github` source once:
+The operandor design system comes from GitHub Packages, which needs a token even to read. Give NuGet a personal
+access token with `read:packages` through an environment variable, so it is never written into `nuget.config` or any
+other file of the repository (read without echo, it stays out of the shell history too):
 
 ```sh
-dotnet nuget update source github --username <you> --password <token> --store-password-in-clear-text --configfile nuget.config
+read -rs GITHUB_PACKAGES_TOKEN
+export NuGetPackageSourceCredentials_github="Username=<you>;Password=$GITHUB_PACKAGES_TOKEN"
 ```
 
 `dotnet test Sipos.Resume.slnx` runs every test; the theme's script is tested with Jint against the C# on shared
