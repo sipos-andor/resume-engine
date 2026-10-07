@@ -158,7 +158,9 @@ if (data && tools && main) {
             skill.classList.toggle("cv-skill--match", skills.has(skill.dataset.cvSkill));
         }
         if (summary) {
-            summary.textContent = view?.summary ?? summary.dataset.cvSummaryDefault;
+            const text = view?.summary ?? summary.dataset.cvSummaryDefault;
+            summary.textContent = text ?? "";
+            summary.hidden = !text;
         }
         if (focusNote) {
             focusNote.hidden = !view;

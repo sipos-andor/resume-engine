@@ -105,6 +105,22 @@ public class ResumePageRender
         document.QuerySelectorAll(".cv-facts dd").ShouldAllBe(row => row.TextContent.Trim().Length > 0);
     }
 
+    [Fact]
+    public async Task RendersHiddenSummaryPlaceholderGivenOnlyFocusSummary()
+    {
+        var pages = ThemePages.Sample(change: cv => cv with
+        {
+            Person = cv.Person with { Summary = null },
+            FocusProfiles = [cv.FocusProfiles[0] with { Summary = "Builds for the selected role." }],
+        });
+        var document = await ThemePages.RenderAsync(pages, 0);
+
+        var summary = document.QuerySelector("[data-cv-summary]")!;
+        summary.TextContent.ShouldBeEmpty();
+        summary.GetAttribute("data-cv-summary-default").ShouldBe("");
+        summary.HasAttribute("hidden").ShouldBeTrue();
+    }
+
     // Only the CV's own sections are landmarks, so a skill group named "Languages" does not repeat the languages section.
     [Fact]
     public async Task KeepsSkillGroupsOutOfLandmarksGivenSkills()

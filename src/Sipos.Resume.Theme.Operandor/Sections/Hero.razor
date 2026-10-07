@@ -35,6 +35,10 @@
         {
             <p class="cv-hero__summary" data-cv-summary="" data-cv-summary-default="@summary">@summary</p>
         }
+        else if (View.Document.FocusProfiles.Any(profile => profile.Summary is not null))
+        {
+            <p class="cv-hero__summary" data-cv-summary="" data-cv-summary-default="" hidden=""></p>
+        }
         <p class="cv-hero__focus" data-cv-focus-note="" hidden></p>
         <div class="cv-hero__actions">
             @if (View.Download(DownloadFormat.Pdf, DocumentVariant.Designed) is { } pdf)
