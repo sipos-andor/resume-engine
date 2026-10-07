@@ -34,7 +34,7 @@ public sealed class PdfDocumentWriter : IDocumentWriter, IContentCheck
     public bool Supports(DocumentVariant variant) => variant is DocumentVariant.Designed or DocumentVariant.Ats;
 
     /// <inheritdoc/>
-    public IEnumerable<ValidationIssue> Check(ResumeEdition edition, DocumentTheme? theme) => GlyphCheck.Check(edition, theme);
+    public IEnumerable<ValidationIssue> Check(ResumeEdition edition, DocumentTheme? theme, string? contactEmail) => GlyphCheck.Check(edition, theme, contactEmail);
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">The download is not a PDF.</exception>

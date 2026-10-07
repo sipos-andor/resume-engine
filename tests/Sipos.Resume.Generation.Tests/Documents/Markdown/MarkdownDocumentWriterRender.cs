@@ -18,6 +18,18 @@ public class MarkdownDocumentWriterRender
     }
 
     [Fact]
+    public void KeepsTitleAsParagraphGivenLeadingBlockMarkers()
+    {
+        var document = SampleDocuments.English();
+        var person = document.Person with { Title = "# Architect", Tagline = "1. Builder" };
+        var context = Contexts.For(document with { Person = person }, DownloadFormat.Markdown, DocumentVariant.Designed);
+
+        var html = Markdig.Markdown.ToHtml(MarkdownDocumentWriter.Render(context));
+
+        html.ShouldContain("<p># Architect · 1. Builder</p>");
+    }
+
+    [Fact]
     public void WritesSectionsInOutlineOrderGivenDesignedLayout()
     {
         var headings = English().Split('\n').Where(line => line.StartsWith("## ", StringComparison.Ordinal)).ToList();

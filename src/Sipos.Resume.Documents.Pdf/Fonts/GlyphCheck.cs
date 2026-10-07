@@ -17,9 +17,15 @@ internal static partial class GlyphCheck
     /// <summary>Returns an issue for every text value with characters the fonts lack.</summary>
     /// <param name="edition">One language's content.</param>
     /// <param name="theme">The documents' look, or <see langword="null"/> for the bundled fonts.</param>
-    public static IEnumerable<ValidationIssue> Check(ResumeEdition edition, DocumentTheme? theme)
+    /// <param name="contactEmail">The contact e-mail address shown in the PDF, or <see langword="null"/>.</param>
+    public static IEnumerable<ValidationIssue> Check(ResumeEdition edition, DocumentTheme? theme, string? contactEmail)
     {
         ArgumentNullException.ThrowIfNull(edition);
+        if (contactEmail is not null && Unsupported("RESUME_CONTACT_EMAIL", "", contactEmail, mono: false) is { } emailIssue)
+        {
+            yield return emailIssue;
+        }
+
         if (theme is not null && PlexFonts.Resolve(theme) is var resolved && (resolved.SansFamily != PlexFonts.Sans || resolved.MonoFamily != PlexFonts.Mono))
         {
             yield break;

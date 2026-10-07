@@ -43,10 +43,10 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
         var text = new StringBuilder();
 
         text.Append("# ").AppendLine(MarkdownText.Escape(person.Name)).AppendLine();
-        var title = string.Join(" · ", new[] { person.Title, person.Tagline }.OfType<string>().Select(MarkdownText.Escape));
+        var title = string.Join(" · ", new[] { person.Title, person.Tagline }.OfType<string>());
         if (title.Length > 0)
         {
-            text.AppendLine(title).AppendLine();
+            text.AppendLine(MarkdownText.EscapeBlock(title)).AppendLine();
         }
 
         if (context.Focus is { } focus)

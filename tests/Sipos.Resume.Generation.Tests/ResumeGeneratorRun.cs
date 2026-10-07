@@ -138,6 +138,24 @@ public class ResumeGeneratorRun
     }
 
     [Fact]
+    public async Task PassesContactEmailToWriterChecksBeforeOutputIsTouched()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        folder.Write("dist/keep.txt", "mine");
+        var logging = new RecordingLoggerFactory();
+
+        var code = await Generator(folder, new Dictionary<string, string> { [ResumeGenerator.ContactEmailVariable] = "ann@example.org" }, "--clean")
+            .UseWriter(new RefusingWriter())
+            .UseLogging(logging)
+            .RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(1);
+        logging.Lines.ShouldContain(line => line.Contains("/contactEmail", StringComparison.Ordinal));
+        folder.Read("dist/keep.txt").ShouldBe("mine");
+    }
+
+    [Fact]
     public async Task IgnoresOverriddenWriterCheckGivenActiveReplacement()
     {
         using var folder = new TempFolder();

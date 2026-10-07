@@ -34,7 +34,18 @@ public class GlyphCheckCheck
     public void KnowsNoEmojiGivenSupplementaryPlane() => PlexFonts.Covers(new Rune(0x1F600).Value).ShouldBeFalse();
 
     [Fact]
-    public void FindsNothingGivenAccentedLatinCv() => GlyphCheck.Check(Edition(Samples.Accented), theme: null).ShouldBeEmpty();
+    public void FindsNothingGivenAccentedLatinCv() => GlyphCheck.Check(Edition(Samples.Accented), theme: null, contactEmail: "ann@example.com").ShouldBeEmpty();
+
+    [Fact]
+    public void PointsToContactEmailGivenCharacterThePdfCannotDraw()
+    {
+        var issue = GlyphCheck.Check(Edition(Samples.English), theme: null, "ann+★@example.com").ShouldHaveSingleItem();
+
+        issue.Source.ShouldBe("RESUME_CONTACT_EMAIL");
+        issue.Path.ShouldBe("");
+        issue.Message.ShouldContain("U+2605 (★)");
+        issue.Message.ShouldNotContain("ann+");
+    }
 
     [Fact]
     public void ChecksOnlyShareImageTextGivenMissingGlyphElsewhere()
@@ -51,7 +62,7 @@ public class GlyphCheckCheck
     [Fact]
     public void PointsToFieldGivenCharacterThePdfCannotDraw()
     {
-        var issue = GlyphCheck.Check(Edition(Samples.English.Replace("\"Hungarian\"", "\"日本語 ★\"", StringComparison.Ordinal)), theme: null).ShouldHaveSingleItem();
+        var issue = GlyphCheck.Check(Edition(Samples.English.Replace("\"Hungarian\"", "\"日本語 ★\"", StringComparison.Ordinal)), theme: null, contactEmail: null).ShouldHaveSingleItem();
 
         issue.Path.ShouldBe("/languages/0/language");
         issue.Message.ShouldContain("U+65E5 (日)");
@@ -67,13 +78,13 @@ public class GlyphCheckCheck
             .Replace("\"x-focus\": [\"architect\"] }", "\"x-focus\": [\"architect\"], \"x-keywords\": [\"λ\"] }", StringComparison.Ordinal)
             .Replace("Builds .NET systems.", "Builds .NET systems in Ελλάδα.", StringComparison.Ordinal);
 
-        GlyphCheck.Check(Edition(json), theme: null).Select(issue => issue.Path).ShouldBe(["/work/0/x-keywords/0", "/projects/1/keywords/0"]);
+        GlyphCheck.Check(Edition(json), theme: null, contactEmail: null).Select(issue => issue.Path).ShouldBe(["/work/0/x-keywords/0", "/projects/1/keywords/0"]);
     }
 
     // The aliases help match job ads and are never drawn, so another script there is fine.
     [Fact]
     public void IgnoresAliasesGivenOtherScript() =>
-        GlyphCheck.Check(Edition(Samples.English.Replace("\"csharp\"", "\"シーシャープ\"", StringComparison.Ordinal)), theme: null).ShouldBeEmpty();
+        GlyphCheck.Check(Edition(Samples.English.Replace("\"csharp\"", "\"シーシャープ\"", StringComparison.Ordinal)), theme: null, contactEmail: null).ShouldBeEmpty();
 
     // A theme with fonts of its own is checked by QuestPDF while drawing, not against Plex.
     [Fact]
@@ -81,6 +92,6 @@ public class GlyphCheckCheck
     {
         var theme = DocumentTheme.Neutral with { SansFamily = "Lato" };
 
-        GlyphCheck.Check(Edition(Samples.English.Replace("\"Hungarian\"", "\"日本語\"", StringComparison.Ordinal)), theme).ShouldBeEmpty();
+        GlyphCheck.Check(Edition(Samples.English.Replace("\"Hungarian\"", "\"日本語\"", StringComparison.Ordinal)), theme, contactEmail: null).ShouldBeEmpty();
     }
 }

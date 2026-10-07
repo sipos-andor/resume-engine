@@ -207,7 +207,7 @@ public sealed partial class ResumeGenerator
             .OfType<IContentCheck>()
             .Distinct()
             .ToList();
-        var refused = set.Editions.SelectMany(edition => checks.SelectMany(check => check.Check(edition, _theme?.Documents)))
+        var refused = set.Editions.SelectMany(edition => checks.SelectMany(check => check.Check(edition, _theme?.Documents, options.ContactEmail)))
             .Concat(_shareImages is IShareImageContentCheck imageCheck
                 ? set.Editions.SelectMany(edition => imageCheck.Check(edition, _theme?.Documents, set.Settings.Origin))
                 : [])
