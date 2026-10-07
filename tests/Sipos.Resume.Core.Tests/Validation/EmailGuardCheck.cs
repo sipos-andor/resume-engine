@@ -10,12 +10,17 @@ public class EmailGuardCheck
     [InlineData("Write to first.last+cv@mail.example.co.uk today")]
     [InlineData("mailto:someone")]
     [InlineData("Írjon: józsef.árpád@példa.hu")]
+    [InlineData("ann&#64;example.org")]
+    [InlineData("ann&commat;example.org")]
+    [InlineData("ann%40example.org")]
+    [InlineData("ann@example.xn--p1ai")]
     public void FindsAddressGivenText(string text) => EmailGuard.ContainsAddress(text).ShouldBeTrue();
 
     [Theory]
     [InlineData("C# @ scale")]
     [InlineData("https://operandor.io/hu/kapcsolat?intent=general")]
     [InlineData("@sipos-andor")]
+    [InlineData("Mastodon: @ann@mastodon.social")]
     public void FindsNothingGivenTextWithoutAddress(string text) => EmailGuard.ContainsAddress(text).ShouldBeFalse();
 
     // An issue that quotes a value must not carry an address into the build log.

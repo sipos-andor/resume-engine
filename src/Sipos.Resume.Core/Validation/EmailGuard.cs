@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -13,16 +14,25 @@ namespace Sipos.Resume.Core.Validation;
 /// </remarks>
 public static partial class EmailGuard
 {
-    /// <summary>Whether a text contains an e-mail address or a <c>mailto:</c> link.</summary>
+    /// <summary>
+    /// Whether a text contains an e-mail address or a <c>mailto:</c> link, also written with a character reference
+    /// (<c>&amp;#64;</c>, <c>&amp;commat;</c>) or percent-encoded (<c>%40</c>), as a Markdown or HTML reader would
+    /// show it. A Fediverse handle such as <c>@ann@mastodon.social</c> is no address.
+    /// </summary>
     /// <param name="text">The text to check.</param>
-    public static bool ContainsAddress(string text) => Address().IsMatch(text) || text.Contains("mailto:", StringComparison.OrdinalIgnoreCase);
+    public static bool ContainsAddress(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+        var shown = Shown(text);
+        return Address().IsMatch(shown) || shown.Contains("mailto:", StringComparison.OrdinalIgnoreCase);
+    }
 
     /// <summary>Replaces every address and <c>mailto:</c> in a text, such as an issue that quotes a value, before it is logged.</summary>
     /// <param name="text">A text that may quote content.</param>
     public static string Redact(string text)
     {
         ArgumentNullException.ThrowIfNull(text);
-        return Address().Replace(MailtoLink().Replace(text, "[e-mail address]"), "[e-mail address]");
+        return Address().Replace(MailtoLink().Replace(Shown(text), "[e-mail address]"), "[e-mail address]");
     }
 
     /// <summary>Returns an issue for every string value of a JSON document that contains an address.</summary>
@@ -67,6 +77,11 @@ public static partial class EmailGuard
         }
     }
 
+    // The text as a reader sees it: character references decoded (HtmlDecode knows HTML 4's, &commat; is HTML5's) and
+    // a percent-encoded @ written out.
+    private static string Shown(string text) =>
+        WebUtility.HtmlDecode(text).Replace("&commat;", "@", StringComparison.OrdinalIgnoreCase).Replace("%40", "@", StringComparison.OrdinalIgnoreCase);
+
     // JSON pointer escaping (RFC 6901): ~ becomes ~0 and / becomes ~1.
     private static string Escape(string name) => name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
 
@@ -74,9 +89,11 @@ public static partial class EmailGuard
     [GeneratedRegex(@"mailto:[^\s'""<>()\[\]]+", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex MailtoLink();
 
-    // Decision: letters, marks and digits of any script on both sides of the @, so an internationalized address such as
-    // one with a Greek or Cyrillic local part or domain is caught too.
-    // Why: the guard is the privacy promise; an address it does not recognize is published as text.
-    [GeneratedRegex(@"[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.[\p{L}\p{M}]{2,}", RegexOptions.CultureInvariant)]
+    // Decision: letters, marks and digits of any script on both sides of the @, and a top-level domain in letters or in
+    // punycode (xn--…), so an internationalized address such as one with a Greek or Cyrillic local part or domain is
+    // caught too; a local part right after an @ is a Fediverse handle's user, not an address's.
+    // Why: the guard is the privacy promise; an address it does not recognize is published as text. A handle is public
+    // by design, and the build's own address is checked word for word besides.
+    [GeneratedRegex(@"(?<![@\p{L}\p{M}\p{N}._%+\-])[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.([\p{L}\p{M}]{2,}|xn--[a-z0-9\-]+)", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex Address();
 }
