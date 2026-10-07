@@ -48,7 +48,7 @@ public static class ResumeReader
 
             try
             {
-                var resume = document.RootElement.Deserialize(ResumeJsonContext.Default.JsonResume);
+                var resume = document.RootElement.Deserialize(ResumeJsonContext.Default.JsonResume)! with { Original = document.RootElement.Clone() };
                 return new ReadResult(resume, issues);
             }
             catch (JsonException exception)

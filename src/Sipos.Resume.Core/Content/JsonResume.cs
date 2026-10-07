@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Sipos.Resume.Core.Content;
@@ -57,6 +58,12 @@ public sealed record JsonResume
 
     /// <summary>Extension: other spellings of a skill or keyword, such as <c>dotnet</c> for <c>.NET</c>, for matching a job ad.</summary>
     [JsonPropertyName("x-aliases")] public IReadOnlyDictionary<string, IReadOnlyList<string>> Aliases { get; set; } = new Dictionary<string, IReadOnlyList<string>>();
+
+    /// <summary>
+    /// The file as read, with every member, those this type leaves out included, such as <c>volunteer</c>,
+    /// <c>interests</c> or <c>education[].courses</c>; <see langword="null"/> for a document built in code.
+    /// </summary>
+    [JsonIgnore] public JsonElement? Original { get; init; }
 }
 
 /// <summary>The person a JSON Resume is about.</summary>
