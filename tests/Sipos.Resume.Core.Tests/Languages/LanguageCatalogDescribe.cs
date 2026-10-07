@@ -28,6 +28,14 @@ public class LanguageCatalogDescribe
         language.OgLocale.ShouldBe(locale);
     }
 
+    // Downloads are named after the path segment, which is unique per site, and the default language after its tag.
+    [Theory]
+    [InlineData("en", null, true, "EN")]
+    [InlineData("sr-Latn", null, false, "SR")]
+    [InlineData("en-GB", "en-gb", false, "EN-GB")]
+    public void NamesDownloadsAfterPathGivenLanguage(string tag, string? path, bool isDefault, string code) =>
+        LanguageCatalog.Describe(tag, path is null ? null : new JsonResumeMeta { Path = path }, isDefault).FileCode.ShouldBe(code);
+
     [Fact]
     public void TakesOverridesGivenMeta()
     {

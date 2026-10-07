@@ -14,6 +14,13 @@ public sealed record ResumeLanguage(string Tag, CultureInfo Culture, string Path
     /// <summary>The language's home page path: <c>/</c> for the default language, <c>/hu/</c> for another.</summary>
     public string HomePath => IsDefault ? "/" : $"/{PathSegment}/";
 
-    /// <summary>A short uppercase code for file names, such as <c>HU</c> or <c>SR</c>.</summary>
-    public string FileCode => Tag.Split('-')[0].ToUpperInvariant();
+    /// <summary>
+    /// A short uppercase code for file names: the path segment, such as <c>HU</c> or <c>SR</c> for <c>sr-Latn</c>, and
+    /// the primary subtag for the default language, such as <c>EN</c>.
+    /// </summary>
+    /// <remarks>
+    /// Decision: the path segment, which is unique per site.
+    /// Why: the primary subtag alone would give en and en-GB (published under <c>/en-gb/</c>) the same downloads.
+    /// </remarks>
+    public string FileCode => (IsDefault ? Tag.Split('-')[0] : PathSegment).ToUpperInvariant();
 }

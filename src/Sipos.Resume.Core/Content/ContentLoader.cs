@@ -137,6 +137,16 @@ public static partial class ContentLoader
             }
         }
 
+        // The default language names its downloads by its primary subtag, so another language published under /en/
+        // next to a default en would write the same files.
+        foreach (var clash in described.GroupBy(edition => edition.Language.FileCode, StringComparer.OrdinalIgnoreCase).Where(group => group.Count() > 1))
+        {
+            foreach (var edition in clash.OrderByDescending(edition => edition.Language.IsDefault).Skip(1))
+            {
+                issues.Add(new ValidationIssue(edition.Name, "/meta/x-path", $"Another language already names its downloads …_{clash.Key}; give this one another x-path, such as en-gb."));
+            }
+        }
+
         // Decision: map only content that passed every check.
         // Why: the mapper relies on what the validator checks, such as a position's start date; mapping a file the
         // validator refused would throw and lose every issue found so far.

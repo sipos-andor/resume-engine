@@ -64,6 +64,17 @@ public class ContentLoaderLoad
         result.Issues.ShouldContain(issue => issue.Path == "/work/1/startDate");
     }
 
+    // en-GB next to a default en would be published under /en/ with the default language's download names.
+    [Fact]
+    public void ReportsDownloadNameClashGivenRegionalVariantOfDefaultLanguage()
+    {
+        var result = ContentLoader.Load([File("resume.en.json", Samples.English), File("resume.en-GB.json", Samples.English), File("site.json", Site)], null);
+
+        var issue = result.Issues.ShouldHaveSingleItem();
+        issue.Source.ShouldBe("resume.en-GB.json");
+        issue.Path.ShouldBe("/meta/x-path");
+    }
+
     [Fact]
     public void ReadsSiteFileGivenByteOrderMark()
     {
