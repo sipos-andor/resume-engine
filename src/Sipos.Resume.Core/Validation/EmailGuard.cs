@@ -103,11 +103,11 @@ public static partial class EmailGuard
     [GeneratedRegex(@"mailto:[^\s'""<>()\[\]]+", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex MailtoLink();
 
-    // Decision: letters, marks and digits of any script on both sides of the @, and a top-level domain in letters or in
-    // punycode (xn--…), so an internationalized address such as one with a Greek or Cyrillic local part or domain is
-    // caught too; a local part right after an @ is a Fediverse handle's user, not an address's.
+    // Decision: letters, marks and digits of any script on both sides of the @, quoted local parts, and either a
+    // top-level domain in letters or punycode (xn--…), or a domain literal, so internationalized and less common valid
+    // addresses are caught too; a local part right after an @ is a Fediverse handle's user, not an address's.
     // Why: the guard is the privacy promise; an address it does not recognize is published as text. A handle is public
     // by design, and the build's own address is checked word for word besides.
-    [GeneratedRegex(@"(?<![@\p{L}\p{M}\p{N}._%+\-])[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.([\p{L}\p{M}]{2,}|xn--[a-z0-9\-]+)", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
+    [GeneratedRegex(@"(?<![@\p{L}\p{M}\p{N}._%+\-])(?:[\p{L}\p{M}\p{N}._%+\-]+|""(?:\\.|[^""\\\r\n])*"")@(?:[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.([\p{L}\p{M}]{2,}|xn--[a-z0-9\-]+)|\[(?:\\.|[^\]\\\r\n])+\])", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase)]
     private static partial Regex Address();
 }

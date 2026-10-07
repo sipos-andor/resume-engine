@@ -16,6 +16,9 @@ public class EmailGuardCheck
     [InlineData("ann&amp;#64;example.org")]
     [InlineData("ann%2540example.org")]
     [InlineData("ann@example.xn--p1ai")]
+    [InlineData("\"ann\"@example.org")]
+    [InlineData("\"ann smith\"@[127.0.0.1]")]
+    [InlineData("ann@[IPv6:2001:db8::1]")]
     public void FindsAddressGivenText(string text) => EmailGuard.ContainsAddress(text).ShouldBeTrue();
 
     [Fact]
