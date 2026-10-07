@@ -1,3 +1,4 @@
+using Sipos.Resume.Core.Dates;
 using Sipos.Resume.Core.Model;
 
 namespace Sipos.Resume.Core.Timeline;
@@ -20,7 +21,8 @@ public enum TimelineBarKind
 /// <param name="Ongoing">Whether the item is still going on.</param>
 /// <param name="Kind">Position or project.</param>
 /// <param name="Row">The row within its kind, so overlapping bars do not cover each other.</param>
-public sealed record TimelineBar(string Id, string Label, DateOnly Start, DateOnly End, bool Ongoing, TimelineBarKind Kind, int Row);
+/// <param name="Period">The item's period as the CV gives it, a year alone included, for the bar's text.</param>
+public sealed record TimelineBar(string Id, string Label, DateOnly Start, DateOnly End, bool Ongoing, TimelineBarKind Kind, int Row, DateRange Period);
 
 /// <summary>The CV's positions and projects on one time axis, with overlapping items on separate rows.</summary>
 /// <param name="Start">The first day of the axis: the first of January of the earliest year.</param>
@@ -51,11 +53,13 @@ public sealed record TimelineModel(DateOnly Start, DateOnly End, int PositionRow
     }
 
     // Interval partitioning: each bar goes to the first row whose last bar ended before it starts.
-    private static List<TimelineBar> Rows(IEnumerable<(string Id, string Label, Dates.DateRange Period)> items, TimelineBarKind kind, DateOnly today)
+    private static List<TimelineBar> Rows(IEnumerable<(string Id, string Label, DateRange Period)> items, TimelineBarKind kind, DateOnly today)
     {
         var rowEnds = new List<DateOnly>();
         var bars = new List<TimelineBar>();
-        foreach (var (id, label, period) in items.OrderBy(item => item.Period.Start.FirstDay))
+        // Decision: an item that starts after the present has no bar.
+        // Why: the axis ends at the present, so its bar would end before it starts and fall outside the drawing.
+        foreach (var (id, label, period) in items.Where(item => item.Period.Start.FirstDay <= today).OrderBy(item => item.Period.Start.FirstDay))
         {
             var start = period.Start.FirstDay;
             var end = period.LastDay(today);
@@ -70,7 +74,7 @@ public sealed record TimelineModel(DateOnly Start, DateOnly End, int PositionRow
                 rowEnds[row] = end;
             }
 
-            bars.Add(new TimelineBar(id, label, start, end, period.IsOngoing, kind, row));
+            bars.Add(new TimelineBar(id, label, start, end, period.IsOngoing, kind, row, period));
         }
 
         return bars;

@@ -57,7 +57,8 @@ internal static class TimelineSvg
             var y = Top(bar);
             var kind = bar.Kind == TimelineBarKind.Position ? "position" : "engagement";
             var ongoing = bar.Ongoing ? " cv-timeline__bar--ongoing" : "";
-            var when = period(new DateRange(new PartialDate(bar.Start.Year, bar.Start.Month), bar.Ongoing ? null : new PartialDate(bar.End.Year, bar.End.Month)));
+            // The CV's own period: a year given alone stays a year, as in the item's text.
+            var when = period(bar.Period);
             svg.Append(CultureInfo.InvariantCulture, $"<a href=\"{E(href(bar.Id))}\" tabindex=\"-1\" class=\"cv-timeline__link\" data-cv-bar=\"{E(bar.Id)}\">");
             svg.Append(CultureInfo.InvariantCulture, $"<title>{E(bar.Label)}: {E(when)}</title>");
             svg.Append(CultureInfo.InvariantCulture, $"<rect class=\"cv-timeline__bar cv-timeline__bar--{kind}{ongoing}\" x=\"{N(x)}\" y=\"{N(y)}\" width=\"{N(width)}\" height=\"{N(BarHeight)}\" rx=\"3\"/>");

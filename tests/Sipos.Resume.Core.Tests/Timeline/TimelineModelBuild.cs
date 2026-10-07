@@ -41,4 +41,27 @@ public class TimelineModelBuild
         timeline.EngagementRows.ShouldBe(2);
         timeline.PositionRows.ShouldBe(1);
     }
+
+    // The axis ends at the present: an item that starts later would get a bar that ends before it starts.
+    [Fact]
+    public void LeavesOutItemGivenStartAfterToday()
+    {
+        var document = SampleDocuments.English();
+        var later = document.Positions[1] with { Id = "later", Period = new DateRange(PartialDate.Parse("2026-12")) };
+
+        TimelineModel.Build(document with { Positions = [document.Positions[0], later] }, SampleDocuments.Today).Bars.ShouldNotContain(bar => bar.Id == "later");
+    }
+
+    // A year given alone stays a year in the bar's text.
+    [Fact]
+    public void KeepsCvPeriodGivenYearOnlyDates()
+    {
+        var document = SampleDocuments.English();
+        var period = new DateRange(PartialDate.Parse("2015"), PartialDate.Parse("2018"));
+
+        var bar = TimelineModel.Build(document with { Positions = [document.Positions[1] with { Period = period }] }, SampleDocuments.Today).Bars.Single(bar => bar.Id == "initech");
+
+        bar.Period.ShouldBe(period);
+        (bar.Start, bar.End).ShouldBe((new DateOnly(2015, 1, 1), new DateOnly(2018, 12, 31)));
+    }
 }

@@ -36,4 +36,15 @@ public class TimelineSvgDraw
 
         TimelineSvg.Draw(timeline, id => "#" + id, period => "x").ShouldContain("&lt;b&gt;&amp;&lt;/b&gt;");
     }
+
+    // The bar's text formats the CV's own period, so a year alone gains no invented month.
+    [Fact]
+    public void TitlesBarWithCvPeriodGivenYearOnlyDates()
+    {
+        var timeline = ResumeInsights.Analyze(SampleDocuments.English(), SampleDocuments.Today).Timeline;
+        var period = new Sipos.Resume.Core.Dates.DateRange(Sipos.Resume.Core.Dates.PartialDate.Parse("2015"), Sipos.Resume.Core.Dates.PartialDate.Parse("2018"));
+        timeline = timeline with { Bars = [timeline.Bars[0] with { Period = period }] };
+
+        TimelineSvg.Draw(timeline, id => "#" + id, given => given == period ? "2015 – 2018" : "invented").ShouldContain(": 2015 – 2018</title>");
+    }
 }
