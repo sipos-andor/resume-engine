@@ -81,6 +81,14 @@ public class ResumeGeneratorRun
         folder.Exists("content/resume.en.json").ShouldBeTrue();
     }
 
+    [Fact]
+    public async Task ReturnsUsageErrorGivenMissingContentFolder()
+    {
+        using var folder = new TempFolder();
+
+        (await Generator(folder).RunAsync(TestContext.Current.CancellationToken)).ShouldBe(2);
+    }
+
     // An issue may quote a value, such as a parity difference; the address must not reach the build log.
     [Fact]
     public async Task LeavesAddressOutOfLogGivenAddressInContent()
@@ -132,15 +140,17 @@ public class ResumeGeneratorRun
         code.ShouldBe(2);
     }
 
-    [Fact]
-    public async Task TakesPresentFromSourceDateEpochGivenNoToday()
+    [Theory]
+    [InlineData("not-a-number")]
+    [InlineData("999999999999999")]
+    public async Task ReturnsUsageErrorGivenSourceDateEpochOutOfRange(string epoch)
     {
         using var folder = new TempFolder();
         Sites.WriteContent(folder);
 
         var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"), "--validate-only"])
             .UseLogging(NullLoggerFactory.Instance)
-            .UseEnvironment(name => name == ResumeGenerator.SourceDateEpochVariable ? "not-a-number" : null)
+            .UseEnvironment(name => name == ResumeGenerator.SourceDateEpochVariable ? epoch : null)
             .RunAsync(TestContext.Current.CancellationToken);
 
         code.ShouldBe(2);

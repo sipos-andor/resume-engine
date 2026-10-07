@@ -149,65 +149,28 @@ public sealed partial class ResumeGenerator
                 return 2;
             }
 
+            if (!Directory.Exists(options.ContentFolder))
+            {
+                Log.Usage(logger, $"The content folder {Path.GetFullPath(options.ContentFolder)} does not exist.", Usage);
+                return 2;
+            }
+
             if (!options.ValidateOnly && OutputConflict(options) is { } conflict)
             {
                 Log.Usage(logger, conflict, Usage);
                 return 2;
             }
 
-            var files = await new FolderSource(options.ContentFolder).ReadAsync(cancellationToken).ConfigureAwait(false);
-            var loaded = ContentLoader.Load(files, options.AnalyticsToken);
-            foreach (var issue in loaded.Issues)
+            try
             {
-                // An issue may quote a value, such as a parity difference; an address in it must not reach the log.
-                Log.ContentIssue(logger, EmailGuard.Redact(issue.ToString()));
+                return await BuildAsync(options, logger, loggerFactory, cancellationToken).ConfigureAwait(false);
             }
-
-            if (loaded.Set is not { } set)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidOperationException)
             {
-                Log.Failed(logger, loaded.Issues.Count);
+                // A disk error or an artifact written twice: the exit code scripts expect, with the reason.
+                Log.Crashed(logger, EmailGuard.Redact(exception.Message));
                 return 1;
             }
-
-            Log.Loaded(logger, string.Join(", ", set.Languages.Select(language => language.Tag)), options.Today);
-            if (options.ValidateOnly)
-            {
-                return 0;
-            }
-
-            if (options.ContactEmail is null)
-            {
-                if (options.RequireContactEmail)
-                {
-                    Log.MissingEmail(logger, ContactEmailVariable);
-                    return 1;
-                }
-
-                Log.NoEmail(logger, ContactEmailVariable);
-            }
-
-            if (!PrepareOutput(options, logger))
-            {
-                return 1;
-            }
-
-            var sink = new FolderSink(options.OutputFolder);
-            var builder = new SiteBuilder(_theme!, _writers, _shareImages, options, loggerFactory);
-            var pages = await builder.BuildAsync(set, sink, cancellationToken).ConfigureAwait(false);
-            var problems = OutputVerifier.Verify(sink.Root, pages, _theme!.RequiredAssets, options.ContactEmail);
-            foreach (var problem in problems)
-            {
-                Log.OutputIssue(logger, EmailGuard.Redact(problem.ToString()));
-            }
-
-            if (problems.Count > 0)
-            {
-                Log.Failed(logger, problems.Count);
-                return 1;
-            }
-
-            Log.Built(logger, sink.Written.Count, sink.Root);
-            return 0;
         }
         finally
         {
@@ -216,6 +179,63 @@ public sealed partial class ResumeGenerator
                 loggerFactory.Dispose();
             }
         }
+    }
+
+    private async Task<int> BuildAsync(BuildOptions options, ILogger logger, ILoggerFactory loggerFactory, CancellationToken cancellationToken)
+    {
+        var files = await new FolderSource(options.ContentFolder).ReadAsync(cancellationToken).ConfigureAwait(false);
+        var loaded = ContentLoader.Load(files, options.AnalyticsToken);
+        foreach (var issue in loaded.Issues)
+        {
+            // An issue may quote a value, such as a parity difference; an address in it must not reach the log.
+            Log.ContentIssue(logger, EmailGuard.Redact(issue.ToString()));
+        }
+
+        if (loaded.Set is not { } set)
+        {
+            Log.Failed(logger, loaded.Issues.Count);
+            return 1;
+        }
+
+        Log.Loaded(logger, string.Join(", ", set.Languages.Select(language => language.Tag)), options.Today);
+        if (options.ValidateOnly)
+        {
+            return 0;
+        }
+
+        if (options.ContactEmail is null)
+        {
+            if (options.RequireContactEmail)
+            {
+                Log.MissingEmail(logger, ContactEmailVariable);
+                return 1;
+            }
+
+            Log.NoEmail(logger, ContactEmailVariable);
+        }
+
+        if (!PrepareOutput(options, logger))
+        {
+            return 1;
+        }
+
+        var sink = new FolderSink(options.OutputFolder);
+        var builder = new SiteBuilder(_theme!, _writers, _shareImages, options, loggerFactory);
+        var pages = await builder.BuildAsync(set, sink, cancellationToken).ConfigureAwait(false);
+        var problems = OutputVerifier.Verify(sink.Root, pages, _theme!.RequiredAssets, options.ContactEmail);
+        foreach (var problem in problems)
+        {
+            Log.OutputIssue(logger, EmailGuard.Redact(problem.ToString()));
+        }
+
+        if (problems.Count > 0)
+        {
+            Log.Failed(logger, problems.Count);
+            return 1;
+        }
+
+        Log.Built(logger, sink.Written.Count, sink.Root);
+        return 0;
     }
 
     private bool TryParse(out BuildOptions options, out string error)
@@ -296,7 +316,7 @@ public sealed partial class ResumeGenerator
         if (_environment(SourceDateEpochVariable) is { Length: > 0 } epoch)
         {
             today = default;
-            if (!long.TryParse(epoch, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds))
+            if (!long.TryParse(epoch, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds) || seconds > MaxUnixSeconds)
             {
                 return false;
             }
@@ -308,6 +328,9 @@ public sealed partial class ResumeGenerator
         today = DateOnly.FromDateTime(DateTime.UtcNow);
         return true;
     }
+
+    // The last second DateTimeOffset holds: 9999-12-31T23:59:59Z.
+    private const long MaxUnixSeconds = 253_402_300_799;
 
     // Decision: the output may not be, or hold, the content, the assets, the program, the working folder or the home
     // folder, and may not be a drive's root.
@@ -394,6 +417,9 @@ public sealed partial class ResumeGenerator
 
         [LoggerMessage(Level = LogLevel.Error, Message = "The output folder {Folder} is not empty; pass --clean to empty it first.")]
         public static partial void OutputNotEmpty(ILogger logger, string folder);
+
+        [LoggerMessage(Level = LogLevel.Error, Message = "The build stopped: {Reason}")]
+        public static partial void Crashed(ILogger logger, string reason);
 
         [LoggerMessage(Level = LogLevel.Information, Message = "Built and verified {Count} files in {Folder}.")]
         public static partial void Built(ILogger logger, int count, string folder);
