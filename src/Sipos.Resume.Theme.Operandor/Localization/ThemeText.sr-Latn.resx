@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SkipToContent" xml:space="preserve"><value>Preskoči na sadržaj</value></data>
+  <data name="CopyLink" xml:space="preserve"><value>Kopiraj link</value></data>
+  <data name="DownloadPdf" xml:space="preserve"><value>Preuzmi PDF</value></data>
+  <data name="DownloadTailoredPdf" xml:space="preserve"><value>Preuzmi prilagođeni PDF</value></data>
+  <data name="AllDownloads" xml:space="preserve"><value>Sva preuzimanja</value></data>
+  <data name="Tools" xml:space="preserve"><value>Pregled biografije</value></data>
+  <data name="Search" xml:space="preserve"><value>Pretraga</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Tehnologija, firma, uloga…</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Rezultata: {0}</value></data>
+  <data name="SearchNoResults" xml:space="preserve"><value>Nema rezultata</value></data>
+  <data name="FocusAll" xml:space="preserve"><value>Cela biografija</value></data>
+  <data name="Technology" xml:space="preserve"><value>Tehnologija</value></data>
+  <data name="AllTechnologies" xml:space="preserve"><value>Sve tehnologije</value></data>
+  <data name="TechnologyItems" xml:space="preserve"><value>{0} – pozicija i projekata: {1}</value></data>
+  <data name="View" xml:space="preserve"><value>Prikaz</value></data>
+  <data name="ViewFull" xml:space="preserve"><value>Celovit</value></data>
+  <data name="ViewShort" xml:space="preserve"><value>Jedna strana</value></data>
+  <data name="Print" xml:space="preserve"><value>Štampa</value></data>
+  <data name="LinkCopied" xml:space="preserve"><value>Link je kopiran</value></data>
+  <data name="MatchTitle" xml:space="preserve"><value>Poređenje sa oglasom za posao</value></data>
+  <data name="MatchHint" xml:space="preserve"><value>Nalepite tekst oglasa za posao: stranica će označiti tehnologije i veštine koje se nalaze i u ovoj biografiji. Tekst ostaje u vašem pregledaču.</value></data>
+  <data name="MatchButton" xml:space="preserve"><value>Uporedi</value></data>
+  <data name="MatchFound" xml:space="preserve"><value>U biografiji ({0})</value></data>
+  <data name="MatchNone" xml:space="preserve"><value>U tekstu se ne pojavljuje nijedna tehnologija ili veština iz biografije.</value></data>
+  <data name="MatchCoverage" xml:space="preserve"><value>Podudarnih tehnologija i veština: {0}</value></data>
+  <data name="UsedSince" xml:space="preserve"><value>Koristi od {0}. · pozicija i projekata: {1}</value></data>
+  <data name="UsedIn" xml:space="preserve"><value>Korišćeno {0}. · pozicija i projekata: {1}</value></data>
+  <data name="UsedBetween" xml:space="preserve"><value>Korišćeno {0}.–{1}. · pozicija i projekata: {2}</value></data>
+  <data name="UsedItems" xml:space="preserve"><value>Pozicija i projekata: {0}</value></data>
+  <data name="DownloadsDesigned" xml:space="preserve"><value>Biografija</value></data>
+  <data name="DownloadsDesignedHint" xml:space="preserve"><value>Biografija u izgledu ove stranice, za čitanje i štampu.</value></data>
+  <data name="DownloadsAts" xml:space="preserve"><value>Za sisteme za zapošljavanje (ATS)</value></data>
+  <data name="DownloadsAtsHint" xml:space="preserve"><value>Jedna kolona, standardni naslovi i običan tekst, koji sistemi za praćenje kandidata pouzdano čitaju.</value></data>
+  <data name="DownloadsTailored" xml:space="preserve"><value>Prilagođeno ulozi</value></data>
+  <data name="DownloadsTailoredHint" xml:space="preserve"><value>Ista biografija, sa onim što je za ulogu važno na prvom mestu.</value></data>
+  <data name="DownloadsData" xml:space="preserve"><value>Tekst i podaci</value></data>
+  <data name="DownloadsDataHint" xml:space="preserve"><value>Markdown i JSON Resume, za alate i jezičke modele.</value></data>
+  <data name="FooterTagline" xml:space="preserve"><value>Razvoj poslovnog softvera, integracija sistema i automatizacija. Rešenja prilagođena načinu na koji vaša firma radi.</value></data>
+  <data name="FooterOnline" xml:space="preserve"><value>Onlajn</value></data>
+  <data name="FooterMachine" xml:space="preserve"><value>Za mašine</value></data>
+</root>

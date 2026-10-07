@@ -1,0 +1,10 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* Five steps, filled up to the level, drawn by CSS from one element. Decorative: the level word next to it carries the
+   meaning for every reader. *@
+<span class="cv-meter cv-meter--@Math.Clamp(Rating, 1, 5)" aria-hidden="true"></span>
+
+@code {
+    /// <summary>The level from 1 to 5.</summary>
+    [Parameter, EditorRequired] public int Rating { get; set; }
+}

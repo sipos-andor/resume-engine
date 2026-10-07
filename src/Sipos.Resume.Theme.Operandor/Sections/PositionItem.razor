@@ -1,0 +1,53 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+<article class="cv-item cv-position" id="@Position.Id" data-cv-id="@Position.Id" data-cv-tech="@View.TechnologyKeys(Position.Id)"
+         data-cv-short="@Strengths.Flag(Position.IsShort)">
+    <header class="cv-item__head">
+        <h3 class="cv-item__title">
+            @(Position.Role ?? Position.Organization)
+            @if (Position.Role is not null)
+            {
+                <span class="cv-item__org">@Position.Organization</span>
+            }
+        </h3>
+        <p class="cv-item__meta">
+            <span><time datetime="@Position.Period.Start">@View.Period(Position.Period)</time></span>
+            @if (Position.Location is { } location)
+            {
+                <span>@location</span>
+            }
+            @if (Position.Url is { } url)
+            {
+                <span><a href="@url">@ResumeView.Shorten(url)</a></span>
+            }
+        </p>
+        <a class="cv-anchor" href="@View.Anchor(Position.Id)" data-cv-copy="" title="@View.Text["CopyLink"]"><span aria-hidden="true">#</span><span class="op-visually-hidden">@View.Text["CopyLink"]</span></a>
+    </header>
+    @if (Position.Note is { } note)
+    {
+        <p class="cv-item__note">@note</p>
+    }
+    @if (Position.Summary is { } summary)
+    {
+        <p class="cv-item__summary">@summary</p>
+    }
+    <Highlights Items="Position.Highlights" ShortCount="Position.ShortHighlights" />
+    <Technologies Keywords="Position.Keywords" />
+    @if (Position.Engagements.Count > 0)
+    {
+        <div class="cv-engagements">
+            <h4 class="cv-engagements__title">@View.Labels.ClientProjects</h4>
+            @foreach (var engagement in Position.Engagements)
+            {
+                <EngagementItem Engagement="engagement" />
+            }
+        </div>
+    }
+</article>
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    /// <summary>The position.</summary>
+    [Parameter, EditorRequired] public Position Position { get; set; } = default!;
+}

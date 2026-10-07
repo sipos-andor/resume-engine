@@ -1,0 +1,59 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* The reader's tools: search, focus on a position profile, filter by technology, one-page or full view, print and the
+   job ad matcher. Hidden in the markup: the script shows them, so a reader without it sees no control that does
+   nothing; the whole CV is there either way. *@
+<section class="cv-tools" id="tools" aria-label="@View.Text["Tools"]" hidden data-cv-tools="">
+    <div class="cv-tools__row">
+        <div class="cv-field cv-field--search">
+            <label class="cv-field__label" for="cv-search">@View.Text["Search"]</label>
+            <input id="cv-search" class="op-input" type="search" autocomplete="off" spellcheck="false" placeholder="@View.Text["SearchPlaceholder"]" aria-describedby="cv-search-status" />
+        </div>
+        @if (View.Document.FocusProfiles.Count > 0)
+        {
+            <div class="cv-field">
+                <label class="cv-field__label" for="cv-focus">@View.Labels.Focus</label>
+                <select id="cv-focus" class="op-select">
+                    <option value="">@View.Text["FocusAll"]</option>
+                    @foreach (var profile in View.Document.FocusProfiles)
+                    {
+                        <option value="@profile.Id">@profile.Label</option>
+                    }
+                </select>
+            </div>
+        }
+        <div class="cv-field">
+            <label class="cv-field__label" for="cv-technology">@View.Text["Technology"]</label>
+            <select id="cv-technology" class="op-select">
+                <option value="">@View.Text["AllTechnologies"]</option>
+                @foreach (var technology in View.Page.Insights.Technologies.Technologies)
+                {
+                    <option value="@technology.Key">@technology.Name (@technology.ItemIds.Count)</option>
+                }
+            </select>
+        </div>
+        <div class="cv-field">
+            <span class="cv-field__label" id="cv-view-label">@View.Text["View"]</span>
+            <div class="cv-switch" role="group" aria-labelledby="cv-view-label">
+                <button type="button" class="cv-switch__option" data-cv-view="full" aria-pressed="true">@View.Text["ViewFull"]</button>
+                <button type="button" class="cv-switch__option" data-cv-view="short" aria-pressed="false">@View.Text["ViewShort"]</button>
+            </div>
+        </div>
+        <OpButton Variant="ghost" Size="sm" IconLeft="file-text" data-cv-print="">@View.Text["Print"]</OpButton>
+    </div>
+    <div class="cv-search-results" id="cv-search-results" hidden></div>
+    <p class="cv-tools__status" id="cv-search-status" role="status" aria-live="polite"></p>
+    <details class="cv-match">
+        <summary class="cv-match__summary"><OpIcon Name="scan-search" Size="18" />@View.Text["MatchTitle"]</summary>
+        <div class="cv-match__body">
+            <label class="cv-field__label" for="cv-match-text">@View.Text["MatchHint"]</label>
+            <textarea id="cv-match-text" class="op-textarea" rows="6" spellcheck="false"></textarea>
+            <OpButton Variant="secondary" Size="sm" IconRight="arrow-right" data-cv-match="">@View.Text["MatchButton"]</OpButton>
+            <div class="cv-match__result" id="cv-match-result" role="status" aria-live="polite"></div>
+        </div>
+    </details>
+</section>
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

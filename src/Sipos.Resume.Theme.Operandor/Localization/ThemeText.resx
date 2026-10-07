@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SkipToContent" xml:space="preserve"><value>Skip to content</value></data>
+  <data name="CopyLink" xml:space="preserve"><value>Copy link</value></data>
+  <data name="DownloadPdf" xml:space="preserve"><value>Download PDF</value></data>
+  <data name="DownloadTailoredPdf" xml:space="preserve"><value>Download tailored PDF</value></data>
+  <data name="AllDownloads" xml:space="preserve"><value>All downloads</value></data>
+  <data name="Tools" xml:space="preserve"><value>Explore the CV</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Technology, company, role…</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>{0} matches</value></data>
+  <data name="SearchNoResults" xml:space="preserve"><value>No matches</value></data>
+  <data name="FocusAll" xml:space="preserve"><value>Whole CV</value></data>
+  <data name="Technology" xml:space="preserve"><value>Technology</value></data>
+  <data name="AllTechnologies" xml:space="preserve"><value>All technologies</value></data>
+  <data name="TechnologyItems" xml:space="preserve"><value>{0}: {1} positions and projects</value></data>
+  <data name="View" xml:space="preserve"><value>View</value></data>
+  <data name="ViewFull" xml:space="preserve"><value>Full</value></data>
+  <data name="ViewShort" xml:space="preserve"><value>One page</value></data>
+  <data name="Print" xml:space="preserve"><value>Print</value></data>
+  <data name="LinkCopied" xml:space="preserve"><value>Link copied</value></data>
+  <data name="MatchTitle" xml:space="preserve"><value>Compare with a job ad</value></data>
+  <data name="MatchHint" xml:space="preserve"><value>Paste the text of a job ad: the page marks the technologies and skills it shares with this CV. The text stays in your browser.</value></data>
+  <data name="MatchButton" xml:space="preserve"><value>Compare</value></data>
+  <data name="MatchFound" xml:space="preserve"><value>In the CV ({0})</value></data>
+  <data name="MatchNone" xml:space="preserve"><value>No technology or skill of the CV appears in the text.</value></data>
+  <data name="MatchCoverage" xml:space="preserve"><value>{0} matching technologies and skills</value></data>
+  <data name="UsedSince" xml:space="preserve"><value>Used since {0} · {1} positions and projects</value></data>
+  <data name="UsedIn" xml:space="preserve"><value>Used in {0} · {1} positions and projects</value></data>
+  <data name="UsedBetween" xml:space="preserve"><value>Used {0}–{1} · {2} positions and projects</value></data>
+  <data name="UsedItems" xml:space="preserve"><value>{0} positions and projects</value></data>
+  <data name="DownloadsDesigned" xml:space="preserve"><value>CV</value></data>
+  <data name="DownloadsDesignedHint" xml:space="preserve"><value>The CV in this page's design, to read and print.</value></data>
+  <data name="DownloadsAts" xml:space="preserve"><value>For application portals (ATS)</value></data>
+  <data name="DownloadsAtsHint" xml:space="preserve"><value>One column, standard headings and plain text, which applicant tracking systems read reliably.</value></data>
+  <data name="DownloadsTailored" xml:space="preserve"><value>Tailored to a role</value></data>
+  <data name="DownloadsTailoredHint" xml:space="preserve"><value>The same CV, with what matters for the role first.</value></data>
+  <data name="DownloadsData" xml:space="preserve"><value>Text and data</value></data>
+  <data name="DownloadsDataHint" xml:space="preserve"><value>Markdown and JSON Resume, for tools and language models.</value></data>
+  <data name="FooterTagline" xml:space="preserve"><value>Business software development, system integration and automation. Solutions shaped around how your business works.</value></data>
+  <data name="FooterOnline" xml:space="preserve"><value>Online</value></data>
+  <data name="FooterMachine" xml:space="preserve"><value>For machines</value></data>
+</root>

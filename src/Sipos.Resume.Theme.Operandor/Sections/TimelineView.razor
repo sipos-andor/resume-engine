@@ -1,0 +1,15 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* The positions and projects on one time axis (the engine's TimelineModel, drawn by TimelineSvg). It repeats the
+   list below it, so it is hidden from screen readers and its links from the keyboard; the list carries the facts. *@
+@if (View.Page.Insights.Timeline.Bars.Count > 0)
+{
+    <figure class="cv-timeline">
+        @((MarkupString)TimelineSvg.Draw(View.Page.Insights.Timeline, View.Anchor, View.Period))
+        <figcaption class="cv-timeline__caption">@View.Labels.Timeline</figcaption>
+    </figure>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

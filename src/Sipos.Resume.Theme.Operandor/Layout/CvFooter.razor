@@ -1,0 +1,44 @@
+@namespace Sipos.Resume.Theme.Operandor.Layout
+@inject IStringLocalizer<ThemeText> T
+
+@* The design system's footer with the operandor mark, operandor's own tagline and the theme switch. The links lead
+   to the CV's contact and profiles and to its machine-readable versions. *@
+<SiteFooter Tagline="@T["FooterTagline"]" Copyright="@Copyright" Signature="oper·and·or">
+    <Columns>
+        @if (View is { } view)
+        {
+            <SiteFooterColumn Title="@view.Labels.Contact">
+                @if (view.Person.Contact is { } contact)
+                {
+                    <a href="@contact.Url">@contact.Label</a>
+                }
+                @if (view.Person.Phone is { } phone)
+                {
+                    <a href="tel:@view.Person.PhoneE164">@phone</a>
+                }
+            </SiteFooterColumn>
+            <SiteFooterColumn Title="@T["FooterOnline"]">
+                @foreach (var profile in view.Person.Profiles)
+                {
+                    <a href="@profile.Url" rel="me">@profile.Network</a>
+                }
+                <a href="https://operandor.io/">operandor.io</a>
+            </SiteFooterColumn>
+            <SiteFooterColumn Title="@T["FooterMachine"]" Mono="true">
+                <a href="@ResumeView.Href(view.Page.MarkdownPath)" type="text/markdown">index.md</a>
+                <a href="@ResumeView.Href(view.Page.JsonResumePath)" type="application/json">resume.json</a>
+                <a href="@ResumeView.Href(view.Page.LlmsTxtPath)" type="text/plain">llms.txt</a>
+            </SiteFooterColumn>
+        }
+    </Columns>
+    <Utility>
+        <ThemeToggle data-cv-theme-toggle="" />
+    </Utility>
+</SiteFooter>
+
+@code {
+    [CascadingParameter] internal ResumeView? View { get; set; }
+
+    /// <summary>The copyright line, such as <c>© 2026 Andor Sípos</c>.</summary>
+    [Parameter, EditorRequired] public string Copyright { get; set; } = default!;
+}

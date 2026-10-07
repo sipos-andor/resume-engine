@@ -1,0 +1,48 @@
+@namespace Sipos.Resume.Theme.Operandor.Pages
+@using Sipos.Resume.Core.Localization
+
+@* As on operandor.io: no sentences, since the host serves this one page for every unknown address and cannot tell the
+   reader's language; the number, the brand's mark pulled apart, and every language's home page by its own name. *@
+<CvDocument Lang="@Home.Document.Language.Tag" Settings="@Home.Settings">
+    <ChildContent>
+        <SeoHead Title="@($"404 – {Home.Document.Person.Name} – {new ResumeLabels(Home.Document.Language.Culture).CurriculumVitae}")" NoIndex="true" />
+        <div class="op-page cv-page">
+            <main id="main" class="cv-main">
+                <OpBand Tone="card" Pad="104">
+                    <div class="op-notfound cv-notfound">
+                        <svg class="op-notfound__drawing" viewBox="0 0 560 120" width="560" height="120" fill="none" aria-hidden="true" focusable="false">
+                            <circle cx="20" cy="60" r="10" fill="var(--brand-mark)" />
+                            <circle cx="540" cy="60" r="10" fill="var(--brand-mark)" />
+                            <g stroke="var(--brand-mark)" stroke-width="12" stroke-linejoin="miter">
+                                <path d="M56 73 L92 47 L128 73" />
+                                <path d="M432 47 L468 73 L504 47" />
+                            </g>
+                            <g stroke="var(--text-subtle)" stroke-width="3" stroke-linecap="round">
+                                <path d="M152 60 H246" />
+                                <path d="M314 60 H408" />
+                                <path d="M254 48 L242 72" />
+                                <path d="M318 48 L306 72" />
+                            </g>
+                        </svg>
+                        <h1 class="op-notfound__number">404</h1>
+                        <nav class="op-notfound__languages">
+                            @foreach (var language in Pages.Select(item => item.Document.Language))
+                            {
+                                <OpButton Size="lg" Variant="@(language.IsDefault ? "primary" : "outline")" IconLeft="arrow-left"
+                                          Href="@ResumeView.Href(language.HomePath)" lang="@language.Tag" hreflang="@language.Tag">@language.Endonym</OpButton>
+                            }
+                        </nav>
+                    </div>
+                </OpBand>
+            </main>
+            <CvFooter Copyright="@($"© {(Home.Document.LastModified ?? DateOnly.FromDateTime(DateTime.UtcNow)).Year} {Home.Document.Person.Name}")" />
+        </div>
+    </ChildContent>
+</CvDocument>
+
+@code {
+    /// <summary>Every language's page, the default first.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<SitePage> Pages { get; set; } = [];
+
+    private SitePage Home => Pages[0];
+}

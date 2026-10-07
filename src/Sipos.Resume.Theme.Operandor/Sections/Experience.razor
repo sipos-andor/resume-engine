@@ -1,0 +1,26 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+<CvSection Id="experience" Title="@View.Labels.Experience">
+    <TimelineView />
+    <div class="cv-items">
+        @foreach (var position in View.Document.Positions)
+        {
+            <PositionItem Position="position" />
+        }
+    </div>
+</CvSection>
+@if (View.Document.Projects.Count > 0)
+{
+    <CvSection Id="projects" Title="@View.Labels.Projects">
+        <div class="cv-items">
+            @foreach (var engagement in View.Document.Projects)
+            {
+                <EngagementItem Engagement="engagement" />
+            }
+        </div>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

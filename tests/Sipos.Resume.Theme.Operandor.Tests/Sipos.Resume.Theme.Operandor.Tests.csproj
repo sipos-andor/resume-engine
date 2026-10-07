@@ -2,9 +2,11 @@
 
   <ItemGroup>
     <PackageReference Include="bunit" />
-    <PackageReference Include="Jint" />
     <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
     <Using Include="Bunit" />
+  </ItemGroup>
+
+  <ItemGroup>
   </ItemGroup>
 
   <ItemGroup>

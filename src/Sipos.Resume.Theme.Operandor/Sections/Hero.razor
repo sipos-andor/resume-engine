@@ -1,0 +1,93 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* The opening: availability, name, title and profile, the main download and the contact, and the facts a recruiter
+   looks for first. The tailored downloads of each position profile wait hidden until the reader picks a focus. *@
+<div class="cv-hero">
+    <div class="cv-hero__text">
+        @if (View.Person.Availability is { } availability)
+        {
+            var label = availability.Status == AvailabilityStatus.From && availability.From is { } from
+                ? $"{availability.Label} ({View.Date(from)})"
+                : availability.Label;
+            if (availability.Url is { } url)
+            {
+                <a class="cv-availability cv-availability--@availability.Status.ToString().ToLowerInvariant()" href="@url">
+                    <span class="cv-availability__dot" aria-hidden="true"></span>@label
+                </a>
+            }
+            else
+            {
+                <p class="cv-availability cv-availability--@availability.Status.ToString().ToLowerInvariant()">
+                    <span class="cv-availability__dot" aria-hidden="true"></span>@label
+                </p>
+            }
+        }
+        <h1 class="cv-hero__name">@View.Person.Name</h1>
+        @if (View.Person.Title is { } title)
+        {
+            <p class="cv-hero__title">@title</p>
+        }
+        @if (View.Person.Tagline is { } tagline)
+        {
+            <p class="cv-hero__tagline">@tagline</p>
+        }
+        @if (View.Person.Summary is { } summary)
+        {
+            <p class="cv-hero__summary" data-cv-summary="" data-cv-summary-default="@summary">@summary</p>
+        }
+        <p class="cv-hero__focus" data-cv-focus-note="" hidden></p>
+        <div class="op-hero-actions cv-hero__actions">
+            @if (View.Download(DownloadFormat.Pdf, DocumentVariant.Designed) is { } pdf)
+            {
+                <OpButton Href="@ResumeView.Href(pdf.Path)" IconLeft="download" download="@pdf.FileName" type="@pdf.MediaType" data-cv-main-download="">@View.Text["DownloadPdf"]</OpButton>
+            }
+            @foreach (var download in View.Page.Downloads.Where(download => download.FocusId is not null && download.Format == DownloadFormat.Pdf))
+            {
+                <OpButton Href="@ResumeView.Href(download.Path)" IconLeft="download" download="@download.FileName" type="@download.MediaType" data-cv-focus-download="@download.FocusId" hidden="">@View.Text["DownloadTailoredPdf"]</OpButton>
+            }
+            @if (View.Person.Contact is { } contact)
+            {
+                <OpButton Variant="outline" Href="@contact.Url" IconRight="arrow-right">@contact.Label</OpButton>
+            }
+        </div>
+    </div>
+    <aside class="cv-hero__facts" aria-label="@View.Labels.Contact">
+        <dl class="cv-facts">
+            @if (View.Person.Phone is { } phone)
+            {
+                <div class="cv-facts__row">
+                    <dt><OpIcon Name="phone" Size="16" /><span class="op-visually-hidden">@View.Labels.Phone</span></dt>
+                    <dd><a href="tel:@View.Person.PhoneE164">@phone</a></dd>
+                </div>
+            }
+            @if (View.Person.Location is { } location)
+            {
+                <div class="cv-facts__row">
+                    <dt><OpIcon Name="map-pin" Size="16" /><span class="op-visually-hidden">@View.Labels.Location</span></dt>
+                    <dd>@location</dd>
+                </div>
+            }
+            <div class="cv-facts__row">
+                <dt><OpIcon Name="globe" Size="16" /><span class="op-visually-hidden">@View.Labels.Web</span></dt>
+                <dd>
+                    @foreach (var profile in View.Person.Profiles)
+                    {
+                        <a class="cv-facts__profile" href="@profile.Url" rel="me">@profile.Network</a>
+                    }
+                </dd>
+            </div>
+            @if (View.Document.Languages.Count > 0)
+            {
+                <div class="cv-facts__row">
+                    <dt><OpIcon Name="languages" Size="16" /><span class="op-visually-hidden">@View.Labels.Languages</span></dt>
+                    <dd>@string.Join(", ", View.Document.Languages.Select(language => language.Name))</dd>
+                </div>
+            }
+        </dl>
+        <a class="cv-hero__all-downloads" href="@View.Anchor("downloads")"><OpIcon Name="file-text" Size="16" />@View.Text["AllDownloads"]</a>
+    </aside>
+</div>
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

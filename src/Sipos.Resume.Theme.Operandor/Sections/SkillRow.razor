@@ -1,0 +1,18 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+<span class="cv-skill__name">@Skill.Name</span>
+@if (Skill.Rating is { } rating)
+{
+    <SkillMeter Rating="rating" />
+}
+@if (View.Level(Skill) is { } level)
+{
+    <span class="cv-skill__level">@level</span>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    /// <summary>The skill.</summary>
+    [Parameter, EditorRequired] public Skill Skill { get; set; } = default!;
+}

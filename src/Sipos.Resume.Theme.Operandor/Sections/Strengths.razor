@@ -1,0 +1,22 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+<CvSection Id="strengths" Title="@View.Labels.Strengths">
+    <ol class="cv-strengths" data-cv-order="strengths">
+        @foreach (var strength in View.Document.Strengths)
+        {
+            <li class="cv-strength" id="@strength.Id" data-cv-id="@strength.Id" data-cv-short="@Flag(strength.IsShort)">
+                <h3 class="cv-strength__title">@strength.Title</h3>
+                @if (strength.Summary is { } summary)
+                {
+                    <p class="cv-strength__summary">@summary</p>
+                }
+            </li>
+        }
+    </ol>
+</CvSection>
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    internal static string Flag(bool value) => value ? "true" : "false";
+}

@@ -1,0 +1,33 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@if (Items.Count > 0)
+{
+    <div class="cv-download-group">
+        <h3 class="cv-download-group__title">@Title</h3>
+        <p class="cv-download-group__hint">@Hint</p>
+        <ul class="cv-download-group__files">
+            @foreach (var download in Items)
+            {
+                <li>
+                    <a class="cv-download" href="@ResumeView.Href(download.Path)" download="@download.FileName" type="@download.MediaType" data-cv-focus-file="@download.FocusId">
+                        <OpIcon Name="download" Size="16" />
+                        <span class="cv-download__name">@download.Describe(View.FocusLabel(download.FocusId))</span>
+                    </a>
+                </li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    /// <summary>The group's heading.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+
+    /// <summary>What the files are for.</summary>
+    [Parameter, EditorRequired] public string Hint { get; set; } = default!;
+
+    /// <summary>The files.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<DownloadSpec> Items { get; set; } = [];
+}

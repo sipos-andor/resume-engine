@@ -1,0 +1,23 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* Every file of the page's language, grouped by what a reader needs it for: the designed CV, the ATS versions for
+   application portals, the versions tailored to a role, and the data. *@
+@if (View.Page.Downloads.Count > 0)
+{
+    <CvSection Id="downloads" Title="@View.Labels.Downloads" Class="cv-section--downloads">
+        <div class="cv-downloads">
+            <DownloadGroup Title="@View.Text["DownloadsDesigned"]" Hint="@View.Text["DownloadsDesignedHint"]"
+                           Items="@View.Page.Downloads.Where(d => d.FocusId is null && d.Variant == DocumentVariant.Designed && d.Format is DownloadFormat.Pdf or DownloadFormat.Docx).ToList()" />
+            <DownloadGroup Title="@View.Text["DownloadsAts"]" Hint="@View.Text["DownloadsAtsHint"]"
+                           Items="@View.Page.Downloads.Where(d => d.FocusId is null && d.Variant == DocumentVariant.Ats).ToList()" />
+            <DownloadGroup Title="@View.Text["DownloadsTailored"]" Hint="@View.Text["DownloadsTailoredHint"]"
+                           Items="@View.Page.Downloads.Where(d => d.FocusId is not null).ToList()" />
+            <DownloadGroup Title="@View.Text["DownloadsData"]" Hint="@View.Text["DownloadsDataHint"]"
+                           Items="@View.Page.Downloads.Where(d => d.FocusId is null && d.Format is DownloadFormat.Markdown or DownloadFormat.JsonResume).ToList()" />
+        </div>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

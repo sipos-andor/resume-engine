@@ -1,0 +1,18 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@if (Keywords.Count > 0)
+{
+    <ul class="cv-tags" aria-label="@View.Labels.Technologies">
+        @foreach (var keyword in Keywords)
+        {
+            <li class="op-tag">@keyword</li>
+        }
+    </ul>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    /// <summary>The technologies.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<string> Keywords { get; set; } = [];
+}
