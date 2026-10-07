@@ -1,0 +1,57 @@
+<Project>
+
+  <!--
+    Decision: one place for the settings every project shares, and warnings fail the build.
+    Why: the engine is a set of packages other repositories build on; a nullable or analyzer warning left in a
+    package becomes the consumer's bug. Treating warnings as errors keeps the bar the same in every project.
+    Considered: repeating the settings in each project file, as operandor-website does, which drifts as projects are
+    added; AnalysisMode All, whose stylistic rules cost more than they catch in a codebase this size.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Deterministic>true</Deterministic>
+    <NeutralLanguage>en</NeutralLanguage>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
+  <!-- Package metadata, used by the projects under src/ that set IsPackable. -->
+  <PropertyGroup>
+    <Authors>Andor Sípos</Authors>
+    <Copyright>Copyright (c) 2026 Andor Sípos</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/sipos-andor/resume-engine</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/sipos-andor/resume-engine</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>resume;cv;json-resume;blazor;static-site;pdf;docx;ats</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!--
+      Decision: versions come from git tags (MinVer); a tag v1.2.3 builds 1.2.3, other commits a pre-release after it.
+      Why: a package version is published once, and a tag on the commit that was tested is the single place a release
+      is decided; the files need no edit to release.
+      Considered: a <Version> in the project files raised by hand, as operandor-website does, which works there because
+      only two packages move and a check guards them.
+    -->
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+    <MinVerDefaultPreReleaseIdentifiers>alpha.0</MinVerDefaultPreReleaseIdentifiers>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(IsPackable)' == 'true'">
+    <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="" Visible="false" />
+  </ItemGroup>
+
+</Project>
