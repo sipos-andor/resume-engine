@@ -18,7 +18,8 @@ both considered. Both are built for ASP.NET Core APIs with a database.
 Follow the principles, not the templates:
 
 - **Dependency inversion.** `Sipos.Resume.Core` holds the domain, its rules and the ports (`IResumeSource`,
-  `IPageRenderer`, `IDocumentWriter`, `IArtifactSink`) and depends on nothing else.
+  `IDocumentWriter`, `IResumeTheme`) and depends on nothing but the dependency injection abstractions, through
+  which a theme registers the services of its components.
 - **Use cases** live in `Sipos.Resume.Generation` (`ValidateContent`, `BuildSite`, `ExportDocuments`) with the adapters
   that have no licence or platform reason to live apart.
 - **Adapters** get a project of their own only where a package boundary pays for itself:
