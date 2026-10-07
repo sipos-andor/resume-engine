@@ -28,6 +28,32 @@ public class ResumeValidatorValidate
     }
 
     [Theory]
+    [InlineData("call me")]
+    [InlineData("+ () -")]
+    [InlineData("１２３")]
+    [InlineData("١٢٣")]
+    public void RefusesPhoneGivenNoAsciiDigit(string phone)
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Basics = resume.Basics! with { Phone = phone } }).ShouldBe(["/basics/phone"]);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("+36 (30) 903-6622")]
+    [InlineData("020 7946 0000")]
+    [InlineData("0")]
+    public void AcceptsPhoneGivenBlankOrAsciiDigits(string? phone)
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Basics = resume.Basics! with { Phone = phone } }).ShouldBeEmpty();
+    }
+
+    [Theory]
     [InlineData("2022-13", null, "/work/0/startDate")]
     [InlineData("2022-11", "2021", "/work/0/endDate")]
     [InlineData(null, null, "/work/0/startDate")]

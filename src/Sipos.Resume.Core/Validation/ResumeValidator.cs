@@ -102,6 +102,11 @@ public static partial class ResumeValidator
             fail("/basics/email", "E-mail addresses are not published; remove it and give a contact page in basics.x-contact.");
         }
 
+        if (!string.IsNullOrWhiteSpace(basics.Phone) && !basics.Phone.Any(char.IsAsciiDigit))
+        {
+            fail("/basics/phone", "Must contain at least one ASCII digit.");
+        }
+
         CheckUrl(basics.Url, "/basics/url", fail);
         CheckUrl(basics.Image, "/basics/image", fail);
         for (var i = 0; i < basics.Profiles.Count; i++)
