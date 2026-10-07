@@ -149,6 +149,12 @@ public sealed partial class ResumeGenerator
                 return 2;
             }
 
+            if (!options.ValidateOnly && OutputConflict(options) is { } conflict)
+            {
+                Log.Usage(logger, conflict, Usage);
+                return 2;
+            }
+
             var files = await new FolderSource(options.ContentFolder).ReadAsync(cancellationToken).ConfigureAwait(false);
             var loaded = ContentLoader.Load(files, options.AnalyticsToken);
             foreach (var issue in loaded.Issues)
@@ -302,6 +308,46 @@ public sealed partial class ResumeGenerator
         today = DateOnly.FromDateTime(DateTime.UtcNow);
         return true;
     }
+
+    // Decision: the output may not be, or hold, the content, the assets, the program, the working folder or the home
+    // folder, and may not be a drive's root.
+    // Why: --clean empties the output; a mistyped --output such as "." or the content folder would delete the CV's
+    // sources, the repository or the running program.
+    private static string? OutputConflict(BuildOptions options)
+    {
+        var output = Full(options.OutputFolder);
+        if (Path.GetPathRoot(output) is { } root && Same(Full(root), output))
+        {
+            return $"--output {output} is the root of a drive; name a folder for the site.";
+        }
+
+        (string Path, string Name)[] protectedFolders =
+        [
+            (Full(options.ContentFolder), "the content folder"),
+            (Full(options.AssetsRoot), "the assets folder"),
+            (Full(AppContext.BaseDirectory), "the program's folder"),
+            (Full(Environment.CurrentDirectory), "the working folder"),
+            (Full(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)), "the home folder"),
+        ];
+        foreach (var (path, name) in protectedFolders)
+        {
+            if (path.Length > 0 && Contains(output, path))
+            {
+                return $"--output {output} is or holds {name} ({path}); name a folder of its own for the site.";
+            }
+        }
+
+        return null;
+
+        static string Full(string path) => path.Length == 0 ? "" : Path.TrimEndingDirectorySeparator(Path.GetFullPath(path));
+        static bool Same(string a, string b) => string.Equals(a, b, PathComparison);
+        static bool Contains(string outer, string inner) =>
+            Same(outer, inner) || inner.StartsWith(Path.TrimEndingDirectorySeparator(outer) + Path.DirectorySeparatorChar, PathComparison);
+    }
+
+    // Windows and macOS file systems ignore case by default.
+    private static StringComparison PathComparison =>
+        OperatingSystem.IsWindows() || OperatingSystem.IsMacOS() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
 
     // Decision: a folder that holds files is emptied only with --clean.
     // Why: a mistyped --output must not delete someone's folder.

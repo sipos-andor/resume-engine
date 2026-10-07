@@ -62,6 +62,25 @@ public class ResumeGeneratorRun
         folder.Exists("dist/keep.txt").ShouldBeFalse();
     }
 
+    // --clean empties the output, so it may not be or hold the CV's sources, the program or the working folder.
+    [Theory]
+    [InlineData("content")]
+    [InlineData("")]
+    public async Task RefusesOutputGivenFolderThatHoldsContent(string output)
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        var target = Path.Combine(folder.Path, output);
+
+        var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"), "--output", target, "--assets", Path.Combine(folder.Path, "wwwroot"), "--today", "2026-10-07", "--clean"])
+            .UseTheme(new FakeTheme())
+            .UseLogging(NullLoggerFactory.Instance)
+            .RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(2);
+        folder.Exists("content/resume.en.json").ShouldBeTrue();
+    }
+
     // An issue may quote a value, such as a parity difference; the address must not reach the build log.
     [Fact]
     public async Task LeavesAddressOutOfLogGivenAddressInContent()
