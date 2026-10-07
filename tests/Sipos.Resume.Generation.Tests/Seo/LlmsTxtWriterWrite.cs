@@ -36,6 +36,19 @@ public class LlmsTxtWriterWrite
         text.ShouldNotContain("llms-full.txt");
     }
 
+    // The quote and the summary each start a block, where "1." or "#" would make a list or a heading.
+    [Fact]
+    public void KeepsTitleAndSummaryAsTextGivenListOrHeadingMarkers()
+    {
+        var pages = SamplePages.Sample();
+        var document = pages[0].Document with { Person = pages[0].Document.Person with { Title = "# Architect", Tagline = null, Summary = "1. Builds systems." } };
+
+        var text = LlmsTxtWriter.Write(pages[0] with { Document = document }, pages);
+
+        text.ShouldContain("> \\# Architect\n");
+        text.ShouldContain("\n1\\. Builds systems.\n");
+    }
+
     [Fact]
     public void SeparatesLanguagesWithRulesGivenFullText() => LlmsTxtWriter.WriteFull(["# A\n", "# B\n"]).ShouldBe("# A\n\n---\n\n# B\n");
 }

@@ -31,11 +31,13 @@ internal static class LlmsTxtWriter
         var text = new StringBuilder();
 
         text.Append("# ").AppendLine(E(person.Name)).AppendLine();
-        var title = string.Join(" · ", new[] { person.Title, person.Tagline }.OfType<string>().Select(E));
-        text.Append("> ").AppendLine(title.Length > 0 ? title : E(labels.CurriculumVitae)).AppendLine();
+        // The quote's and the summary's text each start a block, where a leading #, -, + or 1. would make a heading or
+        // a list of them.
+        var title = string.Join(" · ", new[] { person.Title, person.Tagline }.OfType<string>());
+        text.Append("> ").AppendLine(MarkdownText.EscapeBlock(title.Length > 0 ? title : labels.CurriculumVitae)).AppendLine();
         if (person.Summary is { } summary)
         {
-            text.AppendLine(E(summary)).AppendLine();
+            text.AppendLine(MarkdownText.EscapeBlock(summary)).AppendLine();
         }
 
         text.Append("## ").AppendLine(E(labels.CurriculumVitae)).AppendLine();
