@@ -250,12 +250,13 @@ if (data && tools && main) {
     const matchResult = document.getElementById("cv-match-result");
     document.querySelector("[data-cv-match]")?.addEventListener("click", () => {
         const terms = match(data.vocabulary, matchText.value);
+        // The ad's matches have classes of their own, so the profile and the technology filter do not undo them.
         const keys = new Set(terms.map((term) => key(term.term)));
         for (const tag of document.querySelectorAll(".cv-tags .op-tag")) {
-            tag.classList.toggle("cv-tag--match", keys.has(tag.dataset.cvKey));
+            tag.classList.toggle("cv-tag--ad", keys.has(tag.dataset.cvKey));
         }
         for (const skill of document.querySelectorAll("[data-cv-skill]")) {
-            skill.classList.toggle("cv-skill--match", keys.has(skill.dataset.cvSkill));
+            skill.classList.toggle("cv-skill--ad", keys.has(skill.dataset.cvSkill));
         }
         matchResult.replaceChildren();
         if (terms.length === 0) {

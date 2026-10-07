@@ -164,8 +164,8 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
 .cv-dim:hover,.cv-dim:focus-within{opacity:0.75}
 .cv-hit{box-shadow:-14px 0 0 -11px var(--accent)}
 .cv-focus{box-shadow:-16px 0 0 -13px var(--accent)}
-.op-tag.cv-tag--match{border-color:var(--accent);background:var(--surface-accent-tint);color:var(--text-on-accent-tint)}
-.cv-skill--match .cv-skill__name{color:var(--accent);font-weight:var(--fw-medium)}
+.op-tag.cv-tag--match,.op-tag.cv-tag--ad{border-color:var(--accent);background:var(--surface-accent-tint);color:var(--text-on-accent-tint)}
+.cv-skill--match .cv-skill__name,.cv-skill--ad .cv-skill__name{color:var(--accent);font-weight:var(--fw-medium)}
 
 /* Narrow screens */
 @media (max-width:960px){
