@@ -62,6 +62,9 @@ public static partial class EmailGuard
     // JSON pointer escaping (RFC 6901): ~ becomes ~0 and / becomes ~1.
     private static string Escape(string name) => name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
 
-    [GeneratedRegex(@"[A-Za-z0-9._%+\-]+@[A-Za-z0-9\-]+(\.[A-Za-z0-9\-]+)*\.[A-Za-z]{2,}", RegexOptions.CultureInvariant)]
+    // Decision: letters, marks and digits of any script on both sides of the @, so an internationalized address such as
+    // one with a Greek or Cyrillic local part or domain is caught too.
+    // Why: the guard is the privacy promise; an address it does not recognize is published as text.
+    [GeneratedRegex(@"[\p{L}\p{M}\p{N}._%+\-]+@[\p{L}\p{M}\p{N}\-]+(\.[\p{L}\p{M}\p{N}\-]+)*\.[\p{L}\p{M}]{2,}", RegexOptions.CultureInvariant)]
     private static partial Regex Address();
 }
