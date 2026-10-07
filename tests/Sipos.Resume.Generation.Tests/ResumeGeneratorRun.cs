@@ -5,6 +5,84 @@ namespace Sipos.Resume.Generation.Tests;
 
 public class ResumeGeneratorRun
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RefusesCleanGivenLinkedContentInsideOutput(bool linkedParent)
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        Sites.WriteAssets(folder);
+        folder.Write("dist/content/site.json", folder.Read("content/site.json"));
+        folder.Write("dist/content/resume.en.json", folder.Read("content/resume.en.json"));
+        folder.Write("dist/content/resume.hu.json", folder.Read("content/resume.hu.json"));
+        folder.Write("dist/keep.txt", "mine");
+        var link = Path.Combine(folder.Path, "linked-content");
+        DirectoryLink.Create(link, linkedParent ? Path.Combine(folder.Path, "dist") : Path.Combine(folder.Path, "dist", "content"));
+        try
+        {
+            var content = linkedParent ? Path.Combine(link, "content") : link;
+            var code = await ResumeGenerator.Create(["--content", content, "--output", Path.Combine(folder.Path, "dist"),
+                "--assets", Path.Combine(folder.Path, "wwwroot"), "--clean"])
+                .UseTheme(new FakeTheme()).UseLogging(NullLoggerFactory.Instance).UseEnvironment(_ => null)
+                .RunAsync(TestContext.Current.CancellationToken);
+
+            code.ShouldBe(2);
+            folder.Read("dist/keep.txt").ShouldBe("mine");
+            folder.Read("dist/content/resume.en.json").ShouldBe(Samples.English);
+        }
+        finally
+        {
+            Directory.Delete(link);
+        }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task RefusesOutputInsideRealAssetsGivenLinkedAssets(bool linkedParent)
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        Sites.WriteAssets(folder);
+        folder.Write("wwwroot/dist/keep.txt", "mine");
+        var link = Path.Combine(folder.Path, "linked-assets");
+        DirectoryLink.Create(link, linkedParent ? folder.Path : Path.Combine(folder.Path, "wwwroot"));
+        try
+        {
+            var assets = linkedParent ? Path.Combine(link, "wwwroot") : link;
+            var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"),
+                "--output", Path.Combine(folder.Path, "wwwroot/dist"), "--assets", assets, "--clean"])
+                .UseTheme(new FakeTheme()).UseLogging(NullLoggerFactory.Instance).UseEnvironment(_ => null)
+                .RunAsync(TestContext.Current.CancellationToken);
+
+            code.ShouldBe(2);
+            folder.Read("wwwroot/dist/keep.txt").ShouldBe("mine");
+            folder.Exists("wwwroot/dist/index.html").ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(link);
+        }
+    }
+
+    [Fact]
+    public async Task RefusesCredentialsBeforeCleanWithoutLoggingPassword()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        folder.Write("content/resume.en.json", Samples.English.Replace("https://github.com/ann", "https://probe-user:probe-password@example.com/profile", StringComparison.Ordinal));
+        folder.Write("dist/keep.txt", "mine");
+        var logging = new RecordingLoggerFactory();
+
+        var code = await Generator(folder, null, "--clean").UseLogging(logging).RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(1);
+        folder.Read("dist/keep.txt").ShouldBe("mine");
+        logging.Lines.ShouldNotContain(line => line.Contains("probe-password", StringComparison.Ordinal));
+        logging.Lines.ShouldNotContain(line => line.Contains("probe-user", StringComparison.Ordinal));
+    }
+
     [Fact]
     public async Task RefusesInvalidPreservedSectionBeforeCleaningOutput()
     {

@@ -89,6 +89,17 @@ public static partial class ResumeValidator
             Fail("/meta/lastModified", "Must start with a date in the form YYYY-MM-DD.");
         }
 
+        var typed = System.Text.Json.JsonSerializer.SerializeToElement(resume, ResumeJsonContext.Default.JsonResume);
+        var credentials = ContentUrlGuard.Check(source, typed)
+            .Concat(resume.Original is { } preserved ? ContentUrlGuard.Check(source, preserved) : []);
+        foreach (var issue in credentials)
+        {
+            if (!issues.Any(existing => existing.Path == issue.Path))
+            {
+                issues.Add(issue);
+            }
+        }
+
         return issues;
     }
 
@@ -400,9 +411,9 @@ public static partial class ResumeValidator
 
     private static void CheckUrl(string? url, string path, Action<string, string> fail)
     {
-        if (url is { Length: > 0 } && !(Uri.TryCreate(url, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp)))
+        if (url is { Length: > 0 } && !(Uri.TryCreate(url, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp) && uri.UserInfo.Length == 0))
         {
-            fail(path, "Must be an absolute http or https address.");
+            fail(path, "Must be an absolute http or https address without credentials.");
         }
     }
 }

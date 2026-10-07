@@ -5,6 +5,22 @@ namespace Sipos.Resume.Core.Tests.Content;
 
 public class ResumeReaderRead
 {
+    [Theory]
+    [InlineData("{\"basics\":{\"url\":\"https://probe-user:probe-password@example.com/\"}}", "/basics/url")]
+    [InlineData("{\"volunteer\":[{\"url\":\"http://probe-user:probe-password@example.com/\"}]}", "/volunteer/0/url")]
+    [InlineData("{\"publications\":[{\"url\":\"https://probe-user@example.com/\"}]}", "/publications/0/url")]
+    [InlineData("{\"meta\":{\"canonical\":\"https://probe-user:probe-password@example.com/\"}}", "/meta/canonical")]
+    [InlineData("{\"x-extra\":[{\"a~/b\":\"https://probe-user:probe-password@example.com/\"}]}", "/x-extra/0/a~0~1b")]
+    public void RejectsCredentialsAnywhereWithoutQuotingThem(string json, string path)
+    {
+        var result = ResumeReader.Read("resume.en.json", Encoding.UTF8.GetBytes(json));
+
+        result.Resume.ShouldBeNull();
+        result.Issues.ShouldContain(issue => issue.Path == path && issue.Message.Contains("credentials", StringComparison.Ordinal));
+        result.Issues.ShouldAllBe(issue => !issue.Message.Contains("probe-password", StringComparison.Ordinal)
+            && !issue.Message.Contains("probe-user", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void ReadsStandardAndExtensionFieldsGivenValidFile()
     {

@@ -5,6 +5,49 @@ namespace Sipos.Resume.Core.Tests.Validation;
 
 public class ResumeValidatorValidate
 {
+    [Theory]
+    [InlineData("http://probe-user:probe-password@example.com/")]
+    [InlineData("https://probe-user@example.com/")]
+    [InlineData("https://probe%2Duser:probe%2Dpassword@example.com/")]
+    public void RejectsCredentialsGivenProgrammaticContent(string url)
+    {
+        var resume = Samples.Read(Samples.English);
+        resume = resume with
+        {
+            Basics = resume.Basics! with
+            {
+                Url = url,
+                Image = url,
+                Profiles = [resume.Basics.Profiles[0] with { Url = url }],
+                Contact = resume.Basics.Contact! with { Url = url },
+                Availability = resume.Basics.Availability! with { Url = url },
+            },
+            Work = [resume.Work[0] with { Url = url }],
+            Projects = [resume.Projects[0] with { Url = url }],
+            Education = [resume.Education[0] with { Url = url }],
+            Certificates = [resume.Certificates[0] with { Url = url }],
+            Meta = resume.Meta! with { Canonical = url },
+        };
+
+        var issues = ResumeValidator.Validate("resume.en.json", resume);
+
+        issues.Select(issue => issue.Path).ShouldBe([
+            "/basics/url", "/basics/image", "/basics/profiles/0/url", "/basics/x-contact/url",
+            "/basics/x-availability/url", "/work/0/url", "/projects/0/url", "/education/0/url",
+            "/certificates/0/url", "/meta/canonical",
+        ], ignoreOrder: true);
+        issues.ShouldAllBe(issue => !issue.Message.Contains("probe-password", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("https://example.com/profile")]
+    [InlineData("http://example.com/?contact=public%40example.com")]
+    public void AcceptsCredentialFreeHttpUrl(string url)
+    {
+        var resume = Samples.Read(Samples.English);
+        PathsOf(resume with { Basics = resume.Basics! with { Url = url } }).ShouldBeEmpty();
+    }
+
     private static IReadOnlyList<string> PathsOf(JsonResume resume) =>
         [.. ResumeValidator.Validate("resume.en.json", resume).Select(issue => issue.Path)];
 

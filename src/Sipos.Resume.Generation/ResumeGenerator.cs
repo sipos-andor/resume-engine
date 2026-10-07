@@ -398,6 +398,11 @@ public sealed partial class ResumeGenerator
         ];
         foreach (var (path, name) in protectedFolders)
         {
+            if (path.Length > 0 && OutputPaths.LinkIn(path) is { } protectedLink)
+            {
+                return $"{name} ({path}) traverses a symbolic link or junction ({protectedLink}); use a path without linked components.";
+            }
+
             if (path.Length > 0 && Contains(output, path))
             {
                 return $"--output {output} is or holds {name} ({path}); name a folder of its own for the site.";
@@ -426,6 +431,12 @@ public sealed partial class ResumeGenerator
     // Why: a mistyped --output must not delete someone's folder.
     private static bool PrepareOutput(BuildOptions options, ILogger logger)
     {
+        if (OutputConflict(options) is { } conflict)
+        {
+            Log.Usage(logger, conflict, Usage);
+            return false;
+        }
+
         var folder = Path.GetFullPath(options.OutputFolder);
         OutputPaths.Check(folder);
         if (Directory.Exists(folder) && Directory.EnumerateFileSystemEntries(folder).Any())

@@ -40,6 +40,13 @@ public static class ResumeReader
             }
 
             var issues = EmailGuard.Check(source, document.RootElement).ToList();
+            var credentials = ContentUrlGuard.Check(source, document.RootElement).ToList();
+            if (credentials.Count > 0)
+            {
+                // Do not let parity diagnostics quote a rejected address from this document.
+                return new ReadResult(null, [.. issues, .. credentials]);
+            }
+
             var nulls = NullItems(document.RootElement, "").Select(pointer => new ValidationIssue(source, pointer, "Must not be null; leave the entry out instead.")).ToList();
             if (nulls.Count > 0)
             {

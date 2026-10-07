@@ -54,6 +54,7 @@ Projects whose names differ across languages must provide the same explicit `x-i
 their identifiers are generated from their names and start dates.
 Standard sections preserved in the JSON downloads are validated too, including volunteer work, publications,
 interests, references and education courses and scores.
+HTTP and HTTPS content URLs must not contain user-info or credentials, including in preserved and extension fields.
 
 **No e-mail address in the content.** A file with an e-mail address anywhere is refused: a published address is
 harvested. An address may appear only in the PDFs, drawn as an image, from the `RESUME_CONTACT_EMAIL` environment
@@ -127,6 +128,9 @@ RESUME_CONTACT_EMAIL=... dotnet build/YourCv.dll --content content --output site
 | `--today yyyy-MM-dd` | The present for ongoing periods (default: `SOURCE_DATE_EPOCH`, else today). |
 | `--require-email` | Fail without `RESUME_CONTACT_EMAIL`, as a deployment should. |
 | `--validate-only` | Check the content and stop. |
+
+Builds reject symbolic links and junctions in output and protected folder paths (content, assets, program, working
+and home folders), including linked parent components, before preparing the output.
 
 `RESUME_ANALYTICS_TOKEN` turns on Cloudflare Web Analytics (cookieless). The output is a static folder for any host;
 the pages carry their Content-Security-Policy as a `meta` element, so GitHub Pages needs no headers. The build ends
