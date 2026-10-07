@@ -70,6 +70,11 @@ public class MarkdownDocumentWriterRender
     [InlineData("2023", "2023")]
     public void KeepsTextGivenBlockThatStartsLikeListOrHeading(string text, string escaped) => MarkdownText.EscapeBlock(text).ShouldBe(escaped);
 
+    // A space or a parenthesis would end the link's destination early.
+    [Fact]
+    public void EncodesSpacesAndParenthesesGivenLinkDestination() =>
+        MarkdownText.Link("https://example.com/a b/(c)").ShouldBe("[example.com/a b/(c)](https://example.com/a%20b/%28c%29)");
+
     [Fact]
     public void KeepsDateAsWrittenGivenItInsideLine() => MarkdownText.Escape("2023. March – 2023. May").ShouldBe("2023. March – 2023. May");
 

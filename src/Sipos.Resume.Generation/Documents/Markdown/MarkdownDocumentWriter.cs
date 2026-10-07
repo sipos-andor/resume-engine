@@ -149,13 +149,13 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
 
         if (person.Contact is { } contact)
         {
-            lines.Add($"{MarkdownText.Escape(labels.Contact)}: [{MarkdownText.Escape(contact.Label)}]({contact.Url})");
+            lines.Add($"{MarkdownText.Escape(labels.Contact)}: [{MarkdownText.Escape(contact.Label)}]({MarkdownText.Destination(contact.Url)})");
         }
 
         lines.AddRange(person.Profiles.Select(profile => $"{MarkdownText.EscapeBlock(profile.Network)}: {MarkdownText.Link(profile.Url)}"));
         if (person.Availability is { } availability)
         {
-            lines.Add(availability.Url is null ? $"**{MarkdownText.Escape(availability.Label)}**" : $"**[{MarkdownText.Escape(availability.Label)}]({availability.Url})**");
+            lines.Add(availability.Url is null ? $"**{MarkdownText.Escape(availability.Label)}**" : $"**[{MarkdownText.Escape(availability.Label)}]({MarkdownText.Destination(availability.Url)})**");
         }
 
         foreach (var line in lines)
@@ -232,7 +232,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
     {
         foreach (var certificate in outline.Document.Certificates)
         {
-            var name = certificate.Url is null ? MarkdownText.Escape(certificate.Name) : $"[{MarkdownText.Escape(certificate.Name)}]({certificate.Url})";
+            var name = certificate.Url is null ? MarkdownText.Escape(certificate.Name) : $"[{MarkdownText.Escape(certificate.Name)}]({MarkdownText.Destination(certificate.Url)})";
             text.Append("- ").Append(name);
             text.AppendLine(string.Concat(new[] { certificate.Issuer, certificate.Date is { } date ? outline.Date(date) : null }.OfType<string>().Select(part => ", " + MarkdownText.Escape(part))));
         }

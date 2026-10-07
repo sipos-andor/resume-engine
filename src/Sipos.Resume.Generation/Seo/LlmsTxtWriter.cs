@@ -66,12 +66,12 @@ internal static class LlmsTxtWriter
             text.Append("## ").AppendLine(E(labels.Contact)).AppendLine();
             if (person.Contact is { } contact)
             {
-                text.Append("- [").Append(E(contact.Label)).Append("](").Append(contact.Url).AppendLine(")");
+                text.Append("- [").Append(E(contact.Label)).Append("](").Append(MarkdownText.Destination(contact.Url)).AppendLine(")");
             }
 
             foreach (var profile in person.Profiles)
             {
-                text.Append("- [").Append(E(profile.Network)).Append("](").Append(profile.Url).AppendLine(")");
+                text.Append("- [").Append(E(profile.Network)).Append("](").Append(MarkdownText.Destination(profile.Url)).AppendLine(")");
             }
 
             text.AppendLine();

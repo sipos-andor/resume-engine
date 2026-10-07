@@ -47,7 +47,19 @@ internal static partial class MarkdownText
 
     /// <summary>Writes a URL as a link whose text is the URL without its scheme, such as <c>[github.com/ann](https://github.com/ann)</c>.</summary>
     /// <param name="url">An absolute URL.</param>
-    public static string Link(string url) => $"[{Escape(Shorten(url))}]({url})";
+    public static string Link(string url) => $"[{Escape(Shorten(url))}]({Destination(url)})";
+
+    /// <summary>
+    /// Writes a URL as a link's destination: a space, a parenthesis or an angle bracket, which would end or break the
+    /// link, is percent-encoded, as a browser sends it anyway.
+    /// </summary>
+    /// <param name="url">An absolute URL.</param>
+    public static string Destination(string url)
+    {
+        ArgumentNullException.ThrowIfNull(url);
+        return url.Replace(" ", "%20", StringComparison.Ordinal).Replace("(", "%28", StringComparison.Ordinal).Replace(")", "%29", StringComparison.Ordinal)
+            .Replace("<", "%3C", StringComparison.Ordinal).Replace(">", "%3E", StringComparison.Ordinal);
+    }
 
     /// <summary>Returns a URL without its scheme and without the slash after a bare host, as people write it.</summary>
     /// <param name="url">An absolute URL.</param>
