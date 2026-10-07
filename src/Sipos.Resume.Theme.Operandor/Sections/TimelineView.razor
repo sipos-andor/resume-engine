@@ -1,10 +1,11 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
 @* The positions and projects on one time axis (the engine's TimelineModel, drawn by TimelineSvg). It repeats the
-   list below it, so it is hidden from screen readers and its links from the keyboard; the list carries the facts. *@
+   list below it, so the whole figure, caption included, is hidden from screen readers and its links from the
+   keyboard; the list carries the facts. *@
 @if (View.Page.Insights.Timeline.Bars.Count > 0)
 {
-    <figure class="cv-timeline">
+    <figure class="cv-timeline" aria-hidden="true">
         @((MarkupString)TimelineSvg.Draw(View.Page.Insights.Timeline, View.Anchor, View.Period))
         <figcaption class="cv-timeline__caption">@View.Labels.Timeline</figcaption>
     </figure>

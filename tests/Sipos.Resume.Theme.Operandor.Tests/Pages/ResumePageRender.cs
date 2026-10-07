@@ -104,6 +104,19 @@ public class ResumePageRender
         document.QuerySelector("#hobby .cv-item__title")!.LocalName.ShouldBe("h3");
     }
 
+    // The timeline repeats the list beside it, so screen readers and the keyboard skip all of it, caption included.
+    [Fact]
+    public async Task HidesTimelineFromAssistiveTechnologyGivenPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var figure = document.QuerySelector("figure.cv-timeline")!;
+        figure.GetAttribute("aria-hidden").ShouldBe("true");
+        var links = figure.QuerySelectorAll("a");
+        links.ShouldNotBeEmpty();
+        links.ShouldAllBe(link => link.GetAttribute("tabindex") == "-1");
+    }
+
     // Under <base href="/"> a bare "#experience" would lead to the root page.
     [Fact]
     public async Task LinksSectionsThroughPagePathGivenOtherLanguage()
