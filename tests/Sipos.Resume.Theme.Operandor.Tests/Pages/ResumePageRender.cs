@@ -37,6 +37,21 @@ public class ResumePageRender
         person.TryGetProperty("email", out _).ShouldBeFalse();
     }
 
+    // The header shows operandor's wide and compact marks, never its name, and the person's name as the home link's text.
+    [Fact]
+    public async Task ShowsOperandorMarksWithoutItsNameInHeaderGivenPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 1);
+
+        var home = document.QuerySelector(".op-header__home")!;
+        home.GetAttribute("aria-label").ShouldBe("Example Ann");
+        home.QuerySelector(".cv-brand__mark--wide svg")!.GetAttribute("viewBox").ShouldBe("0 0 278 100");
+        home.QuerySelector(".cv-brand__mark--compact svg")!.GetAttribute("viewBox").ShouldBe("0 0 100 100");
+        home.QuerySelectorAll(".cv-brand__mark").ShouldAllBe(mark => mark.GetAttribute("aria-hidden") == "true");
+        home.QuerySelector(".op-wordmark").ShouldBeNull();
+        home.TextContent.Trim().ShouldBe("Example Ann");
+    }
+
     // The policy allows no inline script; the JSON blocks are data the browser does not run.
     [Fact]
     public async Task RunsNoInlineScriptGivenPage()

@@ -23,7 +23,16 @@
                    scrolls, with a deep link at every heading. *@
                 <SiteHeader HomeLabel="@Page.Document.Person.Name" HomeHref="@ResumeView.Href(Page.Path)" NavItems="@([])">
                     <Brand>
-                        <span class="cv-brand"><span class="cv-brand__mark" aria-hidden="true"></span>@Page.Document.Person.Name</span>
+                        @* Decision: operandor's marks without its name, then the person's name: the wide mark on wide
+                           screens, the compact one on narrow screens.
+                           Why: the CV belongs to the person and is published in operandor's look; the name in the
+                           header is the person's, and the marks say whose design it is.
+                           Considered: the operandor wordmark, which would name the company as the page's owner. *@
+                        <span class="cv-brand">
+                            <span class="cv-brand__mark cv-brand__mark--wide" aria-hidden="true"><OpLogo Mark="a" Size="18" /></span>
+                            <span class="cv-brand__mark cv-brand__mark--compact" aria-hidden="true"><OpLogo Mark="f" Size="22" /></span>
+                            <span class="cv-brand__name">@Page.Document.Person.Name</span>
+                        </span>
                     </Brand>
                     <LanguageSwitch>
                         <LanguageMenu Languages="@LanguageOptions" />
