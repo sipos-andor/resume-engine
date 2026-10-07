@@ -51,8 +51,21 @@ public class ResumeMapperMap
         person.Location.ShouldBe("Remote from Europe");
         person.Contact.ShouldBe(new Link("https://example.com/contact", "Get in touch"));
         person.Availability!.Status.ShouldBe(AvailabilityStatus.Available);
-        person.PhoneE164.ShouldBe("+36301234567");
+        person.PhoneDial.ShouldBe("+36301234567");
         person.Profiles.Single().Network.ShouldBe("GitHub");
+    }
+
+    // A + only when the CV writes one: a local number with a + in front would dial another, invalid number.
+    [Theory]
+    [InlineData(" +44 20 7946 0000", "+442079460000")]
+    [InlineData("020 7946 0000", "02079460000")]
+    [InlineData("(06) 30/123-4567", "06301234567")]
+    [InlineData("on request", null)]
+    public void DialsNumberAsWrittenGivenPhone(string phone, string? dial)
+    {
+        var resume = Samples.Read(Samples.English);
+
+        ResumeMapper.Map(resume with { Basics = resume.Basics! with { Phone = phone } }, English).Person.PhoneDial.ShouldBe(dial);
     }
 
     [Fact]

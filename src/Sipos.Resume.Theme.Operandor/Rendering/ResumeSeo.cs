@@ -89,7 +89,7 @@ internal static class ResumeSeo
             Description = person.Summary,
             Url = settings.Url("/").AbsoluteUri,
             ImagePath = page.ShareImagePath,
-            Telephone = person.PhoneE164,
+            Telephone = person.PhoneDial,
             SameAs = [.. person.Profiles.Select(profile => profile.Url)],
             WorksFor = employer is null ? null : new SeoReference(OrganizationId(employer.Url!), employer.Organization, employer.Url),
             KnowsAbout = [.. document.SkillGroups.SelectMany(group => group.Skills).Where(skill => skill.Rating >= 4).Select(skill => skill.Name).Distinct(StringComparer.Ordinal)],

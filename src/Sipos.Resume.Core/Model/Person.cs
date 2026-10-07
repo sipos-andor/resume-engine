@@ -29,6 +29,26 @@ public sealed record Person(
     IReadOnlyList<Profile> Profiles,
     string? Image)
 {
-    /// <summary>The phone number in E.164 form for <c>tel:</c> links, such as <c>+36309036622</c>, or <see langword="null"/>.</summary>
-    public string? PhoneE164 => Phone is null ? null : "+" + new string([.. Phone.Where(char.IsAsciiDigit)]);
+    /// <summary>
+    /// The phone number as a <c>tel:</c> link dials it: <c>+</c> and the digits for a number written internationally,
+    /// such as <c>+36309036622</c>; the digits alone for a local one, such as <c>02079460000</c>; or
+    /// <see langword="null"/>.
+    /// </summary>
+    /// <remarks>
+    /// Decision: a <c>+</c> only when the CV writes one.
+    /// Why: adding it to a local number such as <c>020 7946 0000</c> would dial a different, invalid number.
+    /// </remarks>
+    public string? PhoneDial
+    {
+        get
+        {
+            if (Phone is null)
+            {
+                return null;
+            }
+
+            var digits = new string([.. Phone.Where(char.IsAsciiDigit)]);
+            return digits.Length == 0 ? null : Phone.TrimStart().StartsWith('+') ? "+" + digits : digits;
+        }
+    }
 }

@@ -137,7 +137,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
         var lines = new List<string>();
         if (person.Phone is { } phone)
         {
-            lines.Add($"{MarkdownText.Escape(labels.Phone)}: [{MarkdownText.Escape(phone)}](tel:{person.PhoneE164})");
+            lines.Add($"{MarkdownText.Escape(labels.Phone)}: [{MarkdownText.Escape(phone)}](tel:{person.PhoneDial})");
         }
 
         lines.Add($"{MarkdownText.Escape(labels.Web)}: {MarkdownText.Link(context.PageUrl.AbsoluteUri)}");

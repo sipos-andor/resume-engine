@@ -47,7 +47,7 @@ internal sealed record ContactItem(ContactKind Kind, string Text, string? Label,
         var items = new List<ContactItem>();
         if (person.Phone is { } phone)
         {
-            items.Add(new ContactItem(ContactKind.Phone, phone, labels.Phone, $"tel:{person.PhoneE164}"));
+            items.Add(new ContactItem(ContactKind.Phone, phone, labels.Phone, $"tel:{person.PhoneDial}"));
         }
 
         if (!string.IsNullOrWhiteSpace(context.ContactEmail))
