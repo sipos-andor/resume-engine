@@ -55,6 +55,8 @@ their identifiers are generated from their names and start dates.
 Standard sections preserved in the JSON downloads are validated too, including volunteer work, publications,
 interests, references and education courses and scores.
 HTTP and HTTPS content URLs must not contain user-info or credentials, including in preserved and extension fields.
+This check also covers URLs embedded in prose and Markdown. A language's optional `meta.x-path` is limited to
+32 lowercase ASCII letters, digits and hyphens.
 
 **No e-mail address in the content.** A file with an e-mail address anywhere is refused: a published address is
 harvested. An address may appear only in the PDFs, drawn as an image, from the `RESUME_CONTACT_EMAIL` environment

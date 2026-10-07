@@ -43,13 +43,13 @@ public readonly partial record struct PartialDate : IComparable<PartialDate>
     }
 
     /// <summary>The year.</summary>
-    public int Year { get; init; }
+    public int Year { get; }
 
     /// <summary>The month (1–12), or <see langword="null"/> when only the year is known.</summary>
-    public int? Month { get; init; }
+    public int? Month { get; }
 
     /// <summary>The day of the month, or <see langword="null"/> when only the year or month is known.</summary>
-    public int? Day { get; init; }
+    public int? Day { get; }
 
     /// <summary>Deconstructs the date into its year, month and day components.</summary>
     public void Deconstruct(out int Year, out int? Month, out int? Day) =>

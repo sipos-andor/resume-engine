@@ -6,6 +6,37 @@ namespace Sipos.Resume.Core.Tests.Content;
 public class ResumeReaderRead
 {
     [Theory]
+    [InlineData("See https://probe-user:probe-password@example.com for details")]
+    [InlineData("[Details](https://probe-user:probe-password@example.com/path)")]
+    [InlineData("<https://probe-user:probe-password@example.com/path>")]
+    [InlineData("See HTTPS://probe-user:probe-password@example.com/path")]
+    [InlineData("Public https://example.com then http://probe-user@example.org")]
+    [InlineData("See https://probe%2Duser:probe%2Dpassword@example.com/path")]
+    [InlineData("See https://probe-user:pass'word@example.com/path")]
+    public void RejectsEmbeddedCredentialsWithoutQuotingTheText(string text)
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(new Dictionary<string, string> { ["x-notes"] = text });
+
+        var result = ResumeReader.Read("resume.en.json", Encoding.UTF8.GetBytes(json));
+
+        result.Resume.ShouldBeNull();
+        result.Issues.ShouldContain(issue => issue.Path == "/x-notes" && issue.Message.Contains("credentials", StringComparison.Ordinal));
+        result.Issues.ShouldAllBe(issue => !issue.Message.Contains("probe-user", StringComparison.Ordinal)
+            && !issue.Message.Contains("probe-password", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("See https://example.com for details")]
+    [InlineData("[Profile](https://example.com/@ann)")]
+    [InlineData("Search https://example.com/?query=ann@example.com")]
+    [InlineData("See https://example.com/#ann@example.com")]
+    public void DoesNotMistakePublicUrlForCredentials(string text)
+    {
+        using var json = System.Text.Json.JsonDocument.Parse(System.Text.Json.JsonSerializer.Serialize(text));
+        Sipos.Resume.Core.Validation.ContentUrlGuard.Check("resume.en.json", json.RootElement).ShouldBeEmpty();
+    }
+
+    [Theory]
     [InlineData("{\"basics\":{\"url\":\"https://probe-user:probe-password@example.com/\"}}", "/basics/url")]
     [InlineData("{\"volunteer\":[{\"url\":\"http://probe-user:probe-password@example.com/\"}]}", "/volunteer/0/url")]
     [InlineData("{\"publications\":[{\"url\":\"https://probe-user@example.com/\"}]}", "/publications/0/url")]

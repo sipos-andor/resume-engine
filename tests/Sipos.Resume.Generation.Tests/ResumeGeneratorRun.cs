@@ -6,6 +6,28 @@ namespace Sipos.Resume.Generation.Tests;
 public class ResumeGeneratorRun
 {
     [Theory]
+    [InlineData("embedded-credentials")]
+    [InlineData("long-language-path")]
+    public async Task RejectsInvalidContentBeforeCleaningOutput(string kind)
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        var json = kind == "embedded-credentials"
+            ? Samples.Hungarian.Replace("Builds .NET systems.", "See https://probe-user:probe-password@example.com for details", StringComparison.Ordinal)
+            : Samples.Hungarian.Replace("\"meta\": {", $"\"meta\": {{ \"x-path\": \"{new string('a', 256)}\",", StringComparison.Ordinal);
+        folder.Write("content/resume.hu.json", json);
+        folder.Write("dist/keep.txt", "mine");
+        var logging = new RecordingLoggerFactory();
+
+        var code = await Generator(folder, null, "--clean").UseLogging(logging).RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(1);
+        folder.Read("dist/keep.txt").ShouldBe("mine");
+        logging.Lines.ShouldNotContain(line => line.Contains("probe-password", StringComparison.Ordinal));
+        logging.Lines.ShouldNotContain(line => line.Contains("probe-user", StringComparison.Ordinal));
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task RefusesCleanGivenLinkedContentInsideOutput(bool linkedParent)

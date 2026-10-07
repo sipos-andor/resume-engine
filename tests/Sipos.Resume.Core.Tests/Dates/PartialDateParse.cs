@@ -5,6 +5,13 @@ namespace Sipos.Resume.Core.Tests.Dates;
 public class PartialDateParse
 {
     [Theory]
+    [InlineData(nameof(PartialDate.Year))]
+    [InlineData(nameof(PartialDate.Month))]
+    [InlineData(nameof(PartialDate.Day))]
+    public void ExposesNoSetterThatCouldBypassConstructorValidation(string component) =>
+        typeof(PartialDate).GetProperty(component)!.CanWrite.ShouldBeFalse();
+
+    [Theory]
     [InlineData("2025", 2025, null, null)]
     [InlineData("2025-08", 2025, 8, null)]
     [InlineData("2024-02-29", 2024, 2, 29)]

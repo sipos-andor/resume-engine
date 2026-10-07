@@ -333,9 +333,10 @@ public static partial class ResumeValidator
 
     private static void CheckMeta(JsonResumeMeta? meta, Action<string, string> fail)
     {
-        if (meta?.Path is { } path && !PathSegment().IsMatch(path))
+        // This segment also becomes part of download names; keep room for the prefix and focus suffix.
+        if (meta?.Path is { } path && (path.Length > 32 || !PathSegment().IsMatch(path)))
         {
-            fail("/meta/x-path", "Must be one URL path segment of lowercase letters, digits and hyphens, such as sr.");
+            fail("/meta/x-path", "Must be one URL path segment of at most 32 lowercase letters, digits and hyphens, such as sr.");
         }
     }
 

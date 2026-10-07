@@ -5,6 +5,39 @@ namespace Sipos.Resume.Core.Tests.Validation;
 
 public class ResumeValidatorValidate
 {
+    [Fact]
+    public void RejectsEmbeddedCredentialsGivenProgrammaticSummary()
+    {
+        var resume = Samples.Read(Samples.English);
+        resume = resume with { Basics = resume.Basics! with { Summary = "See https://probe-user:probe-password@example.com for details" } };
+
+        var issue = ResumeValidator.Validate("resume.en.json", resume).ShouldHaveSingleItem();
+
+        issue.Path.ShouldBe("/basics/summary");
+        issue.Message.ShouldNotContain("probe-password");
+    }
+
+    [Theory]
+    [InlineData(32, true)]
+    [InlineData(33, false)]
+    [InlineData(256, false)]
+    public void BoundsLanguagePathBeforeFilesystemUse(int length, bool accepted)
+    {
+        var resume = Samples.Read(Samples.English);
+        var issues = ResumeValidator.Validate("resume.en.json", resume with { Meta = resume.Meta! with { Path = new string('a', length) } });
+
+        if (accepted)
+        {
+            issues.ShouldBeEmpty();
+        }
+        else
+        {
+            var issue = issues.ShouldHaveSingleItem();
+            issue.Path.ShouldBe("/meta/x-path");
+            issue.Message.ShouldContain("32");
+        }
+    }
+
     [Theory]
     [InlineData("http://probe-user:probe-password@example.com/")]
     [InlineData("https://probe-user@example.com/")]
