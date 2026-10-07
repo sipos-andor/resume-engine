@@ -106,7 +106,7 @@ public static partial class ContentLoader
 
         issues.AddRange(ParityValidator.Compare((reference.Name, reference.Resume), resumes.Where(resume => resume.Name != reference.Name).Select(resume => (resume.Name, resume.Resume))));
 
-        var editions = new List<ResumeEdition>();
+        var described = new List<(string Name, JsonResume Resume, ResumeLanguage Language)>();
         foreach (var (name, tag, resume) in resumes)
         {
             ResumeLanguage language;
@@ -125,19 +125,27 @@ public static partial class ContentLoader
                 issues.Add(new ValidationIssue(name, "", $"The engine has no labels in {language.Culture.EnglishName}; add ResumeLabels.{tag}.resx."));
             }
 
-            editions.Add(new ResumeEdition(name, resume, ResumeMapper.Map(resume, language)));
+            described.Add((name, resume, language));
         }
 
-        foreach (var clash in editions.GroupBy(edition => edition.Language.HomePath, StringComparer.OrdinalIgnoreCase).Where(group => group.Count() > 1))
+        // A clash is reported on every file but the default language's, or the first in name order.
+        foreach (var clash in described.GroupBy(edition => edition.Language.HomePath, StringComparer.OrdinalIgnoreCase).Where(group => group.Count() > 1))
         {
-            issues.Add(new ValidationIssue(clash.Last().FileName, "/meta/x-path", $"Another language is already published under {clash.Key}."));
+            foreach (var edition in clash.OrderByDescending(edition => edition.Language.IsDefault).Skip(1))
+            {
+                issues.Add(new ValidationIssue(edition.Name, "/meta/x-path", $"Another language is already published under {clash.Key}."));
+            }
         }
 
+        // Decision: map only content that passed every check.
+        // Why: the mapper relies on what the validator checks, such as a position's start date; mapping a file the
+        // validator refused would throw and lose every issue found so far.
         if (issues.Count > 0)
         {
             return new LoadResult(null, issues);
         }
 
+        var editions = described.Select(edition => new ResumeEdition(edition.Name, edition.Resume, ResumeMapper.Map(edition.Resume, edition.Language))).ToList();
         var languages = LanguageCatalog.Order(editions.Select(edition => edition.Language), site.LanguageOrder);
         var settings = new SiteSettings(
             new Uri(site.Origin!, UriKind.Absolute),

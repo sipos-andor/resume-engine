@@ -52,6 +52,18 @@ public class ContentLoaderLoad
         result.Issues.ShouldContain(issue => issue.Source == "resume.hu.json" && issue.Path.EndsWith("/startDate", StringComparison.Ordinal));
     }
 
+    // The mapper relies on what the validator checks; the issue must reach the author instead of an exception.
+    [Fact]
+    public void ReportsIssueWithoutMappingGivenPositionWithoutStartDate()
+    {
+        var english = Samples.English.Replace("\"startDate\": \"2015-03\", ", "", StringComparison.Ordinal);
+
+        var result = ContentLoader.Load([File("resume.en.json", english), File("site.json", Site)], null);
+
+        result.Set.ShouldBeNull();
+        result.Issues.ShouldContain(issue => issue.Path == "/work/1/startDate");
+    }
+
     [Fact]
     public void ReadsSiteFileGivenByteOrderMark()
     {
