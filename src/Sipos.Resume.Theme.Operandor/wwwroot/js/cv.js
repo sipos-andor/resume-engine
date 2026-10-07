@@ -228,6 +228,21 @@ if (data && tools && main) {
     }
     document.querySelector("[data-cv-print]")?.addEventListener("click", () => window.print());
 
+    // A search hit, a skill's evidence or a timeline bar may lead to an item the one-page view hides: the full view
+    // comes back first, so the link arrives somewhere.
+    document.addEventListener("click", (event) => {
+        const link = event.target.closest?.('a[href^="#"]');
+        if (!link || state.view !== "short") {
+            return;
+        }
+        const target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
+        if (target?.closest('[data-cv-short="false"], [data-cv-extra]')) {
+            state.view = "full";
+            remember();
+            apply();
+        }
+    });
+
     // Job ad matcher: the ad's text never leaves the browser.
     const matchText = document.getElementById("cv-match-text");
     const matchResult = document.getElementById("cv-match-result");
