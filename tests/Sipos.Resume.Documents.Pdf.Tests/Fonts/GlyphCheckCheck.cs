@@ -36,6 +36,17 @@ public class GlyphCheckCheck
     [Fact]
     public void FindsNothingGivenAccentedLatinCv() => GlyphCheck.Check(Edition(Samples.Accented), theme: null).ShouldBeEmpty();
 
+    [Fact]
+    public void ChecksOnlyShareImageTextGivenMissingGlyphElsewhere()
+    {
+        var edition = Edition(Samples.English.Replace("\"Hungarian\"", "\"日本語\"", StringComparison.Ordinal));
+
+        GlyphCheck.CheckShareImage(edition, theme: null, new Uri("https://cv.example.com/")).ShouldBeEmpty();
+        GlyphCheck.CheckShareImage(Edition(Samples.English.Replace("\"Ann Example\"", "\"日本語\"", StringComparison.Ordinal)),
+            theme: null,
+            new Uri("https://cv.example.com/")).Select(issue => issue.Path).ShouldBe(["/basics/name"]);
+    }
+
     // QuestPDF has no fallback font and would fail while drawing; the check names the field and the character first.
     [Fact]
     public void PointsToFieldGivenCharacterThePdfCannotDraw()

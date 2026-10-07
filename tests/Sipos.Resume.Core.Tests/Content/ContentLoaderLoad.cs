@@ -35,6 +35,15 @@ public class ContentLoaderLoad
         ContentLoader.Load([File("resume.en.json", Samples.English), File("site.json", Site)], analyticsToken: "").Set!.Settings.AnalyticsToken.ShouldBeNull();
 
     [Fact]
+    public void ReportsDuplicateBrowserStorageKeys()
+    {
+        var site = Site.Replace("cv-language", "cv-theme", StringComparison.Ordinal);
+
+        ContentLoader.Load([File("resume.en.json", Samples.English), File("site.json", site)], null)
+            .Issues.ShouldContain(issue => issue.Path == "/languageStorageKey");
+    }
+
+    [Fact]
     public void IgnoresOtherFilesGivenFolderWithReadme() =>
         ContentLoader.Load([File("resume.en.json", Samples.English), File("site.json", Site), File("README.md", "# Content")], null).Issues.ShouldBeEmpty();
 

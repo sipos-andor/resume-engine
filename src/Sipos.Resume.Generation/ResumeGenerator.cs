@@ -200,8 +200,18 @@ public sealed partial class ResumeGenerator
 
         // The writers' own checks, such as whether the PDF's fonts can draw every character, before anything is
         // written and in a validation-only run too.
-        var checks = _writers.OfType<IContentCheck>().ToList();
-        var refused = set.Editions.SelectMany(edition => checks.SelectMany(check => check.Check(edition, _theme?.Documents))).Distinct().ToList();
+        var checks = set.Editions
+            .SelectMany(edition => DownloadCatalog.For(edition.Language, set.Settings.DownloadPrefix, edition.Document.FocusProfiles.Select(profile => profile.Id)))
+            .Select(download => _writers.FirstOrDefault(writer => writer.Format == download.Format && writer.Supports(download.Variant)))
+            .OfType<IContentCheck>()
+            .Distinct()
+            .ToList();
+        var refused = set.Editions.SelectMany(edition => checks.SelectMany(check => check.Check(edition, _theme?.Documents)))
+            .Concat(_shareImages is IShareImageContentCheck imageCheck
+                ? set.Editions.SelectMany(edition => imageCheck.Check(edition, _theme?.Documents, set.Settings.Origin))
+                : [])
+            .Distinct()
+            .ToList();
         foreach (var issue in refused)
         {
             Log.ContentIssue(logger, EmailGuard.Redact(issue.ToString()));
@@ -332,7 +342,9 @@ public sealed partial class ResumeGenerator
         if (_environment(SourceDateEpochVariable) is { Length: > 0 } epoch)
         {
             today = default;
-            if (!long.TryParse(epoch, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds) || seconds > MaxUnixSeconds)
+            if (!long.TryParse(epoch, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var seconds)
+                || seconds < MinUnixSeconds
+                || seconds > MaxUnixSeconds)
             {
                 return false;
             }
@@ -346,6 +358,7 @@ public sealed partial class ResumeGenerator
     }
 
     // The last second DateTimeOffset holds: 9999-12-31T23:59:59Z.
+    private const long MinUnixSeconds = -62_135_596_800;
     private const long MaxUnixSeconds = 253_402_300_799;
 
     // Decision: the output may not be, or hold, the content, the assets, the program, the working folder or the home

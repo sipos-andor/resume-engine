@@ -2,7 +2,9 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Sipos.Resume.Core.Artifacts;
+using Sipos.Resume.Core.Content;
 using Sipos.Resume.Core.Model;
+using Sipos.Resume.Core.Validation;
 using Sipos.Resume.Documents.Pdf.Fonts;
 using Sipos.Resume.Documents.Pdf.Marks;
 
@@ -17,7 +19,7 @@ namespace Sipos.Resume.Documents.Pdf;
 /// Why: the PDF writer already has the fonts, colours and marks; a second drawing library for one image would be a
 /// second way for the brand to drift.
 /// </remarks>
-public sealed class PdfShareImageWriter : IShareImageWriter
+public sealed class PdfShareImageWriter : IShareImageWriter, IShareImageContentCheck
 {
     private const float Width = 1200;
     private const float Height = 630;
@@ -31,6 +33,10 @@ public sealed class PdfShareImageWriter : IShareImageWriter
         QuestPDF.Settings.License = options.License;
         PlexFonts.EnsureRegistered();
     }
+
+    /// <inheritdoc/>
+    public IEnumerable<ValidationIssue> Check(ResumeEdition edition, DocumentTheme? theme, Uri site) =>
+        GlyphCheck.CheckShareImage(edition, theme, site);
 
     /// <inheritdoc/>
     public byte[] Write(ResumeDocument document, DocumentTheme theme, Uri site)

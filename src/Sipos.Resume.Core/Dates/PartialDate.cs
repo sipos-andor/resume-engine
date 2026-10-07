@@ -73,6 +73,6 @@ public readonly partial record struct PartialDate(int Year, int? Month = null, i
     /// <summary>Whether this date is later than or the same as another.</summary>
     public static bool operator >=(PartialDate left, PartialDate right) => left.CompareTo(right) >= 0;
 
-    [GeneratedRegex(@"^(?<year>\d{4})(-(?<month>\d{2})(-(?<day>\d{2}))?)?$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^(?<year>[0-9]{4})(-(?<month>[0-9]{2})(-(?<day>[0-9]{2}))?)?$", RegexOptions.CultureInvariant)]
     private static partial Regex IsoForm();
 }

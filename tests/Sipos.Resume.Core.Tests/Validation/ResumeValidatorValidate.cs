@@ -41,6 +41,26 @@ public class ResumeValidatorValidate
     }
 
     [Fact]
+    public void ChecksEducationPeriodGivenEndBeforeStart()
+    {
+        var resume = Samples.Read(Samples.English);
+        var education = resume.Education.ToList();
+        education[0] = education[0] with { StartDate = "2015", EndDate = "2012" };
+
+        PathsOf(resume with { Education = education }).ShouldBe(["/education/0/endDate"]);
+    }
+
+    [Fact]
+    public void AllowsEmptyEducationDatesGivenOptionalFields()
+    {
+        var resume = Samples.Read(Samples.English);
+        var education = resume.Education.ToList();
+        education[0] = education[0] with { StartDate = "", EndDate = "" };
+
+        PathsOf(resume with { Education = education }).ShouldBeEmpty();
+    }
+
+    [Fact]
     public void FindsUnknownPositionGivenProjectOfMissingWork()
     {
         var resume = Samples.Read(Samples.English);

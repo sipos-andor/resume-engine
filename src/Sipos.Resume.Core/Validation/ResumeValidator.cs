@@ -39,8 +39,13 @@ public static partial class ResumeValidator
 
         for (var i = 0; i < resume.Education.Count; i++)
         {
-            CheckOptionalDate(resume.Education[i].StartDate, $"/education/{i}/startDate", Fail);
-            CheckOptionalDate(resume.Education[i].EndDate, $"/education/{i}/endDate", Fail);
+            var study = resume.Education[i];
+            CheckPeriod(
+                string.IsNullOrEmpty(study.StartDate) ? null : study.StartDate,
+                string.IsNullOrEmpty(study.EndDate) ? null : study.EndDate,
+                $"/education/{i}",
+                required: false,
+                Fail);
             CheckUrl(resume.Education[i].Url, $"/education/{i}/url", Fail);
             CheckRequired(resume.Education[i].Institution, $"/education/{i}/institution", Fail);
         }

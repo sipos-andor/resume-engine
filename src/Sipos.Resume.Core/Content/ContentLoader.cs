@@ -220,6 +220,12 @@ public static partial class ContentLoader
             issues.Add(new ValidationIssue(SiteFileName, "/languageStorageKey", "Must name the browser storage key of the language choice."));
         }
 
+        if (!string.IsNullOrWhiteSpace(site.ThemeStorageKey)
+            && string.Equals(site.ThemeStorageKey, site.LanguageStorageKey, StringComparison.Ordinal))
+        {
+            issues.Add(new ValidationIssue(SiteFileName, "/languageStorageKey", "Must differ from the browser storage key of the theme choice."));
+        }
+
         return site;
     }
 

@@ -18,6 +18,7 @@ public class PartialDateParse
     [InlineData("2025-13")]
     [InlineData("2023-02-29")]
     [InlineData("2025-08-14T10:00")]
+    [InlineData("٢٠٢٥-٠٨-١٤")]
     [InlineData("Aug 2025")]
     [InlineData("")]
     public void RefusesTextGivenOtherForm(string text)

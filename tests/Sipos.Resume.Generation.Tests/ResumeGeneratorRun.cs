@@ -138,6 +138,29 @@ public class ResumeGeneratorRun
     }
 
     [Fact]
+    public async Task IgnoresOverriddenWriterCheckGivenActiveReplacement()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+
+        (await Generator(folder, null, "--validate-only")
+            .UseWriter(new RefusingWriter())
+            .UseWriter(new AcceptingWriter())
+            .RunAsync(TestContext.Current.CancellationToken)).ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task FailsBeforeWritingGivenShareImageWriterRefusingContent()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        folder.Write("dist/keep.txt", "mine");
+
+        (await Generator(folder, null, "--validate-only").UseShareImages(new RefusingShareImageWriter()).RunAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+        folder.Exists("dist/keep.txt").ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task FailsGivenRequiredEmailNotSet()
     {
         using var folder = new TempFolder();
@@ -173,6 +196,7 @@ public class ResumeGeneratorRun
     [Theory]
     [InlineData("not-a-number")]
     [InlineData("999999999999999")]
+    [InlineData("-62135596801")]
     public async Task ReturnsUsageErrorGivenSourceDateEpochOutOfRange(string epoch)
     {
         using var folder = new TempFolder();
@@ -184,5 +208,19 @@ public class ResumeGeneratorRun
             .RunAsync(TestContext.Current.CancellationToken);
 
         code.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task AcceptsMinimumSourceDateEpoch()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+
+        var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"), "--validate-only"])
+            .UseLogging(NullLoggerFactory.Instance)
+            .UseEnvironment(name => name == ResumeGenerator.SourceDateEpochVariable ? "-62135596800" : null)
+            .RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(0);
     }
 }

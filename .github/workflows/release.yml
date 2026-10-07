@@ -29,6 +29,14 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      - name: Check release tag format
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [[ ! "$TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Expected a release tag in the form vMAJOR.MINOR.PATCH." >&2
+            exit 1
+          fi
       # Decision: the version comes from the tag (MinVer); a tag that is not on main's history is refused, before
       # anything of the repository is restored, built or run.
       # Why: a package is a promise to every consumer; it must be built from reviewed code, and this job holds a token
