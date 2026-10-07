@@ -5,6 +5,20 @@ namespace Sipos.Resume.Generation.Tests;
 
 public class ResumeGeneratorRun
 {
+    [Fact]
+    public async Task RefusesInvalidPreservedSectionBeforeCleaningOutput()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        folder.Write("content/resume.en.json", Samples.English.Replace("\"basics\":", "\"volunteer\": \"not an array\", \"basics\":", StringComparison.Ordinal));
+        folder.Write("dist/keep.txt", "mine");
+
+        (await Generator(folder, null, "--clean").RunAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+
+        folder.Read("dist/keep.txt").ShouldBe("mine");
+        folder.Exists("dist/resume.json").ShouldBeFalse();
+    }
+
     [Theory]
     [InlineData("content", "")]
     [InlineData("", "content")]

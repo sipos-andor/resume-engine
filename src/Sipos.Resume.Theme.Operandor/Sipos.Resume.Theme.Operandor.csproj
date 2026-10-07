@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <PackageReference Include="Microsoft.Extensions.Localization" />
     <PackageReference Include="Operandor.DesignSystem" />
     <PackageReference Include="Operandor.SharedKernel.UI" />
   </ItemGroup>

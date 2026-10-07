@@ -52,6 +52,8 @@ a contact link, availability, strengths, position profiles (`?focus=` and tailor
 aliases for job ad matching. They are documented on the types in `Sipos.Resume.Core.Content`.
 Projects whose names differ across languages must provide the same explicit `x-id` in every language; otherwise
 their identifiers are generated from their names and start dates.
+Standard sections preserved in the JSON downloads are validated too, including volunteer work, publications,
+interests, references and education courses and scores.
 
 **No e-mail address in the content.** A file with an e-mail address anywhere is refused: a published address is
 harvested. An address may appear only in the PDFs, drawn as an image, from the `RESUME_CONTACT_EMAIL` environment

@@ -23,6 +23,10 @@ public static partial class ResumeValidator
     public static IReadOnlyList<ValidationIssue> Validate(string source, JsonResume resume)
     {
         var issues = new List<ValidationIssue>();
+        if (resume.Original is { ValueKind: System.Text.Json.JsonValueKind.Object } original)
+        {
+            issues.AddRange(PreservedResumeValidator.Check(source, original));
+        }
         void Fail(string path, string message) => issues.Add(new ValidationIssue(source, path, message));
 
         CheckBasics(resume.Basics, Fail);

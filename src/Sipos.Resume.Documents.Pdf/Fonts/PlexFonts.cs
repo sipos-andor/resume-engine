@@ -57,6 +57,10 @@ internal static class PlexFonts
     public static bool Covers(int codePoint, bool mono = false) =>
         SansCoverage.Value.Contains(codePoint) && (!mono || MonoCoverage.Value.Contains(codePoint));
 
+    /// <summary>Whether the specified bundled family can draw a character, independently of the other family.</summary>
+    public static bool CoversFamily(int codePoint, bool mono) =>
+        (mono ? MonoCoverage.Value : SansCoverage.Value).Contains(codePoint);
+
     private static bool Register()
     {
         foreach (var file in Files)

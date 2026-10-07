@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Sipos.Resume.Core.Content;
 
-/// <summary>The text values of a content file, by JSON pointer, as a writer that draws them would see them.</summary>
+/// <summary>The typed text values of a content file, by JSON pointer, including values that documents do not draw.</summary>
 public static class ContentStrings
 {
     // Read by the engine, never drawn: the schema link, the language's settings and the job ad aliases.
