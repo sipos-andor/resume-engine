@@ -1,7 +1,7 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
 <article class="cv-item cv-position" id="@Position.Id" data-cv-id="@Position.Id" data-cv-tech="@View.TechnologyKeys(Position.Id)"
-         data-cv-short="@Strengths.Flag(Position.IsShort)">
+         data-cv-short="@Strengths.Flag(Position.IsShort || Position.Engagements.Any(engagement => engagement.IsShort))">
     <header class="cv-item__head">
         <h3 class="cv-item__title">
             @(Position.Role ?? Position.Organization)

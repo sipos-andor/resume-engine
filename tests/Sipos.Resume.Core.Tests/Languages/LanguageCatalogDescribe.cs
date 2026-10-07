@@ -45,6 +45,16 @@ public class LanguageCatalogDescribe
         language.HomePath.ShouldBe("/srb/");
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void DerivesEndonymGivenBlankOverride(string endonym)
+    {
+        var language = LanguageCatalog.Describe("sr-Latn", new JsonResumeMeta { Endonym = endonym }, isDefault: false);
+
+        language.Endonym.ShouldBe("Srpski (latinica)");
+    }
+
     [Fact]
     public void ServesRootGivenDefaultLanguage()
     {

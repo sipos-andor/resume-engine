@@ -2,7 +2,7 @@
 
 @if (View.Document.Positions.Count > 0 || View.Page.Insights.Timeline.Bars.Count > 0)
 {
-    <CvSection Id="experience" Title="@View.Labels.Experience" Short="@View.Document.Positions.Any(position => position.IsShort)">
+    <CvSection Id="experience" Title="@View.Labels.Experience" Short="@View.Document.Positions.Any(position => position.IsShort || position.Engagements.Any(engagement => engagement.IsShort))">
         <TimelineView />
         <div class="cv-items">
             @foreach (var position in View.Document.Positions)

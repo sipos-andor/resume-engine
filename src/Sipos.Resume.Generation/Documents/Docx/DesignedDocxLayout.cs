@@ -41,7 +41,10 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
         // The availability, as the designed PDF and the Markdown show it, so both designed documents say the same.
         if (Person.Availability is { } availability)
         {
-            links.Add([availability.Url is { } url ? Docx.Link(url, availability.Label) : Text(availability.Label, StyleIds.Strong)]);
+            var label = availability.Status == AvailabilityStatus.From && availability.From is { } from
+                ? $"{availability.Label} ({Outline.Date(from)})"
+                : availability.Label;
+            links.Add([availability.Url is { } url ? Docx.Link(url, label) : Text(label, StyleIds.Strong)]);
         }
 
         if (links.Count > 0)

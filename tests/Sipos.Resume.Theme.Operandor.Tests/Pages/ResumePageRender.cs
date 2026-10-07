@@ -169,6 +169,26 @@ public class ResumePageRender
         document.QuerySelector("#acme .cv-engagements")!.GetAttribute("data-cv-short").ShouldBe("false");
     }
 
+    [Fact]
+    public async Task KeepsPositionVisibleGivenOnlyShortEngagement()
+    {
+        var pages = ThemePages.Sample(change: cv => cv with
+        {
+            Positions = [.. cv.Positions.Select((position, index) => index == 0
+                ? position with
+                {
+                    IsShort = false,
+                    Engagements = [.. position.Engagements.Select((engagement, engagementIndex) => engagement with { IsShort = engagementIndex == 0 })],
+                }
+                : position)],
+        });
+        var document = await ThemePages.RenderAsync(pages, 0);
+
+        document.GetElementById("experience")!.GetAttribute("data-cv-short").ShouldBe("true");
+        document.GetElementById("acme")!.GetAttribute("data-cv-short").ShouldBe("true");
+        document.QuerySelector("#acme .cv-engagements")!.GetAttribute("data-cv-short").ShouldBe("true");
+    }
+
     // A tag spelled as an alias carries its term's key, which the technology filter and the job ad matcher compare.
     [Fact]
     public async Task KeysTagsByTermGivenAliasSpelling()

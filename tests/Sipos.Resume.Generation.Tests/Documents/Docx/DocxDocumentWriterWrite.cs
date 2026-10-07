@@ -243,6 +243,25 @@ public class DocxDocumentWriterWrite
     }
 
     [Fact]
+    public void WritesAvailabilityDateGivenFromStatus()
+    {
+        var english = SampleDocuments.English();
+        var person = english.Person with
+        {
+            Availability = new Sipos.Resume.Core.Model.Availability(
+                Sipos.Resume.Core.Model.AvailabilityStatus.From,
+                Sipos.Resume.Core.Dates.PartialDate.Parse("2027-05"),
+                "https://example.com/capacity",
+                "Available from"),
+        };
+
+        var link = Open(Write(Context(english with { Person = person }, DocumentVariant.Designed)))
+            .MainDocumentPart!.Document!.Body!.Descendants<Hyperlink>().Single(link => link.InnerText.StartsWith("Available from", StringComparison.Ordinal));
+
+        link.InnerText.ShouldBe("Available from (May 2027)");
+    }
+
+    [Fact]
     public void ShowsFocusLabelGivenTailoredDocument()
     {
         var tailored = Write("en", DocumentVariant.Designed, "architect");

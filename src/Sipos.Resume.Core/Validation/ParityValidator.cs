@@ -77,7 +77,7 @@ public static class ParityValidator
             {
                 facts[path] = value switch
                 {
-                    IEnumerable<string> list => string.Join(" | ", list),
+                    IEnumerable<string> list => string.Concat(list.Select(item => item.Length.ToString(CultureInfo.InvariantCulture) + ":" + item)),
                     bool flag => flag ? "true" : "false",
                     IFormattable number => number.ToString(null, CultureInfo.InvariantCulture),
                     _ => value.ToString()!,

@@ -1,6 +1,5 @@
 using System.Text;
 using Sipos.Resume.Core.Artifacts;
-using Sipos.Resume.Core.Localization;
 using Sipos.Resume.Core.Model;
 
 namespace Sipos.Resume.Generation.Documents.Markdown;
@@ -54,7 +53,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
             text.Append("**").Append(MarkdownText.Escape(labels.Focus)).Append(":** ").AppendLine(MarkdownText.Escape(focus.Profile.Label)).AppendLine();
         }
 
-        WriteContacts(text, context, labels);
+        WriteContacts(text, context, outline);
         foreach (var section in outline.Sections)
         {
             text.Append("## ").AppendLine(MarkdownText.Escape(outline.Heading(section))).AppendLine();
@@ -132,9 +131,10 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
         return text.ToString().ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
     }
 
-    private static void WriteContacts(StringBuilder text, DocumentContext context, ResumeLabels labels)
+    private static void WriteContacts(StringBuilder text, DocumentContext context, DocumentOutline outline)
     {
         var person = context.Document.Person;
+        var labels = outline.Labels;
         var lines = new List<string>();
         if (person.Phone is { } phone)
         {
@@ -155,7 +155,10 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
         lines.AddRange(person.Profiles.Select(profile => $"{MarkdownText.EscapeBlock(profile.Network)}: {MarkdownText.Link(profile.Url)}"));
         if (person.Availability is { } availability)
         {
-            lines.Add(availability.Url is null ? $"**{MarkdownText.Escape(availability.Label)}**" : $"**[{MarkdownText.Escape(availability.Label)}]({MarkdownText.Destination(availability.Url)})**");
+            var label = availability.Status == AvailabilityStatus.From && availability.From is { } from
+                ? $"{availability.Label} ({outline.Date(from)})"
+                : availability.Label;
+            lines.Add(availability.Url is null ? $"**{MarkdownText.Escape(label)}**" : $"**[{MarkdownText.Escape(label)}]({MarkdownText.Destination(availability.Url)})**");
         }
 
         foreach (var line in lines)

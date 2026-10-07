@@ -1,4 +1,5 @@
 using Sipos.Resume.Core.Artifacts;
+using Sipos.Resume.Core.Model;
 
 namespace Sipos.Resume.Documents.Pdf.Layouts;
 
@@ -69,7 +70,10 @@ internal sealed record ContactItem(ContactKind Kind, string Text, string? Label,
         items.AddRange(person.Profiles.Select(profile => new ContactItem(ContactKind.Profile, WithoutScheme(profile.Url), profile.Network, profile.Url)));
         if (person.Availability is { } availability)
         {
-            items.Add(new ContactItem(ContactKind.Availability, availability.Label, null, availability.Url));
+            var label = availability.Status == AvailabilityStatus.From && availability.From is { } from
+                ? $"{availability.Label} ({outline.Date(from)})"
+                : availability.Label;
+            items.Add(new ContactItem(ContactKind.Availability, label, null, availability.Url));
         }
 
         return items;

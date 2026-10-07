@@ -27,7 +27,7 @@ public static partial class LanguageCatalog
     {
         var culture = meta?.Culture is { Length: > 0 } name ? CultureInfo.GetCultureInfo(name) : CultureInfo.CreateSpecificCulture(tag);
         var segment = isDefault ? "" : meta?.Path is { Length: > 0 } path ? path : tag.Split('-')[0].ToLowerInvariant();
-        var endonym = meta?.Endonym is { Length: > 0 } own ? own : Capitalize(CultureInfo.GetCultureInfo(tag).NativeName, culture);
+        var endonym = meta?.Endonym is { } own && !string.IsNullOrWhiteSpace(own) ? own : Capitalize(CultureInfo.GetCultureInfo(tag).NativeName, culture);
         var locale = meta?.OgLocale is { Length: > 0 } og ? og : OgLocaleOf(culture);
         return new ResumeLanguage(tag, culture, segment, endonym, locale, isDefault);
     }

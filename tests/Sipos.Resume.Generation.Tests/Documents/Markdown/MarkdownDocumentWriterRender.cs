@@ -1,4 +1,6 @@
 using Sipos.Resume.Core.Artifacts;
+using Sipos.Resume.Core.Dates;
+using Sipos.Resume.Core.Model;
 using Sipos.Resume.Generation.Documents.Markdown;
 using Sipos.Resume.Generation.Tests.Helpers;
 
@@ -105,5 +107,18 @@ public class MarkdownDocumentWriterRender
 
         markdown.ShouldContain("## Szakmai tapasztalat");
         markdown.ShouldContain("2023. március – 2023. május");
+    }
+
+    [Fact]
+    public void WritesAvailabilityDateGivenFromStatus()
+    {
+        var english = SampleDocuments.English();
+        var person = english.Person with
+        {
+            Availability = new Availability(AvailabilityStatus.From, PartialDate.Parse("2027-05"), "https://example.com/capacity", "Available from"),
+        };
+
+        MarkdownDocumentWriter.Render(Contexts.For(english with { Person = person }, DownloadFormat.Markdown, DocumentVariant.Designed))
+            .ShouldContain("Available from (May 2027)");
     }
 }

@@ -1,4 +1,6 @@
 using Sipos.Resume.Core.Artifacts;
+using Sipos.Resume.Core.Dates;
+using Sipos.Resume.Core.Model;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Tokens;
 
@@ -24,6 +26,19 @@ public class PdfDocumentWriterWrite
 
         text.ShouldContain("March 2015 – October 2022");
         text.ShouldContain("Shipped");
+    }
+
+    [Fact]
+    public void WritesAvailabilityDateGivenFromStatus()
+    {
+        var english = SampleDocuments.English();
+        var person = english.Person with
+        {
+            Availability = new Availability(AvailabilityStatus.From, PartialDate.Parse("2027-05"), "https://example.com/capacity", "Available from"),
+        };
+        var document = english with { Person = person };
+
+        PdfSamples.Text(PdfSamples.Write(PdfSamples.Context(document, DocumentVariant.Designed))).ShouldContain("Available from (May 2027)");
     }
 
     [Fact]

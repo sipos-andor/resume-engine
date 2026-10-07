@@ -131,6 +131,17 @@ public class ParityValidatorCompare
     }
 
     [Fact]
+    public void PreservesKeywordBoundariesGivenDelimiterInKeyword()
+    {
+        var source = Samples.Read(Samples.English);
+        var original = source with { Skills = [source.Skills[0] with { Keywords = ["C# | Azure"] }] };
+        var translated = original with { Skills = [original.Skills[0] with { Keywords = ["C#", "Azure"] }] };
+
+        ParityValidator.Compare(("resume.en.json", original), [("resume.hu.json", translated)])
+            .Select(issue => issue.Path).ShouldBe(["/skills/0/keywords"]);
+    }
+
+    [Fact]
     public void ReportsCountAndMissingItemGivenDroppedPosition()
     {
         var hungarian = Samples.Read(Samples.Hungarian);
