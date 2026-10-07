@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>Designed and ATS PDFs of a CV with QuestPDF: PDF/UA-1 and PDF/A-3a without an e-mail image, PDF/A-3b with an image-only address, embedded IBM Plex and a QR code to the online CV. QuestPDF has its own licence.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QRCoder" />
+    <PackageReference Include="QuestPDF" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Sipos.Resume.Core/Sipos.Resume.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sipos.Resume.Documents.Pdf.Tests" />
+  </ItemGroup>
+
+  <!--
+    Decision: IBM Plex ships inside the assembly as embedded resources, and its licence inside the package.
+    Why: the documents must look and extract the same on every machine; QuestPDF uses no system fonts by default, and
+    a font file the consumer has to deploy next to its binaries is one more thing to forget. The SIL Open Font License
+    allows bundling the fonts as long as its text travels with them.
+  -->
+  <ItemGroup>
+    <EmbeddedResource Include="Fonts/*.ttf" LogicalName="Sipos.Resume.Documents.Pdf.Fonts.%(Filename)%(Extension)" />
+    <None Include="Fonts/OFL.txt" Pack="true" PackagePath="licenses/IBM-Plex-OFL.txt" />
+  </ItemGroup>
+
+</Project>

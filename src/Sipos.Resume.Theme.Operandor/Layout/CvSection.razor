@@ -1,0 +1,35 @@
+@namespace Sipos.Resume.Theme.Operandor.Layout
+
+@* A section with a heading and a link to itself, which the script copies to the clipboard; without the script the
+   link still leads to the section. *@
+<section id="@Id" class="cv-section @Class" aria-labelledby="@(Id)-title" data-cv-short="@(Short is { } inShort ? Sections.Strengths.Flag(inShort) : null)">
+    <header class="cv-section__head">
+        <h2 id="@(Id)-title" class="cv-section__title">@Title</h2>
+        <a class="cv-anchor" href="@View.Anchor(Id)" data-cv-copy="" title="@View.Text["CopyLink"]">
+            <span aria-hidden="true">#</span><span class="op-visually-hidden">@View.Text["CopyLink"]: @Title</span>
+        </a>
+    </header>
+    @ChildContent
+</section>
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    /// <summary>The section's id, the fragment of its deep link, such as <c>experience</c>.</summary>
+    [Parameter, EditorRequired] public string Id { get; set; } = default!;
+
+    /// <summary>The heading.</summary>
+    [Parameter, EditorRequired] public string Title { get; set; } = default!;
+
+    /// <summary>
+    /// Whether the one-page view keeps the section, for a section of items the CV marks for it; <see langword="null"/>
+    /// for a section the view always keeps. A section none of whose items is marked would show only its heading.
+    /// </summary>
+    [Parameter] public bool? Short { get; set; }
+
+    /// <summary>A further class of the section.</summary>
+    [Parameter] public string? Class { get; set; }
+
+    /// <summary>The content.</summary>
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

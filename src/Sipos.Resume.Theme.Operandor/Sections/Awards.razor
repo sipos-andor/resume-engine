@@ -1,0 +1,32 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@if (View.Document.Awards.Count > 0)
+{
+    <CvSection Id="awards" Title="@View.Labels.Awards">
+        <ul class="cv-list">
+            @for (var index = 0; index < View.Document.Awards.Count; index++)
+            {
+                var award = View.Document.Awards[index];
+                <li class="cv-list__item" id="award-@(index + 1)" data-cv-id="award-@(index + 1)">
+                    <span class="cv-list__title">@award.Title</span>
+                    @if (award.Awarder is { } awarder)
+                    {
+                        <span class="cv-list__detail">@awarder</span>
+                    }
+                    @if (award.Date is { } date)
+                    {
+                        <span class="cv-list__date">@View.Date(date)</span>
+                    }
+                    @if (award.Summary is { } summary)
+                    {
+                        <span class="cv-list__summary">@summary</span>
+                    }
+                </li>
+            }
+        </ul>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

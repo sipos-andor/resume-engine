@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    A CV site's build program, as a consumer writes it: a console on the Web SDK, so publishing lays out every
+    package's static assets under wwwroot/_content, which the engine copies to the site. It runs no server.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <!-- The program has no components of its own, so no scoped CSS bundle may reach the site. -->
+    <ScopedCssEnabled>false</ScopedCssEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Sipos.Resume.Generation/Sipos.Resume.Generation.csproj" />
+    <ProjectReference Include="../../src/Sipos.Resume.Theme.Operandor/Sipos.Resume.Theme.Operandor.csproj" />
+    <ProjectReference Include="../../src/Sipos.Resume.Documents.Pdf/Sipos.Resume.Documents.Pdf.csproj" />
+  </ItemGroup>
+
+</Project>

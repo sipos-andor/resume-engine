@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Profile" xml:space="preserve"><value>Profil</value></data>
+  <data name="Strengths" xml:space="preserve"><value>Kiemelt erősségek</value></data>
+  <data name="Experience" xml:space="preserve"><value>Szakmai tapasztalat</value></data>
+  <data name="Projects" xml:space="preserve"><value>Projektek</value></data>
+  <data name="ClientProjects" xml:space="preserve"><value>Ügyfélprojektek</value></data>
+  <data name="Skills" xml:space="preserve"><value>Technológiák és kompetenciák</value></data>
+  <data name="Education" xml:space="preserve"><value>Tanulmányok, tanúsítványok és képzések</value></data>
+  <data name="Certificates" xml:space="preserve"><value>Tanúsítványok és képzések</value></data>
+  <data name="Awards" xml:space="preserve"><value>Díjak és versenyek</value></data>
+  <data name="Languages" xml:space="preserve"><value>Nyelvtudás</value></data>
+  <data name="Timeline" xml:space="preserve"><value>Idővonal</value></data>
+  <data name="Contact" xml:space="preserve"><value>Kapcsolat</value></data>
+  <data name="Downloads" xml:space="preserve"><value>Letöltések</value></data>
+  <data name="AtsSummary" xml:space="preserve"><value>Összefoglaló</value></data>
+  <data name="AtsSkills" xml:space="preserve"><value>Készségek</value></data>
+  <data name="AtsExperience" xml:space="preserve"><value>Szakmai tapasztalat</value></data>
+  <data name="AtsProjects" xml:space="preserve"><value>Projektek</value></data>
+  <data name="AtsEducation" xml:space="preserve"><value>Tanulmányok</value></data>
+  <data name="AtsCertifications" xml:space="preserve"><value>Tanúsítványok</value></data>
+  <data name="AtsAwards" xml:space="preserve"><value>Díjak</value></data>
+  <data name="AtsLanguages" xml:space="preserve"><value>Nyelvtudás</value></data>
+  <data name="Rating5" xml:space="preserve"><value>Szakértő</value></data>
+  <data name="Rating4" xml:space="preserve"><value>Haladó</value></data>
+  <data name="Rating3" xml:space="preserve"><value>Gyakorlott</value></data>
+  <data name="Rating2" xml:space="preserve"><value>Alapszint</value></data>
+  <data name="Rating1" xml:space="preserve"><value>Ismerkedő</value></data>
+  <data name="RatingOf" xml:space="preserve"><value>5-ből {0}</value></data>
+  <data name="Present" xml:space="preserve"><value>jelenleg</value></data>
+  <data name="Client" xml:space="preserve"><value>Ügyfél</value></data>
+  <data name="Role" xml:space="preserve"><value>Szerep</value></data>
+  <data name="Technologies" xml:space="preserve"><value>Technológiák</value></data>
+  <data name="Phone" xml:space="preserve"><value>Telefon</value></data>
+  <data name="Web" xml:space="preserve"><value>Online önéletrajz</value></data>
+  <data name="Location" xml:space="preserve"><value>Helyszín</value></data>
+  <data name="EmailImage" xml:space="preserve"><value>E-mail-cím</value></data>
+  <data name="CurriculumVitae" xml:space="preserve"><value>Önéletrajz</value></data>
+  <data name="QrCaption" xml:space="preserve"><value>Olvassa be az online önéletrajzért</value></data>
+  <data name="Focus" xml:space="preserve"><value>Fókusz</value></data>
+  <data name="Highlights" xml:space="preserve"><value>Eredmények</value></data>
+  <data name="OtherLanguages" xml:space="preserve"><value>Az önéletrajz más nyelveken</value></data>
+</root>

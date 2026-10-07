@@ -1,0 +1,8 @@
+{
+  "origin": "https://cv.example.com",
+  "defaultLanguage": "en",
+  "languageOrder": [],
+  "downloadPrefix": "Ada_Example_CV",
+  "themeStorageKey": "ada-cv-theme",
+  "languageStorageKey": "ada-cv-language"
+}

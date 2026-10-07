@@ -1,0 +1,72 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+@using Sipos.Resume.Core.Evidence
+
+@* The skills by group, each with its level and, opened, the evidence behind it: the positions and projects that used
+   it and when. Group ids match the engine's search index (skills-1, skills-2, …). A group is a <div>, not a
+   <section>: only the CV's own sections are landmarks, so a group named "Languages" does not repeat one. *@
+@if (View.Document.SkillGroups.Count > 0)
+{
+    <CvSection Id="skills" Title="@View.Labels.Skills">
+        <div class="cv-skill-groups" data-cv-order="skill-groups">
+            @for (var index = 0; index < View.Document.SkillGroups.Count; index++)
+            {
+                var group = View.Document.SkillGroups[index];
+                <div class="cv-skill-group" id="skills-@(index + 1)" data-cv-id="skills-@(index + 1)" data-cv-group="@index">
+                    <h3 class="cv-skill-group__title">@group.Name</h3>
+                    <ul class="cv-skills">
+                        @foreach (var skill in group.Skills)
+                        {
+                            var evidence = View.Page.Insights.Evidence.GetValueOrDefault(skill.Name);
+                            <li class="cv-skill" data-cv-skill="@View.Page.Insights.Technologies.KeyOf(skill.Name)">
+                                @if (evidence is { Items.Count: > 0 })
+                                {
+                                    <details class="cv-skill__details">
+                                        <summary class="cv-skill__row">
+                                            <SkillRow Skill="skill" />
+                                        </summary>
+                                        <div class="cv-evidence">
+                                            <p class="cv-evidence__span">@Span(evidence)</p>
+                                            <ul class="cv-evidence__items">
+                                                @foreach (var item in evidence.Items)
+                                                {
+                                                    <li><a href="@View.Anchor(item.Id)">@Short(item.Id, item.Title)</a></li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </details>
+                                }
+                                else
+                                {
+                                    <div class="cv-skill__row"><SkillRow Skill="skill" /></div>
+                                }
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    // The evidence names each item by its organization or client only; the link leads to the item's full title.
+    private string Short(string id, string title)
+    {
+        if (View.Document.Positions.FirstOrDefault(position => position.Id == id) is { } position)
+        {
+            return position.Organization;
+        }
+
+        return View.Document.AllEngagements.FirstOrDefault(engagement => engagement.Id == id) is { } engagement ? engagement.Client ?? engagement.Name : title;
+    }
+
+    private string Span(SkillEvidence evidence) => (evidence.FirstYear, evidence.LastYear, evidence.Ongoing) switch
+    {
+        ({ } first, _, true) => string.Format(View.Culture, View.Text["UsedSince"], first, evidence.Items.Count),
+        ({ } first, { } last, _) when first == last => string.Format(View.Culture, View.Text["UsedIn"], first, evidence.Items.Count),
+        ({ } first, { } last, _) => string.Format(View.Culture, View.Text["UsedBetween"], first, last, evidence.Items.Count),
+        _ => string.Format(View.Culture, View.Text["UsedItems"], evidence.Items.Count),
+    };
+}

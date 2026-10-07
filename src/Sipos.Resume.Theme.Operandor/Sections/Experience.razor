@@ -1,0 +1,29 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@if (View.Document.Positions.Count > 0 || View.Page.Insights.Timeline.Bars.Count > 0)
+{
+    <CvSection Id="experience" Title="@View.Labels.Experience" Short="@View.Document.Positions.Any(position => position.IsShort || position.Engagements.Any(engagement => engagement.IsShort))">
+        <TimelineView />
+        <div class="cv-items">
+            @foreach (var position in View.Document.Positions)
+            {
+                <PositionItem Position="position" />
+            }
+        </div>
+    </CvSection>
+}
+@if (View.Document.Projects.Count > 0)
+{
+    <CvSection Id="projects" Title="@View.Labels.Projects" Short="@View.Document.Projects.Any(project => project.IsShort)">
+        <div class="cv-items">
+            @foreach (var engagement in View.Document.Projects)
+            {
+                <EngagementItem Engagement="engagement" />
+            }
+        </div>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

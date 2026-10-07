@@ -1,0 +1,20 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* The achievements of a position or project; the ones past the one-page view's count are marked, so that view hides them. *@
+@if (Items.Count > 0)
+{
+    <ul class="cv-highlights">
+        @for (var index = 0; index < Items.Count; index++)
+        {
+            <li data-cv-extra="@(ShortCount is { } count && index >= count ? "" : null)">@Items[index]</li>
+        }
+    </ul>
+}
+
+@code {
+    /// <summary>The achievements.</summary>
+    [Parameter, EditorRequired] public IReadOnlyList<string> Items { get; set; } = [];
+
+    /// <summary>How many the one-page view keeps; all when <see langword="null"/>.</summary>
+    [Parameter] public int? ShortCount { get; set; }
+}

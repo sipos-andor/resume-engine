@@ -1,0 +1,20 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@if (View.Document.Languages.Count > 0)
+{
+    <CvSection Id="languages" Title="@View.Labels.Languages">
+        <dl class="cv-languages">
+            @foreach (var language in View.Document.Languages)
+            {
+                <div class="cv-languages__row">
+                    <dt>@language.Name</dt>
+                    <dd>@language.Fluency</dd>
+                </div>
+            }
+        </dl>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

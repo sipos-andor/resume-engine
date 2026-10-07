@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="SkipToContent" xml:space="preserve"><value>Ugrás a tartalomra</value></data>
+  <data name="CopyLink" xml:space="preserve"><value>Link másolása</value></data>
+  <data name="DownloadPdf" xml:space="preserve"><value>PDF letöltése</value></data>
+  <data name="DownloadTailoredPdf" xml:space="preserve"><value>Testreszabott PDF letöltése</value></data>
+  <data name="AllDownloads" xml:space="preserve"><value>Minden letöltés</value></data>
+  <data name="Tools" xml:space="preserve"><value>Az önéletrajz böngészése</value></data>
+  <data name="Search" xml:space="preserve"><value>Keresés</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Technológia, cég, szerep…</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>{0} találat</value></data>
+  <data name="SearchNoResults" xml:space="preserve"><value>Nincs találat</value></data>
+  <data name="FocusAll" xml:space="preserve"><value>Teljes önéletrajz</value></data>
+  <data name="Technology" xml:space="preserve"><value>Technológia</value></data>
+  <data name="AllTechnologies" xml:space="preserve"><value>Minden technológia</value></data>
+  <data name="TechnologyItems" xml:space="preserve"><value>{0}: {1} munkahely és projekt</value></data>
+  <data name="View" xml:space="preserve"><value>Nézet</value></data>
+  <data name="ViewFull" xml:space="preserve"><value>Teljes</value></data>
+  <data name="ViewShort" xml:space="preserve"><value>Egy oldal</value></data>
+  <data name="Print" xml:space="preserve"><value>Nyomtatás</value></data>
+  <data name="LinkCopied" xml:space="preserve"><value>Link másolva</value></data>
+  <data name="MatchTitle" xml:space="preserve"><value>Összevetés egy álláshirdetéssel</value></data>
+  <data name="MatchHint" xml:space="preserve"><value>Illessze be egy álláshirdetés szövegét: az oldal megjelöli, mely technológiák és készségek szerepelnek az önéletrajzban is. A szöveg a böngészőjében marad.</value></data>
+  <data name="MatchButton" xml:space="preserve"><value>Összevetés</value></data>
+  <data name="MatchFound" xml:space="preserve"><value>Szerepel az önéletrajzban ({0})</value></data>
+  <data name="MatchNone" xml:space="preserve"><value>A szövegben nem szerepel az önéletrajz egyetlen technológiája vagy készsége sem.</value></data>
+  <data name="MatchCoverage" xml:space="preserve"><value>{0} egyező technológia és készség</value></data>
+  <data name="UsedSince" xml:space="preserve"><value>Használat: {0} óta · {1} munkahely és projekt</value></data>
+  <data name="UsedIn" xml:space="preserve"><value>Használat: {0} · {1} munkahely és projekt</value></data>
+  <data name="UsedBetween" xml:space="preserve"><value>Használat: {0}–{1} · {2} munkahely és projekt</value></data>
+  <data name="UsedItems" xml:space="preserve"><value>{0} munkahely és projekt</value></data>
+  <data name="DownloadsDesigned" xml:space="preserve"><value>Önéletrajz</value></data>
+  <data name="DownloadsDesignedHint" xml:space="preserve"><value>Az önéletrajz az oldal megjelenésével, olvasásra és nyomtatásra.</value></data>
+  <data name="DownloadsAts" xml:space="preserve"><value>Jelentkezési rendszerekhez (ATS)</value></data>
+  <data name="DownloadsAtsHint" xml:space="preserve"><value>Egy hasáb, szabványos címsorok és egyszerű szöveg, amelyet a jelentkezéskezelő rendszerek megbízhatóan olvasnak.</value></data>
+  <data name="DownloadsTailored" xml:space="preserve"><value>Pozícióra szabva</value></data>
+  <data name="DownloadsTailoredHint" xml:space="preserve"><value>Ugyanaz az önéletrajz, elöl azzal, ami a pozícióhoz számít.</value></data>
+  <data name="DownloadsData" xml:space="preserve"><value>Szöveg és adat</value></data>
+  <data name="DownloadsDataHint" xml:space="preserve"><value>Markdown és JSON Resume, eszközökhöz és nyelvi modellekhez.</value></data>
+  <data name="FooterTagline" xml:space="preserve"><value>Üzleti szoftverfejlesztés, rendszerintegráció és automatizálás. Megoldások a vállalkozása működéséhez igazítva.</value></data>
+  <data name="FooterOnline" xml:space="preserve"><value>Online</value></data>
+  <data name="FooterMachine" xml:space="preserve"><value>Gépi formátumok</value></data>
+</root>

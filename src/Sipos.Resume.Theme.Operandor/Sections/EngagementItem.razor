@@ -1,0 +1,45 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+<article class="cv-item cv-engagement" id="@Engagement.Id" data-cv-id="@Engagement.Id" data-cv-tech="@View.TechnologyKeys(Engagement.Id)"
+         data-cv-short="@Strengths.Flag(Engagement.IsShort)">
+    <header class="cv-item__head">
+        <LevelHeading Level="HeadingLevel" Class="cv-item__title">
+            @Engagement.Name
+            @if (Engagement.Client is { } client)
+            {
+                <span class="cv-item__client"><span class="op-visually-hidden">@View.Labels.Client: </span>@client</span>
+            }
+        </LevelHeading>
+        <p class="cv-item__meta">
+            @if (Engagement.Roles.Count > 0)
+            {
+                <span>@string.Join(", ", Engagement.Roles)</span>
+            }
+            @if (Engagement.Period is { } period)
+            {
+                <span><time datetime="@period.Start">@View.Period(period)</time></span>
+            }
+            @if (Engagement.Url is { } url)
+            {
+                <span><a href="@url">@ResumeView.Shorten(url)</a></span>
+            }
+        </p>
+        <a class="cv-anchor" href="@View.Anchor(Engagement.Id)" data-cv-copy="" title="@View.Text["CopyLink"]"><span aria-hidden="true">#</span><span class="op-visually-hidden">@View.Text["CopyLink"]</span></a>
+    </header>
+    @if (Engagement.Description is { } description)
+    {
+        <p class="cv-item__summary">@description</p>
+    }
+    <Highlights Items="Engagement.Highlights" ShortCount="Engagement.ShortHighlights" />
+    <Technologies Keywords="Engagement.Keywords" />
+</article>
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    /// <summary>The project.</summary>
+    [Parameter, EditorRequired] public Engagement Engagement { get; set; } = default!;
+
+    /// <summary>The level of the project's heading: 3 directly under a section, 5 under a position's client projects.</summary>
+    [Parameter] public int HeadingLevel { get; set; } = 3;
+}

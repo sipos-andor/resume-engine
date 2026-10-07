@@ -1,0 +1,92 @@
+@namespace Sipos.Resume.Theme.Operandor.Pages
+@inject IStringLocalizer<ThemeText> T
+@inject IStringLocalizer<ThemeToggle> ThemeWords
+
+@* A CV page in one language: the hero, the reader's tools and the sections, in the design system's header and footer.
+   Every item carries data-cv-* attributes and the page one JSON data block, which the script applies; without the
+   script the whole CV reads the same. *@
+<CvDocument Lang="@Page.Document.Language.Tag" Settings="@Page.Settings">
+    <Head>
+        <link rel="alternate" type="text/markdown" href="@ResumeView.Href(Page.MarkdownPath)" title="Markdown" />
+        <link rel="alternate" type="application/json" href="@ResumeView.Href(Page.JsonResumePath)" title="JSON Resume" />
+        <link rel="describedby" type="text/plain" href="@ResumeView.Href(Page.LlmsTxtPath)" title="llms.txt" />
+    </Head>
+    <ChildContent>
+        <SeoHead Title="@ResumeSeo.Title(Page)" Description="@ResumeSeo.Description(Page)" CanonicalPath="@Page.Path" OgType="profile"
+                 Person="@ResumeSeo.Person(Page)" Modified="@Page.Document.LastModified" />
+        <CascadingValue Value="_view" IsFixed="true">
+            <a class="cv-skip" href="@_view.Anchor("main")">@T["SkipToContent"]</a>
+            <div class="op-page cv-page">
+                @* Decision: no menu items in the header, only the name, the language menu and the PDF.
+                   Why: the design system's NavLink treats a link to a section of the same page as the current page
+                   (it ignores the fragment), so every item would be marked current; the page is one column a reader
+                   scrolls, with a deep link at every heading. *@
+                <SiteHeader HomeLabel="@Page.Document.Person.Name" HomeHref="@ResumeView.Href(Page.Path)" NavItems="@([])">
+                    <Brand>
+                        @* Decision: operandor's marks without its name, then the person's name: the wide mark on wide
+                           screens, the compact one on narrow screens.
+                           Why: the CV belongs to the person and is published in operandor's look; the name in the
+                           header is the person's, and the marks say whose design it is.
+                           Considered: the operandor wordmark, which would name the company as the page's owner. *@
+                        <span class="cv-brand">
+                            <span class="cv-brand__mark cv-brand__mark--wide" aria-hidden="true"><OpLogo Mark="a" Size="18" /></span>
+                            <span class="cv-brand__mark cv-brand__mark--compact" aria-hidden="true"><OpLogo Mark="f" Size="22" /></span>
+                            <span class="cv-brand__name">@Page.Document.Person.Name</span>
+                        </span>
+                    </Brand>
+                    <LanguageSwitch>
+                        <LanguageMenu Languages="@LanguageOptions" />
+                    </LanguageSwitch>
+                    <Actions>
+                        @if (_view.Download(DownloadFormat.Pdf, DocumentVariant.Designed) is { } pdf)
+                        {
+                            <OpButton Size="sm" IconLeft="download" Href="@ResumeView.Href(pdf.Path)" download="@pdf.FileName" type="@pdf.MediaType">PDF</OpButton>
+                        }
+                    </Actions>
+                </SiteHeader>
+                <main id="main" class="cv-main" data-cv-view-root="">
+                    <OpBand Tone="page" Pad="56">
+                        <Hero />
+                    </OpBand>
+                    <OpBand Tone="card" Pad="40" Style="padding-top:24px">
+                        <Tools />
+                        <div class="cv-sections">
+                            <Strengths />
+                            <Experience />
+                            <Skills />
+                            <Education />
+                            <Awards />
+                            <SpokenLanguages />
+                            <Downloads />
+                        </div>
+                    </OpBand>
+                </main>
+                <CvFooter Copyright="@Copyright" />
+            </div>
+            @((MarkupString)$"<script type=\"application/json\" id=\"{ResumeData.ElementId}\">{ResumeData.Json(Page, T, ThemeLabels)}</script>")
+        </CascadingValue>
+    </ChildContent>
+</CvDocument>
+
+@code {
+    private ResumeView _view = default!;
+
+    /// <summary>The page to render.</summary>
+    [Parameter, EditorRequired] public SitePage Page { get; set; } = default!;
+
+    protected override void OnParametersSet() => _view = new ResumeView(Page, T);
+
+    // The content's date, or the build's present: never the clock, so the same content and date give the same page.
+    private string Copyright => $"© {(Page.Document.LastModified ?? Page.Insights.Today).Year} {Page.Document.Person.Name}";
+
+    private IReadOnlyList<LanguageOption> LanguageOptions =>
+        [.. Page.Languages.Select(language => new LanguageOption(language.Tag, language.Endonym, ResumeView.Href(language.HomePath), language == Page.Document.Language))];
+
+    // The theme toggle's three labels, which the script shows as the choice changes.
+    private Dictionary<string, string> ThemeLabels => new()
+    {
+        ["SwitchToDark"] = ThemeWords["SwitchToDark"],
+        ["SwitchToLight"] = ThemeWords["SwitchToLight"],
+        ["SwitchToSystem"] = ThemeWords["SwitchToSystem"],
+    };
+}

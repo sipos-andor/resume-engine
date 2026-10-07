@@ -1,0 +1,53 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* Studies and, under one heading as in the documents, certificates and courses; ids match the engine's search index. *@
+@if (View.Document.Education.Count > 0 || View.Document.Certificates.Count > 0)
+{
+    <CvSection Id="education" Title="@View.Labels.Education">
+        @if (View.Document.Education.Count > 0)
+        {
+            <ul class="cv-list">
+                @for (var index = 0; index < View.Document.Education.Count; index++)
+                {
+                    var study = View.Document.Education[index];
+                    <li class="cv-list__item" id="education-@(index + 1)" data-cv-id="education-@(index + 1)">
+                        <span class="cv-list__title">@if (study.Url is { } url) { <a href="@url">@study.Institution</a> } else { @study.Institution }</span>
+                        @if (study.StudyType is not null || study.Area is not null)
+                        {
+                            <span class="cv-list__detail">@string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>())</span>
+                        }
+                        @if (study.Period is { } period)
+                        {
+                            <span class="cv-list__date">@View.Period(period)</span>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+        @if (View.Document.Certificates.Count > 0)
+        {
+            <h3 class="cv-subtitle">@View.Labels.Certificates</h3>
+            <ul class="cv-list">
+                @for (var index = 0; index < View.Document.Certificates.Count; index++)
+                {
+                    var certificate = View.Document.Certificates[index];
+                    <li class="cv-list__item" id="certificate-@(index + 1)" data-cv-id="certificate-@(index + 1)">
+                        <span class="cv-list__title">@if (certificate.Url is { } url) { <a href="@url">@certificate.Name</a> } else { @certificate.Name }</span>
+                        @if (certificate.Issuer is { } issuer)
+                        {
+                            <span class="cv-list__detail">@issuer</span>
+                        }
+                        @if (certificate.Date is { } date)
+                        {
+                            <span class="cv-list__date">@View.Date(date)</span>
+                        }
+                    </li>
+                }
+            </ul>
+        }
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jsonresume/resume-schema/v1.2.1/schema.json",
+  "basics": {
+    "name": "Ada Example",
+    "label": "Backend Engineer",
+    "phone": "+44 20 7946 0000",
+    "url": "https://cv.example.com/",
+    "summary": "Backend engineer who builds reliable services in C# and Go, and keeps them observable in production.",
+    "location": { "city": "Leeds", "countryCode": "GB", "region": "West Yorkshire" },
+    "profiles": [
+      { "network": "GitHub", "username": "ada-example", "url": "https://github.com/ada-example" }
+    ]
+  },
+  "work": [
+    {
+      "name": "Globex",
+      "position": "Senior Backend Engineer",
+      "url": "https://globex.example.com",
+      "startDate": "2021-04",
+      "summary": "Payments platform for small online shops.",
+      "highlights": [
+        "Split a payment monolith into three services without downtime.",
+        "Cut the p99 latency of checkout from 900 ms to 250 ms."
+      ]
+    },
+    {
+      "name": "Initech",
+      "position": "Software Engineer",
+      "startDate": "2017-09",
+      "endDate": "2021-03",
+      "highlights": ["Built the reporting API used by every internal team."]
+    }
+  ],
+  "education": [
+    { "institution": "University of Leeds", "area": "Computer Science", "studyType": "BSc", "startDate": "2014", "endDate": "2017" }
+  ],
+  "certificates": [
+    { "name": "Certified Kubernetes Application Developer", "date": "2022-06", "issuer": "The Linux Foundation" }
+  ],
+  "skills": [
+    { "name": "Languages", "level": "Advanced", "keywords": ["C#", "Go", "SQL"] },
+    { "name": "Platforms", "level": "Proficient", "keywords": ["Kubernetes", "PostgreSQL"] }
+  ],
+  "languages": [
+    { "language": "English", "fluency": "Native" },
+    { "language": "Spanish", "fluency": "Professional working proficiency" }
+  ],
+  "projects": [
+    {
+      "name": "Ledger",
+      "description": "An open-source double-entry ledger library.",
+      "startDate": "2020-01",
+      "keywords": ["Go", "PostgreSQL"],
+      "url": "https://github.com/ada-example/ledger"
+    }
+  ],
+  "meta": { "version": "v1.0.0", "lastModified": "2026-10-07" }
+}

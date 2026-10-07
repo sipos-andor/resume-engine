@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Sipos.Resume.Documents.Pdf/Sipos.Resume.Documents.Pdf.csproj" />
+  </ItemGroup>
+
+</Project>
