@@ -2,11 +2,14 @@
 
   <ItemGroup>
     <PackageReference Include="bunit" />
+    <PackageReference Include="Jint" />
     <PackageReference Include="TngTech.ArchUnitNET.xUnitV3" />
     <Using Include="Bunit" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="../Shared/text-vectors.json" Link="Shared/text-vectors.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../../src/Sipos.Resume.Theme.Operandor/wwwroot/js/*.js" LinkBase="Scripts" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

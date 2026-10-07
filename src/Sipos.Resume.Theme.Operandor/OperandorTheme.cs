@@ -40,6 +40,8 @@ public sealed class OperandorTheme : IResumeTheme
         "/_content/Operandor.SharedKernel.UI/language.js",
         "/_content/Operandor.SharedKernel.UI/analytics/cloudflare-web-analytics.js",
         AssetRoot + "/css/cv.css",
+        AssetRoot + "/js/cv.js",
+        AssetRoot + "/js/text.js",
         AssetRoot + "/favicon.svg",
     ];
 

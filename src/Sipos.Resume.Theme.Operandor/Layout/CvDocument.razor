@@ -25,6 +25,10 @@
        the root page is sent to the version in their browser's language (the shared kernel's script). *@
     <script src="_content/Operandor.SharedKernel.UI/language.js" suppress-error="BL9992"></script>
     @ChildContent
+    @if (Interactive)
+    {
+        <script type="module" src="_content/Sipos.Resume.Theme.Operandor/js/cv.js" suppress-error="BL9992"></script>
+    }
     @if (Settings.AnalyticsToken is not null)
     {
         @* Cloudflare Web Analytics is cookieless and needs no consent; the script loads the beacon with the token
@@ -43,6 +47,9 @@
 
     /// <summary>Further elements of the head, before the page's SEO tags.</summary>
     [Parameter] public RenderFragment? Head { get; set; }
+
+    /// <summary>Whether the page loads the script of the interactive features.</summary>
+    [Parameter] public bool Interactive { get; set; } = true;
 
     /// <summary>The body.</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }

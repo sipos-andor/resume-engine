@@ -3,7 +3,7 @@
 
 @* As on operandor.io: no sentences, since the host serves this one page for every unknown address and cannot tell the
    reader's language; the number, the brand's mark pulled apart, and every language's home page by its own name. *@
-<CvDocument Lang="@Home.Document.Language.Tag" Settings="@Home.Settings">
+<CvDocument Lang="@Home.Document.Language.Tag" Settings="@Home.Settings" Interactive="false">
     <ChildContent>
         <SeoHead Title="@($"404 – {Home.Document.Person.Name} – {new ResumeLabels(Home.Document.Language.Culture).CurriculumVitae}")" NoIndex="true" />
         <div class="op-page cv-page">

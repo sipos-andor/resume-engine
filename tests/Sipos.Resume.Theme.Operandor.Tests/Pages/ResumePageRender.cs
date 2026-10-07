@@ -144,5 +144,6 @@ public class ResumePageRender
 
         document.QuerySelector("meta[name=robots]")!.GetAttribute("content").ShouldBe("noindex, follow");
         document.QuerySelectorAll(".op-notfound__languages a").Select(link => (link.GetAttribute("href"), link.GetAttribute("hreflang"))).ShouldBe([("", "en"), ("hu/", "hu")]);
+        document.Scripts.ShouldNotContain(script => script.Source != null && script.Source.EndsWith("cv.js", StringComparison.Ordinal));
     }
 }
