@@ -17,7 +17,7 @@
                         @foreach (var skill in group.Skills)
                         {
                             var evidence = View.Page.Insights.Evidence.GetValueOrDefault(skill.Name);
-                            <li class="cv-skill" data-cv-skill="@Keys.Of(skill.Name)">
+                            <li class="cv-skill" data-cv-skill="@View.Page.Insights.Technologies.KeyOf(skill.Name)">
                                 @if (evidence is { Items.Count: > 0 })
                                 {
                                     <details class="cv-skill__details">

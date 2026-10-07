@@ -15,6 +15,20 @@ public class FocusViewBuild
         view.EmphasizedSkills.ShouldBe(["azure"]);
     }
 
+    // The profile, the items and the skills meet through the aliases, as the technology filter does.
+    [Fact]
+    public void FindsItemsAndSkillsGivenProfileSkillSpelledAsAlias()
+    {
+        var english = SampleDocuments.English();
+        var document = english with { FocusProfiles = [english.FocusProfiles[0] with { Skills = ["csharp"] }] };
+
+        var view = FocusView.Build(document).Single();
+
+        view.Emphasized.ShouldContain("portal");
+        view.EmphasizedSkills.ShouldBe(["c#"]);
+        view.SkillGroupOrder.ShouldBe([0, 1]);
+    }
+
     [Fact]
     public void OrdersGroupsWithProfileSkillsFirst() => FocusView.Build(SampleDocuments.English()).Single().SkillGroupOrder.ShouldBe([1, 0]);
 

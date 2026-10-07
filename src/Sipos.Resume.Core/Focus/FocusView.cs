@@ -11,7 +11,7 @@ namespace Sipos.Resume.Core.Focus;
 /// <param name="StrengthOrder">The strengths' identifiers, those of the profile first.</param>
 /// <param name="SkillGroupOrder">The skill groups' indexes in the CV, those with the profile's skills first.</param>
 /// <param name="Emphasized">The identifiers of the positions, projects and strengths the profile puts forward.</param>
-/// <param name="EmphasizedSkills">The keys of the profile's skills.</param>
+/// <param name="EmphasizedSkills">The keys of the profile's skills, an alias by its term's key.</param>
 public sealed record FocusView(
     FocusProfile Profile,
     IReadOnlyList<string> StrengthOrder,
@@ -29,8 +29,12 @@ public sealed record FocusView(
 
     private static FocusView Build(ResumeDocument document, FocusProfile profile)
     {
-        var skills = profile.Skills.Select(Keys.Of).ToHashSet(StringComparer.Ordinal);
-        bool Uses(IEnumerable<string> keywords) => keywords.Any(keyword => skills.Contains(Keys.Of(keyword)));
+        // Every name through the aliases, as the technology index and the skill evidence fold them: a profile asking for
+        // Kubernetes finds the position that names K8s.
+        var canonical = TechnologyIndex.Canonical(document);
+        string Key(string name) => canonical.TryGetValue(Keys.Of(name), out var term) ? Keys.Of(term) : Keys.Of(name);
+        var skills = profile.Skills.Select(Key).ToHashSet(StringComparer.Ordinal);
+        bool Uses(IEnumerable<string> keywords) => keywords.Any(keyword => skills.Contains(Key(keyword)));
         bool Tagged(IReadOnlyList<string> focus) => focus.Contains(profile.Id, StringComparer.Ordinal);
 
         var emphasized = new HashSet<string>(StringComparer.Ordinal);
@@ -49,7 +53,7 @@ public sealed record FocusView(
 
         var strengths = document.Strengths.OrderBy(s => emphasized.Contains(s.Id) ? 0 : 1).Select(s => s.Id).ToList();
         var groups = document.SkillGroups
-            .Select((group, index) => (Index: index, Matches: group.Skills.Count(skill => skills.Contains(Keys.Of(skill.Name)))))
+            .Select((group, index) => (Index: index, Matches: group.Skills.Count(skill => skills.Contains(Key(skill.Name)))))
             .OrderByDescending(group => group.Matches > 0)
             .ThenByDescending(group => group.Matches)
             .Select(group => group.Index)
