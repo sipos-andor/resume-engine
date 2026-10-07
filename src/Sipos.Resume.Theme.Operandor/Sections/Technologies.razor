@@ -1,11 +1,12 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
+@* Each tag carries its technology's key, an alias's term's, as the filter and the job ad matcher name it. *@
 @if (Keywords.Count > 0)
 {
     <ul class="cv-tags" aria-label="@View.Labels.Technologies">
         @foreach (var keyword in Keywords)
         {
-            <li class="op-tag">@keyword</li>
+            <li class="op-tag" data-cv-key="@View.Page.Insights.Technologies.KeyOf(keyword)">@keyword</li>
         }
     </ul>
 }

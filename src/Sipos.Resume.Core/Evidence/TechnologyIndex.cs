@@ -10,7 +10,8 @@ public sealed record Technology(string Name, string Key, IReadOnlyList<string> I
 
 /// <summary>Every technology the positions and projects name, most used first: the technology filter's choices.</summary>
 /// <param name="Technologies">The technologies, by number of items, then by name.</param>
-public sealed record TechnologyIndex(IReadOnlyList<Technology> Technologies)
+/// <param name="AliasKeys">The key of every alias, mapped to the key of the term it stands for.</param>
+public sealed record TechnologyIndex(IReadOnlyList<Technology> Technologies, IReadOnlyDictionary<string, string> AliasKeys)
 {
     /// <summary>Collects the technologies of a CV, merging aliases into the name they stand for.</summary>
     /// <param name="document">The CV.</param>
@@ -69,7 +70,16 @@ public sealed record TechnologyIndex(IReadOnlyList<Technology> Technologies)
         return new TechnologyIndex(
             [.. byKey.Select(pair => new Technology(pair.Value.Name, pair.Key, pair.Value.Ids))
                 .OrderByDescending(technology => technology.ItemIds.Count)
-                .ThenBy(technology => technology.Key, StringComparer.Ordinal)]);
+                .ThenBy(technology => technology.Key, StringComparer.Ordinal)],
+            canonical.ToDictionary(pair => pair.Key, pair => Keys.Of(pair.Value), StringComparer.Ordinal));
+    }
+
+    /// <summary>Returns the key a keyword is filtered and matched by: its own, or its term's when it is an alias.</summary>
+    /// <param name="keyword">A technology as an item names it, such as <c>CSharp</c>.</param>
+    public string KeyOf(string keyword)
+    {
+        var key = Keys.Of(keyword);
+        return AliasKeys.TryGetValue(key, out var term) ? term : key;
     }
 
     /// <summary>Returns the technology with a key, or <see langword="null"/>.</summary>

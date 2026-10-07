@@ -153,6 +153,16 @@ public class ResumePageRender
         document.QuerySelector("#acme .cv-engagements")!.GetAttribute("data-cv-short").ShouldBe("false");
     }
 
+    // A tag spelled as an alias carries its term's key, which the technology filter and the job ad matcher compare.
+    [Fact]
+    public async Task KeysTagsByTermGivenAliasSpelling()
+    {
+        var pages = ThemePages.Sample(change: cv => cv with { Projects = [cv.Projects[0] with { Keywords = ["csharp", "Rust"] }] });
+        var document = await ThemePages.RenderAsync(pages, 0);
+
+        document.QuerySelectorAll("#hobby .op-tag").Select(tag => (tag.TextContent, tag.GetAttribute("data-cv-key"))).ShouldBe([("csharp", "c#"), ("Rust", "rust")]);
+    }
+
     // The script drives the theme toggle; without it, as on the not-found page, the toggle would do nothing.
     [Fact]
     public async Task HidesThemeToggleUntilScriptGivenAnyPage()

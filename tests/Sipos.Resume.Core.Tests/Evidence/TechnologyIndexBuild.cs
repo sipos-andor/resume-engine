@@ -20,4 +20,12 @@ public class TechnologyIndexBuild
         technologies.Single(t => t.Name == "C#").ItemIds.ShouldBe(["portal", "hobby"]);
         technologies.ShouldNotContain(t => t.Key == "csharp");
     }
+
+    // A tag spelled as an alias is filtered and matched by its term's key, as the filter's choices are.
+    [Theory]
+    [InlineData("csharp", "c#")]
+    [InlineData("C#", "c#")]
+    [InlineData("Rust", "rust")]
+    public void KeysAliasByItsTermGivenKeyword(string keyword, string key) =>
+        TechnologyIndex.Build(SampleDocuments.English()).KeyOf(keyword).ShouldBe(key);
 }

@@ -174,7 +174,7 @@ if (data && tools && main) {
             bar.querySelector("rect")?.classList.toggle("is-dim", Boolean(chosen) && !using.has(bar.dataset.cvBar));
         }
         for (const tag of document.querySelectorAll(".cv-tags .op-tag")) {
-            tag.classList.toggle("cv-tag--match", Boolean(chosen) && key(tag.textContent) === chosen.key);
+            tag.classList.toggle("cv-tag--match", Boolean(chosen) && tag.dataset.cvKey === chosen.key);
         }
         return chosen ? format(words.TechnologyItems, chosen.name, chosen.items.length) : "";
     };
@@ -252,7 +252,7 @@ if (data && tools && main) {
         const terms = match(data.vocabulary, matchText.value);
         const keys = new Set(terms.map((term) => key(term.term)));
         for (const tag of document.querySelectorAll(".cv-tags .op-tag")) {
-            tag.classList.toggle("cv-tag--match", keys.has(key(tag.textContent)));
+            tag.classList.toggle("cv-tag--match", keys.has(tag.dataset.cvKey));
         }
         for (const skill of document.querySelectorAll("[data-cv-skill]")) {
             skill.classList.toggle("cv-skill--match", keys.has(skill.dataset.cvSkill));
