@@ -14,13 +14,15 @@ namespace Sipos.Resume.Core.Insights;
 /// <param name="Focus">The view of each position profile.</param>
 /// <param name="Vocabulary">The terms a job ad is matched against.</param>
 /// <param name="Timeline">The positions and projects on a time axis.</param>
+/// <param name="Today">The date that stands for the present: the build's, never the clock's, so a build can be repeated.</param>
 public sealed record ResumeInsights(
     SearchIndex Search,
     TechnologyIndex Technologies,
     IReadOnlyDictionary<string, SkillEvidence> Evidence,
     IReadOnlyList<FocusView> Focus,
     JobVocabulary Vocabulary,
-    TimelineModel Timeline)
+    TimelineModel Timeline,
+    DateOnly Today)
 {
     /// <summary>Derives everything from a CV.</summary>
     /// <param name="document">The CV.</param>
@@ -34,6 +36,7 @@ public sealed record ResumeInsights(
             SkillEvidence.Build(document),
             FocusView.Build(document),
             JobVocabulary.Build(document, technologies),
-            TimelineModel.Build(document, today));
+            TimelineModel.Build(document, today),
+            today);
     }
 }

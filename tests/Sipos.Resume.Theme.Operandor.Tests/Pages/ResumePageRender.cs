@@ -92,6 +92,16 @@ public class ResumePageRender
         own.ShouldAllBe(id => Anchors.IsReserved(id));
     }
 
+    // The same content and build date give the same page, whatever the clock says.
+    [Fact]
+    public async Task TakesCopyrightYearFromBuildDateGivenNoLastModified()
+    {
+        var pages = ThemePages.Sample(change: cv => cv with { LastModified = null }, today: new DateOnly(2024, 3, 1));
+
+        (await ThemePages.RenderAsync(pages, 0)).QuerySelector(".op-footer")!.TextContent.ShouldContain("© 2024 Ann Example");
+        (await ThemePages.RenderNotFoundAsync(pages)).QuerySelector(".op-footer")!.TextContent.ShouldContain("© 2024 Ann Example");
+    }
+
     // A position's projects sit under its "client projects" heading (h4); a project of its own is an h3 like a position.
     [Fact]
     public async Task NestsHeadingsInOrderGivenProjectsWithAndWithoutPosition()

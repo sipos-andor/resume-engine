@@ -76,7 +76,8 @@
 
     protected override void OnParametersSet() => _view = new ResumeView(Page, T);
 
-    private string Copyright => $"© {(Page.Document.LastModified ?? DateOnly.FromDateTime(DateTime.UtcNow)).Year} {Page.Document.Person.Name}";
+    // The content's date, or the build's present: never the clock, so the same content and date give the same page.
+    private string Copyright => $"© {(Page.Document.LastModified ?? Page.Insights.Today).Year} {Page.Document.Person.Name}";
 
     private IReadOnlyList<LanguageOption> LanguageOptions =>
         [.. Page.Languages.Select(language => new LanguageOption(language.Tag, language.Endonym, ResumeView.Href(language.HomePath), language == Page.Document.Language))];

@@ -35,7 +35,7 @@
                     </div>
                 </OpBand>
             </main>
-            <CvFooter Copyright="@($"© {(Home.Document.LastModified ?? DateOnly.FromDateTime(DateTime.UtcNow)).Year} {Home.Document.Person.Name}")" />
+            <CvFooter Copyright="@($"© {(Home.Document.LastModified ?? Home.Insights.Today).Year} {Home.Document.Person.Name}")" />
         </div>
     </ChildContent>
 </CvDocument>

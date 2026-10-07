@@ -21,14 +21,18 @@ internal static class ThemePages
 {
     public static readonly SiteSettings Settings = new(new Uri("https://cv.example.com"), "en", ["hu"], "Ann_Example_CV", "cv-theme", "cv-language", null);
 
-    public static IReadOnlyList<SitePage> Sample(SiteSettings? settings = null)
+    /// <param name="settings">The site's settings, or the sample's.</param>
+    /// <param name="change">Changes both documents, such as leaving out a section.</param>
+    /// <param name="today">The build's present, or the sample's.</param>
+    public static IReadOnlyList<SitePage> Sample(SiteSettings? settings = null, Func<ResumeDocument, ResumeDocument>? change = null, DateOnly? today = null)
     {
         settings ??= Settings;
-        ResumeDocument[] documents = [SampleDocuments.English(), SampleDocuments.Hungarian()];
+        change ??= document => document;
+        ResumeDocument[] documents = [change(SampleDocuments.English()), change(SampleDocuments.Hungarian())];
         var languages = documents.Select(document => document.Language).ToList();
         return [.. documents.Select(document => new SitePage(
             document,
-            ResumeInsights.Analyze(document, SampleDocuments.Today),
+            ResumeInsights.Analyze(document, today ?? SampleDocuments.Today),
             languages,
             DownloadCatalog.For(document.Language, settings.DownloadPrefix, document.FocusProfiles.Select(profile => profile.Id)),
             settings,
