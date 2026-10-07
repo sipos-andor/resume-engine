@@ -22,7 +22,7 @@ internal static class SitemapWriter
     public static string Write(IReadOnlyList<SitePage> pages)
     {
         var text = new StringBuilder();
-        var settings = new XmlWriterSettings { Indent = true, Encoding = new UTF8Encoding(false), OmitXmlDeclaration = false };
+        var settings = new XmlWriterSettings { Indent = true, NewLineChars = "\n", Encoding = new UTF8Encoding(false), OmitXmlDeclaration = false };
         using (var xml = XmlWriter.Create(new StringWriterWithEncoding(text), settings))
         {
             xml.WriteStartDocument();

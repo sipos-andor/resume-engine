@@ -128,7 +128,8 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
             }
         }
 
-        return text.ToString().TrimEnd('\n') + "\n";
+        // AppendLine writes the system's line ending; a line feed everywhere gives every build the same bytes.
+        return text.ToString().ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
     }
 
     private static void WriteContacts(StringBuilder text, DocumentContext context, ResumeLabels labels)

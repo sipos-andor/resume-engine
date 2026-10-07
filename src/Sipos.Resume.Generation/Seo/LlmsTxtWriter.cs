@@ -89,7 +89,8 @@ internal static class LlmsTxtWriter
             text.AppendLine();
         }
 
-        return text.ToString().TrimEnd('\n') + "\n";
+        // AppendLine writes the system's line ending; a line feed everywhere gives every build the same bytes.
+        return text.ToString().ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
     }
 
     /// <summary>Returns llms-full.txt: the Markdown of every language, the default first, separated by rules.</summary>
