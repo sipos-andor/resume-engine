@@ -18,10 +18,12 @@ both considered. Both are built for ASP.NET Core APIs with a database.
 Follow the principles, not the templates:
 
 - **Dependency inversion.** `Sipos.Resume.Core` holds the domain, its rules and the ports (`IResumeSource`,
-  `IDocumentWriter`, `IResumeTheme`) and depends on nothing but the dependency injection abstractions, through
-  which a theme registers the services of its components.
-- **Use cases** live in `Sipos.Resume.Generation` (`ValidateContent`, `BuildSite`, `ExportDocuments`) with the adapters
-  that have no licence or platform reason to live apart.
+  `IDocumentWriter`, `IContentCheck`, `IShareImageWriter`, `IResumeTheme`) and depends on nothing but the dependency
+  injection abstractions, through which a theme registers the services of its components.
+- **Use cases** live in `Sipos.Resume.Generation`: `ResumeGenerator` (read the command line, check the content, build,
+  verify) and `SiteBuilder` (write every page, download and machine-readable file), with the adapters that have no
+  licence or platform reason to live apart, such as the internal `StaticPageRenderer` and the Markdown, plain text,
+  JSON Resume and DOCX writers.
 - **Adapters** get a project of their own only where a package boundary pays for itself:
   `Sipos.Resume.Documents.Pdf` (QuestPDF's licence must not reach a consumer who renders no PDF) and
   `Sipos.Resume.Theme.Operandor` (a look built on the private operandor design system, replaceable by another theme).
@@ -35,8 +37,10 @@ Follow the principles, not the templates:
 
 - Four packages instead of one, each with a reason: the Core runs in a browser (the Studio) as well as at build time;
   PDF output carries its own licence; the theme carries the operandor brand.
-- A consumer composes the engine in a few lines (`ResumeGenerator.Create(args).UseOperandorTheme().UsePdf()`).
-- New output formats are new `IDocumentWriter` adapters; a new delivery mode is a new `IPageRenderer`.
+- A consumer composes the engine in a few lines (`ResumeGenerator.Create(args).UseTheme(new OperandorTheme())`
+  `.UseWriter(new PdfDocumentWriter(pdf)).UseShareImages(new PdfShareImageWriter(pdf)).RunAsync()`).
+- New output formats are new `IDocumentWriter` adapters, and a writer with requirements of its own, such as fonts that
+  must hold every character, adds an `IContentCheck`; a new look is a new `IResumeTheme`.
 
 ## Considered
 

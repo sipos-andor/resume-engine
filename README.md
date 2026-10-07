@@ -43,7 +43,8 @@ A CV site is a content folder and a small build program.
 }
 ```
 
-The default language is served at the root, every other one under its primary subtag (`/hu/`, `/sr/`). The build
+The default language is served at the root, every other one under its primary subtag (`/hu/`, `/sr/`) or its
+`meta.x-path`, which also names its downloads (`…_SR.pdf`). The build
 checks every file and compares the languages: identifiers, dates, company names, URLs, technologies, levels and the
 number of items must match the default language's, so a translation cannot drift. Plain JSON Resume (schema v1.2.1) works (see
 [`samples/plain-json-resume`](samples/plain-json-resume)); the optional `x-` extensions add identifiers, a tagline,
@@ -53,6 +54,32 @@ aliases for job ad matching. They are documented on the types in `Sipos.Resume.C
 **No e-mail address in the content.** A file with an e-mail address anywhere is refused: a published address is
 harvested. An address may appear only in the PDFs, drawn as an image, from the `RESUME_CONTACT_EMAIL` environment
 variable; the build checks that no other file carries it.
+
+**Packages.** The engine's packages are published to GitHub Packages, next to the operandor design system's
+(`Operandor.*`) that the theme depends on; that feed needs a token with `read:packages` even to read, and the operandor
+packages need read access granted to your repository. Map both prefixes to it and keep everything else on nuget.org:
+
+```xml
+<configuration>
+  <packageSources>
+    <clear />
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    <add key="github" value="https://nuget.pkg.github.com/sipos-andor/index.json" />
+  </packageSources>
+  <packageSourceMapping>
+    <packageSource key="github">
+      <package pattern="Sipos.Resume.*" />
+      <package pattern="Operandor.*" />
+    </packageSource>
+    <packageSource key="nuget.org">
+      <package pattern="*" />
+    </packageSource>
+  </packageSourceMapping>
+</configuration>
+```
+
+NuGet reads the token from `NuGetPackageSourceCredentials_github` (`Username=<you>;Password=<token>`); in GitHub Actions
+that is `Username=${{ github.actor }};Password=${{ secrets.GITHUB_TOKEN }}`.
 
 **Build program.** A console on the Web SDK (publishing lays out the packages' static assets under `wwwroot/_content`):
 

@@ -21,10 +21,11 @@ namespace Sipos.Resume.Generation;
 /// </summary>
 /// <example>
 /// <code>
+/// var pdf = new PdfWriterOptions(LicenseType.Community);
 /// return await ResumeGenerator.Create(args)
 ///     .UseTheme(new OperandorTheme())
-///     .UseWriter(new PdfDocumentWriter(new PdfWriterOptions(LicenseType.Community)))
-///     .UseShareImages(new PdfShareImageWriter())
+///     .UseWriter(new PdfDocumentWriter(pdf))
+///     .UseShareImages(new PdfShareImageWriter(pdf))
 ///     .RunAsync();
 /// </code>
 /// </example>
