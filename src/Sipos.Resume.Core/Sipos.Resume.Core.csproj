@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <Description>The resume engine's core: JSON Resume reading and validation, the domain model, cross-language checks, derived data and the ports the build plugs into. No dependencies.</Description>
+    <!--
+      Decision: trimmable and AOT-compatible, with no package dependencies.
+      Why: the same core runs at build time and in the browser (the Studio, a WebAssembly app), where every byte is a
+      download; JSON goes through a source-generated context, so nothing is reached by reflection alone.
+    -->
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Sipos.Resume.Core.Tests" />
+  </ItemGroup>
+
+</Project>

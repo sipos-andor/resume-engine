@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Sipos.Resume.Core/Sipos.Resume.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Sipos.Resume.Core.Tests/Sipos.Resume.Core.Tests.csproj" />
+  </Folder>
+</Solution>
