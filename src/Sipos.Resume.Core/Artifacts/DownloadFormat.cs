@@ -1,7 +1,7 @@
 namespace Sipos.Resume.Core.Artifacts;
 
 /// <summary>A file format a CV is published in.</summary>
-public enum DocumentFormat
+public enum DownloadFormat
 {
     /// <summary>PDF.</summary>
     Pdf,

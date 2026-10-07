@@ -27,7 +27,7 @@ public class DownloadCatalogFor
         var downloads = DownloadCatalog.For(LanguageCatalog.Describe("hu", null, false), "Andor_Sipos_CV", ["ai"]);
 
         downloads.ShouldAllBe(d => d.FileName.All(c => char.IsAscii(c) && c != ' ') && d.Path == "/downloads/" + d.FileName);
-        downloads.Single(d => d.Format == DocumentFormat.Docx && d.FocusId is null && d.Variant == DocumentVariant.Ats).MediaType
+        downloads.Single(d => d.Format == DownloadFormat.Docx && d.FocusId is null && d.Variant == DocumentVariant.Ats).MediaType
             .ShouldBe("application/vnd.openxmlformats-officedocument.wordprocessingml.document");
     }
 }

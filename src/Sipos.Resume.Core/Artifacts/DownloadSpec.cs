@@ -7,7 +7,7 @@ namespace Sipos.Resume.Core.Artifacts;
 /// <param name="Variant">The layout.</param>
 /// <param name="FocusId">The position profile the document is tailored to, or <see langword="null"/> for the full CV.</param>
 /// <param name="FileName">The file's ASCII name, such as <c>Andor_Sipos_CV_HU_ATS.pdf</c>.</param>
-public sealed record DownloadSpec(DocumentFormat Format, DocumentVariant Variant, string? FocusId, string FileName)
+public sealed record DownloadSpec(DownloadFormat Format, DocumentVariant Variant, string? FocusId, string FileName)
 {
     /// <summary>The site path the file is published at, such as <c>/downloads/Andor_Sipos_CV_HU.pdf</c>.</summary>
     public string Path => $"/downloads/{FileName}";
@@ -15,10 +15,10 @@ public sealed record DownloadSpec(DocumentFormat Format, DocumentVariant Variant
     /// <summary>The MIME type of the file.</summary>
     public string MediaType => Format switch
     {
-        DocumentFormat.Pdf => "application/pdf",
-        DocumentFormat.Docx => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        DocumentFormat.PlainText => "text/plain; charset=utf-8",
-        DocumentFormat.Markdown => "text/markdown; charset=utf-8",
+        DownloadFormat.Pdf => "application/pdf",
+        DownloadFormat.Docx => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        DownloadFormat.PlainText => "text/plain; charset=utf-8",
+        DownloadFormat.Markdown => "text/markdown; charset=utf-8",
         _ => "application/json",
     };
 }
@@ -43,19 +43,19 @@ public static class DownloadCatalog
         var stem = $"{prefix}_{language.FileCode}";
         var list = new List<DownloadSpec>
         {
-            new(DocumentFormat.Pdf, DocumentVariant.Designed, null, $"{stem}.pdf"),
-            new(DocumentFormat.Docx, DocumentVariant.Designed, null, $"{stem}.docx"),
-            new(DocumentFormat.Pdf, DocumentVariant.Ats, null, $"{stem}_ATS.pdf"),
-            new(DocumentFormat.Docx, DocumentVariant.Ats, null, $"{stem}_ATS.docx"),
-            new(DocumentFormat.PlainText, DocumentVariant.Ats, null, $"{stem}_ATS.txt"),
-            new(DocumentFormat.Markdown, DocumentVariant.Designed, null, $"{stem}.md"),
-            new(DocumentFormat.JsonResume, DocumentVariant.Designed, null, $"{stem}.json"),
+            new(DownloadFormat.Pdf, DocumentVariant.Designed, null, $"{stem}.pdf"),
+            new(DownloadFormat.Docx, DocumentVariant.Designed, null, $"{stem}.docx"),
+            new(DownloadFormat.Pdf, DocumentVariant.Ats, null, $"{stem}_ATS.pdf"),
+            new(DownloadFormat.Docx, DocumentVariant.Ats, null, $"{stem}_ATS.docx"),
+            new(DownloadFormat.PlainText, DocumentVariant.Ats, null, $"{stem}_ATS.txt"),
+            new(DownloadFormat.Markdown, DocumentVariant.Designed, null, $"{stem}.md"),
+            new(DownloadFormat.JsonResume, DocumentVariant.Designed, null, $"{stem}.json"),
         };
         foreach (var focus in focusIds)
         {
             var suffix = string.Concat(focus.Split('-', StringSplitOptions.RemoveEmptyEntries).Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
-            list.Add(new DownloadSpec(DocumentFormat.Pdf, DocumentVariant.Designed, focus, $"{stem}_{suffix}.pdf"));
-            list.Add(new DownloadSpec(DocumentFormat.Docx, DocumentVariant.Designed, focus, $"{stem}_{suffix}.docx"));
+            list.Add(new DownloadSpec(DownloadFormat.Pdf, DocumentVariant.Designed, focus, $"{stem}_{suffix}.pdf"));
+            list.Add(new DownloadSpec(DownloadFormat.Docx, DocumentVariant.Designed, focus, $"{stem}_{suffix}.docx"));
         }
 
         return list;

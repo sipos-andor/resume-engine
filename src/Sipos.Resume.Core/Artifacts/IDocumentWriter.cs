@@ -31,7 +31,7 @@ public sealed record DocumentContext(
 public interface IDocumentWriter
 {
     /// <summary>The format the writer produces.</summary>
-    DocumentFormat Format { get; }
+    DownloadFormat Format { get; }
 
     /// <summary>Whether the writer produces a layout of its format.</summary>
     /// <param name="variant">The layout.</param>
