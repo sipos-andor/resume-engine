@@ -29,18 +29,20 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
+      # Decision: the version comes from the tag (MinVer); a tag that is not on main's history is refused, before
+      # anything of the repository is restored, built or run.
+      # Why: a package is a promise to every consumer; it must be built from reviewed code, and this job holds a token
+      # that can publish packages, which an unreviewed tag's build targets or tests must never run with.
+      - name: Check that the tag is on main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
       - name: Set up .NET
         uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: "10.0.x"
       - name: Test
         run: dotnet test Sipos.Resume.slnx -c Release
-      # Decision: the version comes from the tag (MinVer); a tag that is not on main's history is refused.
-      # Why: a package is a promise to every consumer; it must be built from reviewed code.
-      - name: Check that the tag is on main
-        run: |
-          git fetch origin main
-          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
       - name: Pack
         run: |
           for project in src/*/*.csproj; do
