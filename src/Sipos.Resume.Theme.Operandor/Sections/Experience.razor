@@ -1,14 +1,17 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
-<CvSection Id="experience" Title="@View.Labels.Experience">
-    <TimelineView />
-    <div class="cv-items">
-        @foreach (var position in View.Document.Positions)
-        {
-            <PositionItem Position="position" />
-        }
-    </div>
-</CvSection>
+@if (View.Document.Positions.Count > 0 || View.Page.Insights.Timeline.Bars.Count > 0)
+{
+    <CvSection Id="experience" Title="@View.Labels.Experience">
+        <TimelineView />
+        <div class="cv-items">
+            @foreach (var position in View.Document.Positions)
+            {
+                <PositionItem Position="position" />
+            }
+        </div>
+    </CvSection>
+}
 @if (View.Document.Projects.Count > 0)
 {
     <CvSection Id="projects" Title="@View.Labels.Projects">

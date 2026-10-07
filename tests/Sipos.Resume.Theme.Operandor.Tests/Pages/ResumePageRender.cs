@@ -92,6 +92,39 @@ public class ResumePageRender
         own.ShouldAllBe(id => Anchors.IsReserved(id));
     }
 
+    // x-strengths is an extension and a CV may have no skills, positions or profiles: no empty section or row.
+    [Fact]
+    public async Task LeavesOutEmptySectionsGivenCvWithoutThem()
+    {
+        var pages = ThemePages.Sample(change: cv => cv with { Strengths = [], SkillGroups = [], Positions = [], Projects = [], Person = cv.Person with { Profiles = [] } });
+        var document = await ThemePages.RenderAsync(pages, 0);
+
+        document.GetElementById("strengths").ShouldBeNull();
+        document.GetElementById("skills").ShouldBeNull();
+        document.GetElementById("experience").ShouldBeNull();
+        document.QuerySelectorAll(".cv-facts dd").ShouldAllBe(row => row.TextContent.Trim().Length > 0);
+    }
+
+    // Only the CV's own sections are landmarks, so a skill group named "Languages" does not repeat the languages section.
+    [Fact]
+    public async Task KeepsSkillGroupsOutOfLandmarksGivenSkills()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var groups = document.QuerySelectorAll(".cv-skill-group");
+        groups.ShouldNotBeEmpty();
+        groups.ShouldAllBe(group => group.LocalName == "div" && !group.HasAttribute("aria-labelledby"));
+    }
+
+    // The profiles row names what it lists, not the online CV, which the documents' "Web" label means.
+    [Fact]
+    public async Task LabelsProfilesAsOnlineGivenProfiles()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        document.QuerySelector(".cv-facts__profile")!.ParentElement!.PreviousElementSibling!.TextContent.Trim().ShouldBe("Online");
+    }
+
     // The same content and build date give the same page, whatever the clock says.
     [Fact]
     public async Task TakesCopyrightYearFromBuildDateGivenNoLastModified()

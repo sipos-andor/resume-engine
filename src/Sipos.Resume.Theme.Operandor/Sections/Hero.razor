@@ -67,15 +67,18 @@
                     <dd>@location</dd>
                 </div>
             }
-            <div class="cv-facts__row">
-                <dt><OpIcon Name="globe" Size="16" /><span class="op-visually-hidden">@View.Labels.Web</span></dt>
-                <dd>
-                    @foreach (var profile in View.Person.Profiles)
-                    {
-                        <a class="cv-facts__profile" href="@profile.Url" rel="me">@profile.Network</a>
-                    }
-                </dd>
-            </div>
+            @if (View.Person.Profiles.Count > 0)
+            {
+                <div class="cv-facts__row">
+                    <dt><OpIcon Name="globe" Size="16" /><span class="op-visually-hidden">@View.Text["FooterOnline"]</span></dt>
+                    <dd>
+                        @foreach (var profile in View.Person.Profiles)
+                        {
+                            <a class="cv-facts__profile" href="@profile.Url" rel="me">@profile.Network</a>
+                        }
+                    </dd>
+                </div>
+            }
             @if (View.Document.Languages.Count > 0)
             {
                 <div class="cv-facts__row">
