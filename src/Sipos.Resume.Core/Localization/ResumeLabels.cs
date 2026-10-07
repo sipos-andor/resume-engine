@@ -22,6 +22,9 @@ public sealed class ResumeLabels
     /// <param name="culture">The CV's culture, such as <c>hu-HU</c>.</param>
     public ResumeLabels(CultureInfo culture) => _culture = culture;
 
+    /// <summary>The culture the labels are in, which also formats the CV's dates and numbers.</summary>
+    public CultureInfo Culture => _culture;
+
     /// <summary>The languages the engine has labels for, by neutral culture name: <c>en</c>, <c>hu</c>, <c>hr</c>, <c>sr-Latn</c>.</summary>
     public static IReadOnlyList<string> SupportedLanguages { get; } = ["en", "hu", "hr", "sr-Latn"];
 
