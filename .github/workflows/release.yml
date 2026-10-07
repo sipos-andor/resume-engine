@@ -1,0 +1,54 @@
+# Publishes the packages to GitHub Packages when a version tag (v1.2.3) is pushed.
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: "10.0.x"
+      - name: Authenticate to GitHub Packages
+        run: >
+          dotnet nuget update source github --configfile nuget.config
+          --username "${{ github.actor }}" --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text
+      - name: Test
+        run: dotnet test Sipos.Resume.slnx -c Release
+      # Decision: the version comes from the tag (MinVer); a tag that is not on main's history is refused.
+      # Why: a package is a promise to every consumer; it must be built from reviewed code.
+      - name: Check that the tag is on main
+        run: |
+          git fetch origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+      - name: Pack
+        run: |
+          for project in src/*/*.csproj; do
+            dotnet pack "$project" -c Release --no-build -o packages
+          done
+      - name: Push
+        run: >
+          dotnet nuget push "packages/*.nupkg"
+          --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          --api-key "${{ secrets.GITHUB_TOKEN }}"
+          --skip-duplicate

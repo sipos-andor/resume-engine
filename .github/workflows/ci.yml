@@ -1,0 +1,54 @@
+# Builds and tests the engine and builds the sample site on every pull request and every push to main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Decision: read access only; the operandor design system is read from GitHub Packages with the run's token.
+# Why: a pull request's workflow must not be able to publish; the release workflow has its own write permission.
+permissions:
+  contents: read
+  packages: read
+
+# Decision: one run per ref; a newer run of a pull request cancels the older one, runs on main wait for each other.
+# Why: only a pull request's newest commit matters, while every commit on main should be checked.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      DOTNET_NOLOGO: "true"
+      DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # MinVer derives the version from the tags, so it needs the history.
+          fetch-depth: 0
+      - name: Set up .NET
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: "10.0.x"
+      - name: Authenticate to GitHub Packages
+        run: >
+          dotnet nuget update source github --configfile nuget.config
+          --username "${{ github.actor }}" --password "${{ secrets.GITHUB_TOKEN }}" --store-password-in-clear-text
+      - name: Restore
+        run: dotnet restore Sipos.Resume.slnx
+      - name: Build
+        run: dotnet build Sipos.Resume.slnx -c Release --no-restore
+      - name: Test
+        run: dotnet test Sipos.Resume.slnx -c Release --no-build
+      # Decision: the sample is published and built as a consumer would, and its output verified by the engine.
+      # Why: only a published program lays out the packages' static assets, so this is the one check of the whole
+      # chain: content, pages, documents, assets and the verifier.
+      - name: Build the sample site
+        run: |
+          dotnet publish samples/SampleSite -c Release --no-build -o artifacts/sample-host
+          dotnet artifacts/sample-host/SampleSite.dll --content samples/plain-json-resume/content --output artifacts/sample-site --clean
