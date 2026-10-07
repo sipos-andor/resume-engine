@@ -43,7 +43,7 @@ public static class ResumeMapper
             [.. resume.Strengths.Select(s => new Strength(s.Id!, s.Title!, Blank(s.Summary), s.Short, s.Focus))],
             positions,
             [.. engagements.Where(item => item.Work is null).Select(item => item.Engagement)],
-            [.. resume.Education.Select(e => new Study(e.Institution!, Blank(e.Area), Blank(e.StudyType), Period(e.StartDate, e.EndDate), Blank(e.Url)))],
+            [.. resume.Education.Select(e => new Study(e.Institution!, Blank(e.Area), Blank(e.StudyType), StudyPeriod(e.StartDate, e.EndDate), Blank(e.Url)))],
             [.. resume.Certificates.Select(c => new Certificate(c.Name!, Date(c.Date), Blank(c.Issuer), Blank(c.Url)))],
             [.. resume.Awards.Select(a => new Award(a.Title!, Date(a.Date), Blank(a.Awarder), Blank(a.Summary)))],
             [.. resume.Languages.Select(l => new SpokenLanguage(l.Language!, Blank(l.Fluency)))],
@@ -101,6 +101,11 @@ public static class ResumeMapper
 
     private static DateRange? Period(string? start, string? end) =>
         PartialDate.TryParse(start, out var first) ? new DateRange(first, PartialDate.TryParse(end, out var last) ? last : null) : null;
+
+    // Decision: a study with only an end date is the period of that one date, which every writer prints as "2012".
+    // Why: JSON Resume files usually give a graduation date alone; without a start it would lose its year everywhere.
+    private static DateRange? StudyPeriod(string? start, string? end) =>
+        Period(start, end) ?? (PartialDate.TryParse(end, out var last) ? new DateRange(last, last) : null);
 
     private static PartialDate? Date(string? text) => PartialDate.TryParse(text, out var date) ? date : null;
 

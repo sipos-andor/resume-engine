@@ -68,6 +68,15 @@ public class ResumeMapperMap
         ResumeMapper.Map(resume with { Basics = resume.Basics! with { Phone = phone } }, English).Person.PhoneDial.ShouldBe(dial);
     }
 
+    // JSON Resume files usually give a graduation date alone.
+    [Fact]
+    public void KeepsGraduationYearGivenStudyWithOnlyEndDate()
+    {
+        var period = Document().Education.Single().Period.ShouldNotBeNull();
+
+        (period.Start, period.End).ShouldBe((PartialDate.Parse("2012"), PartialDate.Parse("2012")));
+    }
+
     [Fact]
     public void ReadsLastModifiedGivenMeta() => Document().LastModified.ShouldBe(new DateOnly(2026, 10, 7));
 
