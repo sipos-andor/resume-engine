@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Profile" xml:space="preserve"><value>Profil</value></data>
+  <data name="Strengths" xml:space="preserve"><value>Istaknute snage</value></data>
+  <data name="Experience" xml:space="preserve"><value>Stručno iskustvo</value></data>
+  <data name="Projects" xml:space="preserve"><value>Projekti</value></data>
+  <data name="ClientProjects" xml:space="preserve"><value>Projekti za klijente</value></data>
+  <data name="Skills" xml:space="preserve"><value>Tehnologije i kompetencije</value></data>
+  <data name="Education" xml:space="preserve"><value>Obrazovanje, sertifikati i obuke</value></data>
+  <data name="Certificates" xml:space="preserve"><value>Sertifikati i obuke</value></data>
+  <data name="Awards" xml:space="preserve"><value>Nagrade i takmičenja</value></data>
+  <data name="Languages" xml:space="preserve"><value>Jezici</value></data>
+  <data name="Timeline" xml:space="preserve"><value>Vremenska linija</value></data>
+  <data name="Contact" xml:space="preserve"><value>Kontakt</value></data>
+  <data name="Downloads" xml:space="preserve"><value>Preuzimanja</value></data>
+  <data name="AtsSummary" xml:space="preserve"><value>Rezime</value></data>
+  <data name="AtsSkills" xml:space="preserve"><value>Veštine</value></data>
+  <data name="AtsExperience" xml:space="preserve"><value>Radno iskustvo</value></data>
+  <data name="AtsProjects" xml:space="preserve"><value>Projekti</value></data>
+  <data name="AtsEducation" xml:space="preserve"><value>Obrazovanje</value></data>
+  <data name="AtsCertifications" xml:space="preserve"><value>Sertifikati</value></data>
+  <data name="AtsAwards" xml:space="preserve"><value>Nagrade</value></data>
+  <data name="AtsLanguages" xml:space="preserve"><value>Jezici</value></data>
+  <data name="Rating5" xml:space="preserve"><value>Ekspert</value></data>
+  <data name="Rating4" xml:space="preserve"><value>Napredno</value></data>
+  <data name="Rating3" xml:space="preserve"><value>Iskusno</value></data>
+  <data name="Rating2" xml:space="preserve"><value>Osnovno</value></data>
+  <data name="Rating1" xml:space="preserve"><value>Početno</value></data>
+  <data name="RatingOf" xml:space="preserve"><value>{0} od 5</value></data>
+  <data name="Present" xml:space="preserve"><value>danas</value></data>
+  <data name="Client" xml:space="preserve"><value>Klijent</value></data>
+  <data name="Role" xml:space="preserve"><value>Uloga</value></data>
+  <data name="Technologies" xml:space="preserve"><value>Tehnologije</value></data>
+  <data name="Phone" xml:space="preserve"><value>Telefon</value></data>
+  <data name="Web" xml:space="preserve"><value>Onlajn biografija</value></data>
+  <data name="Location" xml:space="preserve"><value>Lokacija</value></data>
+  <data name="EmailImage" xml:space="preserve"><value>Adresa e-pošte</value></data>
+  <data name="CurriculumVitae" xml:space="preserve"><value>Biografija</value></data>
+  <data name="QrCaption" xml:space="preserve"><value>Skenirajte za onlajn biografiju</value></data>
+  <data name="Focus" xml:space="preserve"><value>Fokus</value></data>
+  <data name="Highlights" xml:space="preserve"><value>Rezultati</value></data>
+</root>
