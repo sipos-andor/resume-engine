@@ -40,6 +40,9 @@ internal sealed record ResumeView(SitePage Page, IStringLocalizer<ThemeText> Tex
     /// <param name="id">The element's id.</param>
     public string Anchor(string id) => "#" + id;
 
+    /// <summary>Whether the CV marks anything for the one-page view with <c>x-short</c>; a plain JSON Resume does not.</summary>
+    public bool HasShortView => Document.Strengths.Any(strength => strength.IsShort) || Document.Positions.Any(position => position.IsShort) || Document.AllEngagements.Any(engagement => engagement.IsShort);
+
     /// <summary>A period in the page's words, such as <c>2022. november – jelenleg</c>.</summary>
     /// <param name="period">The period.</param>
     public string Period(DateRange period) => PeriodText.Format(period, Labels, DateStyle.Long);

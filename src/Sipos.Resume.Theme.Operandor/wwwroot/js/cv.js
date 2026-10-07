@@ -111,7 +111,7 @@ if (data && tools && main) {
     const state = {
         focus: data.focus.some((view) => view.id === params.get("focus")) ? params.get("focus") : "",
         technology: data.technologies.some((entry) => entry.key === params.get("tech")) ? params.get("tech") : "",
-        view: params.get("view") === "short" ? "short" : "full",
+        view: params.get("view") === "short" && viewButtons.length > 0 ? "short" : "full",
         query: "",
     };
 

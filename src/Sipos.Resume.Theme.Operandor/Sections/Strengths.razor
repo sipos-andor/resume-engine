@@ -3,7 +3,7 @@
 @* x-strengths is an extension, so a plain JSON Resume has none and gets no empty section. *@
 @if (View.Document.Strengths.Count > 0)
 {
-    <CvSection Id="strengths" Title="@View.Labels.Strengths">
+    <CvSection Id="strengths" Title="@View.Labels.Strengths" Short="@View.Document.Strengths.Any(strength => strength.IsShort)">
         <ol class="cv-strengths" data-cv-order="strengths">
             @foreach (var strength in View.Document.Strengths)
             {

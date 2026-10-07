@@ -35,7 +35,7 @@
     <Technologies Keywords="Position.Keywords" />
     @if (Position.Engagements.Count > 0)
     {
-        <div class="cv-engagements">
+        <div class="cv-engagements" data-cv-short="@Strengths.Flag(Position.Engagements.Any(engagement => engagement.IsShort))">
             <h4 class="cv-engagements__title">@View.Labels.ClientProjects</h4>
             @foreach (var engagement in Position.Engagements)
             {

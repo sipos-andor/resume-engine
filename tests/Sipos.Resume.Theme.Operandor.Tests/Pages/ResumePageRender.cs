@@ -125,6 +125,34 @@ public class ResumePageRender
         document.QuerySelector(".cv-facts__profile")!.ParentElement!.PreviousElementSibling!.TextContent.Trim().ShouldBe("Online");
     }
 
+    // The one-page view shows what the CV marks with x-short; a plain JSON Resume marks nothing and has no such view.
+    [Fact]
+    public async Task OffersOnePageViewOnlyGivenMarkedItems()
+    {
+        var plain = ThemePages.Sample(change: cv => cv with
+        {
+            Strengths = [.. cv.Strengths.Select(strength => strength with { IsShort = false })],
+            Positions = [.. cv.Positions.Select(position => position with { IsShort = false, Engagements = [.. position.Engagements.Select(engagement => engagement with { IsShort = false })] })],
+            Projects = [.. cv.Projects.Select(project => project with { IsShort = false })],
+        });
+
+        (await ThemePages.RenderAsync(ThemePages.Sample(), 0)).QuerySelectorAll("[data-cv-view]").Length.ShouldBe(2);
+        (await ThemePages.RenderAsync(plain, 0)).QuerySelectorAll("[data-cv-view]").ShouldBeEmpty();
+    }
+
+    // A section or a position's project list none of whose items is marked would show only its heading in that view.
+    [Fact]
+    public async Task MarksSectionsForOnePageViewGivenTheirItems()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        document.GetElementById("strengths")!.GetAttribute("data-cv-short").ShouldBe("true");
+        document.GetElementById("experience")!.GetAttribute("data-cv-short").ShouldBe("true");
+        document.GetElementById("projects")!.GetAttribute("data-cv-short").ShouldBe("false");
+        document.GetElementById("skills")!.HasAttribute("data-cv-short").ShouldBeFalse();
+        document.QuerySelector("#acme .cv-engagements")!.GetAttribute("data-cv-short").ShouldBe("false");
+    }
+
     // The script drives the theme toggle; without it, as on the not-found page, the toggle would do nothing.
     [Fact]
     public async Task HidesThemeToggleUntilScriptGivenAnyPage()

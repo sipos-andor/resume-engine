@@ -32,13 +32,18 @@
                 }
             </select>
         </div>
-        <div class="cv-field">
-            <span class="cv-field__label" id="cv-view-label">@View.Text["View"]</span>
-            <div class="cv-switch" role="group" aria-labelledby="cv-view-label">
-                <button type="button" class="cv-switch__option" data-cv-view="full" aria-pressed="true">@View.Text["ViewFull"]</button>
-                <button type="button" class="cv-switch__option" data-cv-view="short" aria-pressed="false">@View.Text["ViewShort"]</button>
+        @* The one-page view shows what the CV marks with x-short; a CV that marks nothing, as a plain JSON Resume,
+           has no such view. *@
+        @if (View.HasShortView)
+        {
+            <div class="cv-field">
+                <span class="cv-field__label" id="cv-view-label">@View.Text["View"]</span>
+                <div class="cv-switch" role="group" aria-labelledby="cv-view-label">
+                    <button type="button" class="cv-switch__option" data-cv-view="full" aria-pressed="true">@View.Text["ViewFull"]</button>
+                    <button type="button" class="cv-switch__option" data-cv-view="short" aria-pressed="false">@View.Text["ViewShort"]</button>
+                </div>
             </div>
-        </div>
+        }
         <OpButton Variant="ghost" Size="sm" IconLeft="file-text" data-cv-print="">@View.Text["Print"]</OpButton>
     </div>
     <div class="cv-search-results" id="cv-search-results" hidden></div>
