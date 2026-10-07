@@ -148,5 +148,25 @@ public class ContentLoaderLoad
         ContentLoader.Load([File("resume.en.json", english), File("site.json", Site)], null).Issues.ShouldContain(issue => issue.Path == "/basics/summary");
     }
 
+    [Fact]
+    public void ReportsEmailGivenAddressInSiteSettings()
+    {
+        var site = Site.Replace("cv-theme", "ann@example.com", StringComparison.Ordinal);
+
+        var result = ContentLoader.Load([File("resume.en.json", Samples.English), File("site.json", site)], null);
+
+        result.Set.ShouldBeNull();
+        result.Issues.ShouldContain(issue => issue.Source == "site.json" && issue.Path == "/themeStorageKey");
+    }
+
+    [Fact]
+    public void ReportsOriginGivenUserInfo()
+    {
+        var site = Site.Replace("https://cv.example.com", "https://user@cv.example.com", StringComparison.Ordinal);
+
+        ContentLoader.Load([File("resume.en.json", Samples.English), File("site.json", site)], null)
+            .Issues.ShouldContain(issue => issue.Path == "/origin");
+    }
+
     private static ContentFile File(string name, string text) => new(name, Encoding.UTF8.GetBytes(text));
 }

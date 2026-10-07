@@ -179,14 +179,29 @@ public static partial class ContentLoader
         }
 
         SiteFile? site;
+        JsonDocument document;
         try
         {
-            site = JsonSerializer.Deserialize(ResumeReader.WithoutByteOrderMark(file.Content).Span, ResumeJsonContext.Default.SiteFile);
+            document = JsonDocument.Parse(ResumeReader.WithoutByteOrderMark(file.Content));
         }
         catch (JsonException exception)
         {
             issues.Add(new ValidationIssue(SiteFileName, "", $"Not valid JSON of the expected shape: {exception.Message}"));
             return null;
+        }
+
+        using (document)
+        {
+            issues.AddRange(EmailGuard.Check(SiteFileName, document.RootElement));
+            try
+            {
+                site = document.RootElement.Deserialize(ResumeJsonContext.Default.SiteFile);
+            }
+            catch (JsonException exception)
+            {
+                issues.Add(new ValidationIssue(SiteFileName, "", $"Not valid JSON of the expected shape: {exception.Message}"));
+                return null;
+            }
         }
 
         if (site is null)
@@ -195,7 +210,11 @@ public static partial class ContentLoader
             return null;
         }
 
-        if (!Uri.TryCreate(site.Origin, UriKind.Absolute, out var origin) || origin.Scheme is not ("https" or "http") || origin.PathAndQuery != "/" || origin.Fragment.Length > 0)
+        if (!Uri.TryCreate(site.Origin, UriKind.Absolute, out var origin)
+            || origin.Scheme is not ("https" or "http")
+            || origin.UserInfo.Length > 0
+            || origin.PathAndQuery != "/"
+            || origin.Fragment.Length > 0)
         {
             issues.Add(new ValidationIssue(SiteFileName, "/origin", "Must be an absolute http(s) origin without a path, such as https://cv.example.com."));
         }
