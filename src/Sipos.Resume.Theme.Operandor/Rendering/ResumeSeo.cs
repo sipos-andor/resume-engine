@@ -105,7 +105,8 @@ internal static partial class ResumeSeo
         var document = page.Document;
         var person = document.Person;
         var settings = page.Settings;
-        var employer = document.Positions.FirstOrDefault(position => position.Period.IsOngoing && position.Url is not null);
+        var employer = document.Positions.FirstOrDefault(position => position.Period.IsOngoing
+            && position.Period.Start.FirstDay <= page.Insights.Today && position.Url is not null);
         return new SeoPerson(settings.Url("/").AbsoluteUri + "#person", person.Name)
         {
             GivenName = person.GivenName,

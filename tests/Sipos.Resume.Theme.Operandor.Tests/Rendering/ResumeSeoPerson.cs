@@ -1,3 +1,4 @@
+using Sipos.Resume.Core.Dates;
 using Sipos.Resume.Theme.Operandor.Rendering;
 using Sipos.Resume.Theme.Operandor.Tests.Helpers;
 
@@ -5,6 +6,42 @@ namespace Sipos.Resume.Theme.Operandor.Tests.Rendering;
 
 public class ResumeSeoPerson
 {
+    [Theory]
+    [InlineData("2026", true)]
+    [InlineData("2026-10", true)]
+    [InlineData("2026-10-07", true)]
+    [InlineData("2026-10-08", false)]
+    [InlineData("2026-11", false)]
+    [InlineData("2027", false)]
+    public void NamesOnlyEmployersWhosePositionHasStarted(string start, bool expected)
+    {
+        var page = ThemePages.Sample(today: new DateOnly(2026, 10, 7))[0];
+        var position = page.Document.Positions[0] with { Url = "https://example.com/employer", Period = new DateRange(PartialDate.Parse(start)) };
+
+        var person = ResumeSeo.Person(page with { Document = page.Document with { Positions = [position] } });
+
+        if (expected)
+        {
+            person.WorksFor!.Id.ShouldBe("https://example.com/employer#organization");
+        }
+        else
+        {
+            person.WorksFor.ShouldBeNull();
+        }
+    }
+
+    [Fact]
+    public void SkipsFutureEmployerWhenSelectingCurrentEmployer()
+    {
+        var page = ThemePages.Sample()[0];
+        var current = page.Document.Positions[0] with { Url = "https://example.com/current" };
+        var future = current with { Organization = "Future", Url = "https://example.com/future", Period = new DateRange(new PartialDate(2027)) };
+
+        var person = ResumeSeo.Person(page with { Document = page.Document with { Positions = [future, current] } });
+
+        person.WorksFor!.Id.ShouldBe("https://example.com/current#organization");
+    }
+
     [Fact]
     public void DescribesPersonFromCvGivenPage()
     {

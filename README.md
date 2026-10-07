@@ -133,6 +133,8 @@ RESUME_CONTACT_EMAIL=... dotnet build/YourCv.dll --content content --output site
 
 Builds reject symbolic links and junctions in output and protected folder paths (content, assets, program, working
 and home folders), including linked parent components, before preparing the output.
+Asset copying skips nested symbolic links and junctions, including links to individual files, so linked content
+outside the asset tree is not published and directory-link cycles are not followed.
 
 `RESUME_ANALYTICS_TOKEN` turns on Cloudflare Web Analytics (cookieless). The output is a static folder for any host;
 the pages carry their Content-Security-Policy as a `meta` element, so GitHub Pages needs no headers. The build ends

@@ -27,8 +27,15 @@ internal static class AssetCopier
             return 0;
         }
 
+        CheckPath(folder);
+        var enumeration = new EnumerationOptions
+        {
+            RecurseSubdirectories = true,
+            AttributesToSkip = FileAttributes.ReparsePoint,
+            IgnoreInaccessible = false,
+        };
         var count = 0;
-        foreach (var file in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories).Order(StringComparer.Ordinal))
+        foreach (var file in Directory.EnumerateFiles(folder, "*", enumeration).Order(StringComparer.Ordinal))
         {
             if (SkippedExtensions.Contains(Path.GetExtension(file), StringComparer.OrdinalIgnoreCase))
             {
@@ -36,10 +43,21 @@ internal static class AssetCopier
             }
 
             var path = "/" + Path.GetRelativePath(folder, file).Replace(Path.DirectorySeparatorChar, '/');
+            CheckPath(file);
             await sink.WriteAsync(path, await File.ReadAllBytesAsync(file, cancellationToken).ConfigureAwait(false), cancellationToken).ConfigureAwait(false);
             count++;
         }
 
         return count;
+    }
+
+    // Enumeration skips directory and file links, including cycles. Recheck before reading in case a discovered
+    // file or one of its parents has since become a link.
+    private static void CheckPath(string path)
+    {
+        if (OutputPaths.LinkIn(path) is { } link)
+        {
+            throw new IOException($"Asset path traverses a symbolic link or junction ({link}).");
+        }
     }
 }
