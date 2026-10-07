@@ -16,4 +16,6 @@ internal static class SampleDocuments
         var resume = Samples.Read(Samples.Hungarian);
         return ResumeMapper.Map(resume, LanguageCatalog.Describe("hu", resume.Meta, isDefault: false));
     }
+
+    public static ResumeDocument Accented() => ResumeMapper.Map(Samples.Read(Samples.Accented), LanguageCatalog.Describe("en", null, isDefault: true));
 }

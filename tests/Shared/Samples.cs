@@ -52,6 +52,11 @@ internal static class Samples
         .Replace("Remote from Europe", "Távmunkában, Európából", StringComparison.Ordinal)
         .Replace("\"x-ogLocale\": \"en_GB\"", "\"x-endonym\": \"Magyar\"", StringComparison.Ordinal);
 
+    /// <summary>The English CV with Hungarian and Croatian letters in the name and the location: í ő ű č ć š ž đ.</summary>
+    public static readonly string Accented = English
+        .Replace("\"name\": \"Ann Example\"", "\"name\": \"Ann Sípos\"", StringComparison.Ordinal)
+        .Replace("Remote from Europe", "Győr, Hűvösvölgy; Čačak, Pašman, Ivanić-Grad, Đurđevac, Požega", StringComparison.Ordinal);
+
     public static JsonResume Read(string json) =>
         ResumeReader.Read("resume.en.json", Encoding.UTF8.GetBytes(json)).Resume ?? throw new InvalidOperationException("The sample is not valid.");
 }
