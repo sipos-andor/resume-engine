@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,6 +44,11 @@ internal sealed class StaticPageRenderer(IResumeTheme theme, IReadOnlyList<SiteP
         theme.ConfigureServices(services, pages);
         services.AddScoped<NavigationManager>(_ => new StaticNavigationManager(_settings.Url("/").AbsoluteUri, _settings.Url(path).AbsoluteUri));
         services.AddScoped<IJSRuntime, UnavailableJSRuntime>();
+
+        // Decision: an HTML encoder that leaves every Unicode letter as it is.
+        // Why: the default one writes "Sípos" as "S&#xED;pos", which makes a Hungarian page a fifth larger and its
+        // source unreadable; the page is UTF-8, and the encoder still escapes <, >, &, " and '.
+        services.AddSingleton(HtmlEncoder.Create(UnicodeRanges.All));
 
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true, ValidateOnBuild = true });
         await using var scope = provider.CreateAsyncScope();
