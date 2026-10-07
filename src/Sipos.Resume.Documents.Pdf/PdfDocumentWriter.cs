@@ -33,7 +33,7 @@ public sealed class PdfDocumentWriter : IDocumentWriter
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">The download is not a PDF.</exception>
-    /// <exception cref="InvalidOperationException">The e-mail address could not be drawn.</exception>
+    /// <exception cref="InvalidOperationException">The e-mail address could not be drawn, or the identifier could not be made reproducible.</exception>
     public void Write(DocumentContext context, Stream output)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -45,8 +45,10 @@ public sealed class PdfDocumentWriter : IDocumentWriter
 
         var outline = DocumentOutline.Of(context);
         IDocument document = outline.Variant == DocumentVariant.Ats ? new AtsLayout(context, outline) : new DesignedLayout(context, outline);
-        var pdf = document.GeneratePdf();
-        ReproducibleId.Apply(pdf);
+        // The same content must give the same bytes; a QuestPDF that writes the identifier otherwise fails the build
+        // here rather than publishing changed downloads on every run.
+        var pdf = ReproducibleId.Apply(document.GeneratePdf())
+            ?? throw new InvalidOperationException($"QuestPDF wrote {context.Download.FileName} with an identifier in a form the engine cannot make reproducible.");
         output.Write(pdf);
     }
 }
