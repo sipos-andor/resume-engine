@@ -349,9 +349,10 @@ public sealed partial class ResumeGenerator
     private const long MaxUnixSeconds = 253_402_300_799;
 
     // Decision: the output may not be, or hold, the content, the assets, the program, the working folder or the home
-    // folder, and may not be a drive's root.
+    // folder, may not be a drive's root, and may not lie within the assets.
     // Why: --clean empties the output; a mistyped --output such as "." or the content folder would delete the CV's
-    // sources, the repository or the running program.
+    // sources, the repository or the running program. The assets are copied into the output after the pages are
+    // written, so an output within them would be copied into itself.
     private static string? OutputConflict(BuildOptions options)
     {
         var output = Full(options.OutputFolder);
@@ -374,6 +375,12 @@ public sealed partial class ResumeGenerator
             {
                 return $"--output {output} is or holds {name} ({path}); name a folder of its own for the site.";
             }
+        }
+
+        var assets = Full(options.AssetsRoot);
+        if (Contains(assets, output))
+        {
+            return $"--output {output} lies within the assets folder ({assets}), which is copied into it; name a folder outside it.";
         }
 
         return null;

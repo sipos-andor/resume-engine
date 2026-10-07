@@ -81,6 +81,23 @@ public class ResumeGeneratorRun
         folder.Exists("content/resume.en.json").ShouldBeTrue();
     }
 
+    // The assets are copied into the output after the pages; an output within them would be copied into itself.
+    [Fact]
+    public async Task RefusesOutputGivenFolderWithinAssets()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        Sites.WriteAssets(folder);
+
+        var code = await ResumeGenerator.Create(["--content", Path.Combine(folder.Path, "content"), "--output", Path.Combine(folder.Path, "wwwroot", "dist"), "--assets", Path.Combine(folder.Path, "wwwroot"), "--today", "2026-10-07"])
+            .UseTheme(new FakeTheme())
+            .UseLogging(NullLoggerFactory.Instance)
+            .RunAsync(TestContext.Current.CancellationToken);
+
+        code.ShouldBe(2);
+        Directory.Exists(Path.Combine(folder.Path, "wwwroot", "dist")).ShouldBeFalse();
+    }
+
     [Fact]
     public async Task ReturnsUsageErrorGivenMissingContentFolder()
     {
