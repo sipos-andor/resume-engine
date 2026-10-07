@@ -143,4 +143,6 @@ vectors. CI builds the sample site end to end. A tag `vX.Y.Z` on `main` publishe
 ## Licence
 
 MIT. `Sipos.Resume.Documents.Pdf` uses [QuestPDF](https://www.questpdf.com), which has its own licence: its Community
-licence is free for individuals and organisations under USD 1M annual revenue; check it before you use the package.
+licence is free for individuals and organisations under USD 1M annual revenue; check it before you use the package. The bundled IBM Plex fonts
+(SIL Open Font License) and the tests' copy of the JSON Resume schema (MIT) keep their own licences, listed in
+[THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).
