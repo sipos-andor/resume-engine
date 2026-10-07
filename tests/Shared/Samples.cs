@@ -1,7 +1,7 @@
 using System.Text;
 using Sipos.Resume.Core.Content;
 
-namespace Sipos.Resume.Core.Tests.Helpers;
+namespace Sipos.Resume.Testing;
 
 /// <summary>Small content files for tests: a valid English CV and its Hungarian version.</summary>
 internal static class Samples

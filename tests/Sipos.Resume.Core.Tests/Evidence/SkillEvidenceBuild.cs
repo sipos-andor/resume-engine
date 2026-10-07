@@ -1,5 +1,4 @@
 using Sipos.Resume.Core.Evidence;
-using Sipos.Resume.Core.Tests.Helpers;
 
 namespace Sipos.Resume.Core.Tests.Evidence;
 
@@ -8,7 +7,7 @@ public class SkillEvidenceBuild
     [Fact]
     public void ListsItemsAndYearsGivenUsedSkill()
     {
-        var azure = SkillEvidence.Build(Documents.English())["Azure"];
+        var azure = SkillEvidence.Build(SampleDocuments.English())["Azure"];
 
         azure.Items.Select(item => (item.Id, item.Title)).ShouldBe([("portal", "Portal – Globex")]);
         azure.FirstYear.ShouldBe(2023);
@@ -19,7 +18,7 @@ public class SkillEvidenceBuild
     [Fact]
     public void FindsNothingGivenSkillNoItemNames()
     {
-        var blazor = SkillEvidence.Build(Documents.English())["Blazor"];
+        var blazor = SkillEvidence.Build(SampleDocuments.English())["Blazor"];
 
         blazor.Items.ShouldBeEmpty();
         blazor.FirstYear.ShouldBeNull();
@@ -28,7 +27,7 @@ public class SkillEvidenceBuild
     [Fact]
     public void MarksOngoingGivenCurrentPositionKeyword()
     {
-        var document = Documents.English();
+        var document = SampleDocuments.English();
         var acme = document.Positions[0] with { Keywords = ["LINQ"] };
 
         var linq = SkillEvidence.Build(document with { Positions = [acme, document.Positions[1]] })["LINQ"];

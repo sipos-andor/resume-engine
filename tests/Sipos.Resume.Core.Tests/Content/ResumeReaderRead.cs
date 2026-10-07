@@ -1,6 +1,5 @@
 using System.Text;
 using Sipos.Resume.Core.Content;
-using Sipos.Resume.Core.Tests.Helpers;
 
 namespace Sipos.Resume.Core.Tests.Content;
 

@@ -19,4 +19,10 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <!-- The sample CVs every test project reads, in one place. -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Shared/*.cs" LinkBase="Shared" />
+    <Using Include="Sipos.Resume.Testing" />
+  </ItemGroup>
+
 </Project>

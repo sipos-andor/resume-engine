@@ -1,12 +1,11 @@
 using Sipos.Resume.Core.Evidence;
 using Sipos.Resume.Core.Matching;
-using Sipos.Resume.Core.Tests.Helpers;
 
 namespace Sipos.Resume.Core.Tests.Matching;
 
 public class JobVocabularyMatch
 {
-    private static readonly JobVocabulary Vocabulary = JobVocabulary.Build(Documents.English(), TechnologyIndex.Build(Documents.English()));
+    private static readonly JobVocabulary Vocabulary = JobVocabulary.Build(SampleDocuments.English(), TechnologyIndex.Build(SampleDocuments.English()));
 
     [Fact]
     public void ListsSkillsFirstThenOtherTechnologies() =>

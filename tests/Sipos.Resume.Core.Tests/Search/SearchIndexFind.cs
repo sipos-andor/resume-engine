@@ -1,11 +1,10 @@
 using Sipos.Resume.Core.Search;
-using Sipos.Resume.Core.Tests.Helpers;
 
 namespace Sipos.Resume.Core.Tests.Search;
 
 public class SearchIndexFind
 {
-    private static readonly SearchIndex Index = SearchIndex.Build(Documents.English());
+    private static readonly SearchIndex Index = SearchIndex.Build(SampleDocuments.English());
 
     [Fact]
     public void ListsItemsInPageOrder() =>

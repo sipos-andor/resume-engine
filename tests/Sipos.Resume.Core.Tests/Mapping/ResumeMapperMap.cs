@@ -2,7 +2,6 @@ using Sipos.Resume.Core.Dates;
 using Sipos.Resume.Core.Languages;
 using Sipos.Resume.Core.Mapping;
 using Sipos.Resume.Core.Model;
-using Sipos.Resume.Core.Tests.Helpers;
 
 namespace Sipos.Resume.Core.Tests.Mapping;
 

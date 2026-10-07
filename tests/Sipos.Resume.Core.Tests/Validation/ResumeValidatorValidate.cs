@@ -1,5 +1,4 @@
 using Sipos.Resume.Core.Content;
-using Sipos.Resume.Core.Tests.Helpers;
 using Sipos.Resume.Core.Validation;
 
 namespace Sipos.Resume.Core.Tests.Validation;
