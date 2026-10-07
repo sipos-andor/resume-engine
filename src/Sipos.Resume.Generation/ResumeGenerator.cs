@@ -5,6 +5,7 @@ using Sipos.Resume.Core.Content;
 using Sipos.Resume.Core.Site;
 using Sipos.Resume.Generation.Building;
 using Sipos.Resume.Generation.Content;
+using Sipos.Resume.Generation.Documents.Docx;
 using Sipos.Resume.Generation.Documents.Json;
 using Sipos.Resume.Generation.Documents.Markdown;
 using Sipos.Resume.Generation.Documents.PlainText;
@@ -35,10 +36,10 @@ namespace Sipos.Resume.Generation;
 /// secrets as environment variables, which its log masks.
 /// </para>
 /// <para>
-/// Decision: the Markdown, plain text and JSON Resume writers are always registered; other formats are added by the
-/// program.
-/// Why: the page's <c>index.md</c>, <c>resume.json</c> and the llms.txt files depend on them, and they need no
-/// third-party licence.
+/// Decision: the Markdown, plain text, JSON Resume and DOCX writers are always registered; the PDF writer is added by
+/// the program.
+/// Why: the page's <c>index.md</c>, <c>resume.json</c> and the llms.txt files depend on the first three, and none of
+/// them needs a licence beyond the engine's; QuestPDF's licence is the program's choice.
 /// </para>
 /// </remarks>
 public sealed partial class ResumeGenerator
@@ -68,7 +69,7 @@ public sealed partial class ResumeGenerator
         """;
 
     private readonly string[] _args;
-    private readonly List<IDocumentWriter> _writers = [new MarkdownDocumentWriter(), new PlainTextDocumentWriter(), new JsonResumeDocumentWriter()];
+    private readonly List<IDocumentWriter> _writers = [new MarkdownDocumentWriter(), new PlainTextDocumentWriter(), new JsonResumeDocumentWriter(), new DocxDocumentWriter()];
     private IResumeTheme? _theme;
     private IShareImageWriter? _shareImages;
     private ILoggerFactory? _loggerFactory;
