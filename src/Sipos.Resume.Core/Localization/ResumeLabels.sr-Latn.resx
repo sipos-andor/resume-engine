@@ -43,4 +43,5 @@
   <data name="QrCaption" xml:space="preserve"><value>Skenirajte za onlajn biografiju</value></data>
   <data name="Focus" xml:space="preserve"><value>Fokus</value></data>
   <data name="Highlights" xml:space="preserve"><value>Rezultati</value></data>
+  <data name="OtherLanguages" xml:space="preserve"><value>Biografija na drugim jezicima</value></data>
 </root>

@@ -43,4 +43,5 @@
   <data name="QrCaption" xml:space="preserve"><value>Az online önéletrajzhoz olvasd be</value></data>
   <data name="Focus" xml:space="preserve"><value>Fókusz</value></data>
   <data name="Highlights" xml:space="preserve"><value>Eredmények</value></data>
+  <data name="OtherLanguages" xml:space="preserve"><value>Az önéletrajz más nyelveken</value></data>
 </root>

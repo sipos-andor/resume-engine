@@ -43,4 +43,5 @@
   <data name="QrCaption" xml:space="preserve"><value>Scan for the online CV</value></data>
   <data name="Focus" xml:space="preserve"><value>Focus</value></data>
   <data name="Highlights" xml:space="preserve"><value>Highlights</value></data>
+  <data name="OtherLanguages" xml:space="preserve"><value>This CV in other languages</value></data>
 </root>

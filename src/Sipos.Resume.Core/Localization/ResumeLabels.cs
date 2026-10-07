@@ -169,4 +169,7 @@ public sealed class ResumeLabels
 
     /// <summary>The label <c>Highlights</c>.</summary>
     public string Highlights => this[nameof(Highlights)];
+
+    /// <summary>The label <c>OtherLanguages</c>.</summary>
+    public string OtherLanguages => this[nameof(OtherLanguages)];
 }
