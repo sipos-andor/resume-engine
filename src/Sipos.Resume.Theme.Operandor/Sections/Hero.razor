@@ -36,7 +36,7 @@
             <p class="cv-hero__summary" data-cv-summary="" data-cv-summary-default="@summary">@summary</p>
         }
         <p class="cv-hero__focus" data-cv-focus-note="" hidden></p>
-        <div class="op-hero-actions cv-hero__actions">
+        <div class="cv-hero__actions">
             @if (View.Download(DownloadFormat.Pdf, DocumentVariant.Designed) is { } pdf)
             {
                 <OpButton Href="@ResumeView.Href(pdf.Path)" IconLeft="download" download="@pdf.FileName" type="@pdf.MediaType" data-cv-main-download="">@View.Text["DownloadPdf"]</OpButton>

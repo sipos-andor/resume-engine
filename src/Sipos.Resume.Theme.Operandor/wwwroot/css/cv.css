@@ -29,7 +29,7 @@ body{font-family:var(--font-body);font-size:var(--fs-body);line-height:var(--lh-
 .cv-hero__tagline{font-family:var(--font-mono);font-size:var(--fs-body-sm);letter-spacing:var(--ls-mono);color:var(--text-muted);margin:8px 0 0}
 .cv-hero__summary{font-size:var(--fs-body-lg);line-height:var(--lh-body);max-width:var(--measure-prose);margin:28px 0 0}
 .cv-hero__focus{font-size:var(--fs-caption);font-weight:var(--fw-medium);text-transform:uppercase;letter-spacing:var(--ls-eyebrow);color:var(--accent);margin:20px 0 0}
-.cv-hero__actions{margin-top:32px}
+.cv-hero__actions{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .cv-availability{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:var(--fs-caption);font-weight:var(--fw-medium);color:var(--text-on-accent-tint);background:var(--surface-accent-tint);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);padding:4px 12px 4px 10px;border-radius:var(--radius-full)}
 a.cv-availability:hover{border-color:var(--accent)}
 .cv-availability__dot{width:8px;height:8px;border-radius:50%;background:var(--green-400);box-shadow:0 0 0 3px color-mix(in srgb,var(--green-400) 25%,transparent)}
@@ -186,6 +186,12 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
 
 /* Print: the reader's current view (full or one page, with a focus) in the light theme, without the site's chrome.
    The downloads hold the designed PDF; this is the page as the reader arranged it. */
+/* Not-found page: operandor.io's own rules, which live in its site stylesheet, not in the design system's */
+.op-notfound{display:flex;flex-direction:column;align-items:center;text-align:center}
+.op-notfound__drawing{width:min(100%,560px);height:auto}
+.op-notfound__number{font-family:var(--font-mono);font-weight:500;font-size:clamp(4.5rem,3rem + 6vw,8rem);line-height:1;letter-spacing:-0.04em;color:var(--text-heading);margin:28px 0 0}
+.op-notfound__languages{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:40px}
+
 @media print{
   :root,:root[data-theme="dark"],:root:not([data-theme]){--surface-page:#fff;--surface-card:#fff;--surface-accent-tint:#F1FBE6;--text-heading:#14181C;--text-body:#333833;--text-muted:#636A61;--text-subtle:#7F857C;--text-link:#2D7612;--text-on-accent-tint:#164B10;--border-subtle:#E8EAE6;--border-default:#D6D9D3;--accent:#2D7612;--brand-mark:#3E891A;color-scheme:light}
   @page{margin:14mm 14mm 16mm}
