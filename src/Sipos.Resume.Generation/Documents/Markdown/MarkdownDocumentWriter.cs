@@ -61,7 +61,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
             switch (section)
             {
                 case DocumentSection.Profile:
-                    text.AppendLine(MarkdownText.Escape(outline.Summary!)).AppendLine();
+                    text.AppendLine(MarkdownText.EscapeBlock(outline.Summary!)).AppendLine();
                     break;
                 case DocumentSection.Strengths:
                     foreach (var strength in outline.Strengths)
@@ -92,7 +92,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
                         text.Append("### ").AppendLine(MarkdownText.Escape(group.Name)).AppendLine();
                         foreach (var skill in group.Skills)
                         {
-                            text.Append("- ").Append(MarkdownText.Escape(skill.Name));
+                            text.Append("- ").Append(MarkdownText.EscapeBlock(skill.Name));
                             text.AppendLine(outline.Level(skill) is { } level ? " – " + MarkdownText.Escape(level) : "");
                         }
 
@@ -119,7 +119,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
                 case DocumentSection.Languages:
                     foreach (var language in context.Document.Languages)
                     {
-                        text.Append("- ").Append(MarkdownText.Escape(language.Name));
+                        text.Append("- ").Append(MarkdownText.EscapeBlock(language.Name));
                         text.AppendLine(language.Fluency is null ? "" : " – " + MarkdownText.Escape(language.Fluency));
                     }
 
@@ -151,7 +151,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
             lines.Add($"{MarkdownText.Escape(labels.Contact)}: [{MarkdownText.Escape(contact.Label)}]({contact.Url})");
         }
 
-        lines.AddRange(person.Profiles.Select(profile => $"{MarkdownText.Escape(profile.Network)}: {MarkdownText.Link(profile.Url)}"));
+        lines.AddRange(person.Profiles.Select(profile => $"{MarkdownText.EscapeBlock(profile.Network)}: {MarkdownText.Link(profile.Url)}"));
         if (person.Availability is { } availability)
         {
             lines.Add(availability.Url is null ? $"**{MarkdownText.Escape(availability.Label)}**" : $"**[{MarkdownText.Escape(availability.Label)}]({availability.Url})**");
@@ -174,7 +174,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
         text.AppendLine(position.Url is { } url ? " · " + MarkdownText.Link(url) : "").AppendLine();
         if (position.Summary is { } summary)
         {
-            text.AppendLine(MarkdownText.Escape(summary)).AppendLine();
+            text.AppendLine(MarkdownText.EscapeBlock(summary)).AppendLine();
         }
 
         WriteBullets(text, outline.Highlights(position));
@@ -202,7 +202,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
 
         if (engagement.Description is { } description)
         {
-            text.AppendLine(MarkdownText.Escape(description)).AppendLine();
+            text.AppendLine(MarkdownText.EscapeBlock(description)).AppendLine();
         }
 
         WriteBullets(text, outline.Highlights(engagement));
@@ -248,7 +248,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
 
         foreach (var item in items)
         {
-            text.Append("- ").AppendLine(MarkdownText.Escape(item));
+            text.Append("- ").AppendLine(MarkdownText.EscapeBlock(item));
         }
 
         text.AppendLine();

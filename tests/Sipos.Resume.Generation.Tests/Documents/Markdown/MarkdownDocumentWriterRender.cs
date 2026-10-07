@@ -55,6 +55,24 @@ public class MarkdownDocumentWriterRender
     [Fact]
     public void EscapesMarkupGivenTextWithAsterisks() => MarkdownText.Escape("*bold* [x] <b>").ShouldBe("\\*bold\\* \\[x\\] \\<b\\>");
 
+    // A line break in a value would end the list item or the paragraph it is written into.
+    [Fact]
+    public void JoinsLinesGivenTextWithLineBreaks() => MarkdownText.Escape("one\r\ntwo\rthree\nfour").ShouldBe("one two three four");
+
+    // Only where the text starts a block: there "2023. March" would become a list starting at 2023.
+    [Theory]
+    [InlineData("2023. March", "2023\\. March")]
+    [InlineData("1) First", "1\\) First")]
+    [InlineData("2023.", "2023\\.")]
+    [InlineData("# One", "\\# One")]
+    [InlineData("- One", "\\- One")]
+    [InlineData("1.5 years", "1.5 years")]
+    [InlineData("2023", "2023")]
+    public void KeepsTextGivenBlockThatStartsLikeListOrHeading(string text, string escaped) => MarkdownText.EscapeBlock(text).ShouldBe(escaped);
+
+    [Fact]
+    public void KeepsDateAsWrittenGivenItInsideLine() => MarkdownText.Escape("2023. March – 2023. May").ShouldBe("2023. March – 2023. May");
+
     [Fact]
     public void WritesHeadingsInCvLanguageGivenHungarianCv()
     {
