@@ -136,10 +136,28 @@ internal static class OutputVerifier
             }
         }
 
-        var references = document.QuerySelectorAll("a[href], link[href], script[src], img[src], source[srcset]")
-            .Select(element => element.GetAttribute("href") ?? element.GetAttribute("src") ?? element.GetAttribute("srcset"))
+        // Script also runs from an event handler attribute and a javascript: address, which the policy blocks too.
+        foreach (var element in document.All)
+        {
+            if (element.Attributes.FirstOrDefault(attribute => attribute.Name.StartsWith("on", StringComparison.OrdinalIgnoreCase)) is { } handler)
+            {
+                issues.Add(new OutputIssue(path, $"Inline scripts are not allowed; <{element.LocalName}> has the event handler {handler.Name}."));
+            }
+
+            if (new[] { element.GetAttribute("href"), element.GetAttribute("src") }.Any(address => address?.TrimStart().StartsWith("javascript:", StringComparison.OrdinalIgnoreCase) == true))
+            {
+                issues.Add(new OutputIssue(path, $"Inline scripts are not allowed; <{element.LocalName}> links to a javascript: address."));
+            }
+        }
+
+        // A srcset lists candidates, each an address and a width or density, separated by commas.
+        var references = document.QuerySelectorAll("a[href], link[href], script[src], img[src]")
+            .Select(element => element.GetAttribute("href") ?? element.GetAttribute("src"))
+            .Concat(document.QuerySelectorAll("img[srcset], source[srcset]")
+                .SelectMany(element => element.GetAttribute("srcset")!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                .Select(candidate => candidate.Split(' ', 2)[0]))
             .OfType<string>();
-        var baseHref = document.QuerySelector("base[href]")?.GetAttribute("href") ?? "/";
+        var baseHref = document.QuerySelector("base[href]")?.GetAttribute("href");
         CheckLinks(issues, path, references.Select(reference => Resolve(path, baseHref, reference)), site, settings);
     }
 
@@ -219,14 +237,15 @@ internal static class OutputVerifier
         return false;
     }
 
-    private static string Resolve(string documentPath, string baseHref, string reference)
+    // A relative address resolves against the page's <base>, or without one against the page's own folder.
+    private static string Resolve(string documentPath, string? baseHref, string reference)
     {
         if (reference.Contains(':', StringComparison.Ordinal) || reference.StartsWith('/') || reference.StartsWith('#'))
         {
             return reference;
         }
 
-        var basePath = baseHref.StartsWith('/') ? baseHref : documentPath[..(documentPath.LastIndexOf('/') + 1)];
+        var basePath = baseHref?.StartsWith('/') == true ? baseHref : documentPath[..(documentPath.LastIndexOf('/') + 1)];
         return new Uri(new Uri("https://site.invalid" + basePath), reference).PathAndQuery;
     }
 

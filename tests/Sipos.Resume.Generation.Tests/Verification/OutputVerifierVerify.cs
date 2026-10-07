@@ -60,6 +60,22 @@ public class OutputVerifierVerify
         }
     }
 
+    // Script also runs from an event handler or a javascript: address; a srcset names several files, each checked.
+    [Theory]
+    [InlineData("<button onclick=\"alert(1)\">x</button>", "event handler onclick")]
+    [InlineData("<a href=\"javascript:alert(1)\">x</a>", "javascript:")]
+    [InlineData("<img srcset=\"/favicon.svg 1x, /missing-2x.png 2x\" alt=\"\">", "/missing-2x.png")]
+    public async Task ReportsGivenScriptInAttributeOrMissingImageCandidate(string markup, string message)
+    {
+        var (folder, verify) = await BuildAsync();
+        using (folder)
+        {
+            folder.Write("dist/hu/index.html", folder.Read("dist/hu/index.html").Replace("</body>", markup + "</body>", StringComparison.Ordinal));
+
+            verify().ShouldContain(issue => issue.Path == "/hu/index.html" && issue.Message.Contains(message, StringComparison.Ordinal));
+        }
+    }
+
     [Fact]
     public async Task ReportsIncompleteAlternatesGivenPageWithoutDefault()
     {
