@@ -226,6 +226,22 @@ public class DocxDocumentWriterWrite
         main.HyperlinkRelationships.ShouldAllBe(relationship => relationship.IsExternal);
     }
 
+    // An ATS looks for the standard field label; the CV's own words follow it, as in the ATS text and PDF.
+    [Fact]
+    public void LabelsContactByFieldGivenAtsLayout() =>
+        Paragraphs(Write("en", DocumentVariant.Ats)).Select(paragraph => paragraph.Text).ShouldContain(text => text.StartsWith("Contact: Get in touch – example.com/contact", StringComparison.Ordinal));
+
+    // The designed documents say the same: the PDF and the Markdown show the availability, so the DOCX does too.
+    [Fact]
+    public void LinksAvailabilityGivenDesignedLayout()
+    {
+        using var document = Open(Write("en", DocumentVariant.Designed));
+        var main = document.MainDocumentPart!;
+
+        var link = main.Document!.Body!.Descendants<Hyperlink>().Single(link => link.InnerText == "Available now");
+        main.HyperlinkRelationships.Single(relationship => relationship.Id == link.Id!.Value).Uri.ShouldBe(new Uri("https://example.com/capacity"));
+    }
+
     [Fact]
     public void ShowsFocusLabelGivenTailoredDocument()
     {

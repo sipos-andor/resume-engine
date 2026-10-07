@@ -39,7 +39,8 @@ internal sealed class AtsDocxLayout(DocxComposer docx, DocumentContext context, 
         var links = new List<OpenXmlElement[]>();
         if (Person.Contact is { } contact)
         {
-            links.Add([Text($"{contact.Label}: "), Docx.Link(contact.Url, Display(contact.Url))]);
+            // The standard field label an ATS looks for, then the CV's own words and the address, as in the ATS text.
+            links.Add([Text($"{Labels.Contact}: {contact.Label}{Dash}"), Docx.Link(contact.Url, Display(contact.Url))]);
         }
 
         links.AddRange(Person.Profiles.Select(profile => new[] { Text($"{profile.Network}: "), Docx.Link(profile.Url, Display(profile.Url)) }));

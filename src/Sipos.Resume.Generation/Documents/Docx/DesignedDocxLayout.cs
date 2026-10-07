@@ -37,6 +37,13 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
         }
 
         links.AddRange(Person.Profiles.Select(profile => new[] { Docx.Link(profile.Url, Display(profile.Url)) }));
+
+        // The availability, as the designed PDF and the Markdown show it, so both designed documents say the same.
+        if (Person.Availability is { } availability)
+        {
+            links.Add([availability.Url is { } url ? Docx.Link(url, availability.Label) : Text(availability.Label, StyleIds.Strong)]);
+        }
+
         if (links.Count > 0)
         {
             Docx.Add(StyleIds.Contact, Joined(links, () => Text(Separator)));
