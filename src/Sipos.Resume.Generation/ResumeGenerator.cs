@@ -197,6 +197,21 @@ public sealed partial class ResumeGenerator
             return 1;
         }
 
+        // The writers' own checks, such as whether the PDF's fonts can draw every character, before anything is
+        // written and in a validation-only run too.
+        var checks = _writers.OfType<IContentCheck>().ToList();
+        var refused = set.Editions.SelectMany(edition => checks.SelectMany(check => check.Check(edition, _theme?.Documents))).Distinct().ToList();
+        foreach (var issue in refused)
+        {
+            Log.ContentIssue(logger, EmailGuard.Redact(issue.ToString()));
+        }
+
+        if (refused.Count > 0)
+        {
+            Log.Failed(logger, refused.Count);
+            return 1;
+        }
+
         Log.Loaded(logger, string.Join(", ", set.Languages.Select(language => language.Tag)), options.Today);
         if (options.ValidateOnly)
         {

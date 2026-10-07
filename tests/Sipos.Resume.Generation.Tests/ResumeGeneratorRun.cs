@@ -107,6 +107,19 @@ public class ResumeGeneratorRun
         logging.Lines.ShouldAllBe(line => !line.Contains("ann@", StringComparison.Ordinal) && !line.Contains("mailto:ann", StringComparison.Ordinal));
     }
 
+    // A writer's own check runs with the validation, before the output is touched.
+    [Fact]
+    public async Task FailsBeforeWritingGivenWriterRefusingContent()
+    {
+        using var folder = new TempFolder();
+        Sites.WriteContent(folder);
+        folder.Write("dist/keep.txt", "mine");
+
+        (await Generator(folder, null, "--validate-only").UseWriter(new RefusingWriter()).RunAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+        (await Generator(folder, null, "--clean").UseWriter(new RefusingWriter()).RunAsync(TestContext.Current.CancellationToken)).ShouldBe(1);
+        folder.Exists("dist/keep.txt").ShouldBeTrue();
+    }
+
     [Fact]
     public async Task FailsGivenRequiredEmailNotSet()
     {

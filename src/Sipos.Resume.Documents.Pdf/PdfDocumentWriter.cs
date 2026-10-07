@@ -1,6 +1,8 @@
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using Sipos.Resume.Core.Artifacts;
+using Sipos.Resume.Core.Content;
+using Sipos.Resume.Core.Validation;
 using Sipos.Resume.Documents.Pdf.Fonts;
 using Sipos.Resume.Documents.Pdf.Layouts;
 
@@ -14,7 +16,7 @@ namespace Sipos.Resume.Documents.Pdf;
 /// What the document says comes from <see cref="DocumentOutline"/>; this writer decides only how it looks. An e-mail
 /// address in <see cref="DocumentContext.ContactEmail"/> is drawn as an image and is not written anywhere as text.
 /// </remarks>
-public sealed class PdfDocumentWriter : IDocumentWriter
+public sealed class PdfDocumentWriter : IDocumentWriter, IContentCheck
 {
     /// <summary>Creates the writer, applies the QuestPDF licence and registers the embedded fonts.</summary>
     /// <param name="options">The options, with the QuestPDF licence the host renders under.</param>
@@ -30,6 +32,9 @@ public sealed class PdfDocumentWriter : IDocumentWriter
 
     /// <inheritdoc/>
     public bool Supports(DocumentVariant variant) => variant is DocumentVariant.Designed or DocumentVariant.Ats;
+
+    /// <inheritdoc/>
+    public IEnumerable<ValidationIssue> Check(ResumeEdition edition, DocumentTheme? theme) => GlyphCheck.Check(edition, theme);
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentException">The download is not a PDF.</exception>

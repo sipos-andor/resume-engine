@@ -20,6 +20,13 @@ internal static class PlexFonts
 
     private static readonly Lazy<bool> Registration = new(Register, LazyThreadSafetyMode.ExecutionAndPublication);
 
+    // The characters every Sans weight can draw, as a text may be set in any of them, and those Mono can draw.
+    private static readonly Lazy<HashSet<int>> SansCoverage = new(
+        () => Files.Where(file => file.StartsWith("IBMPlexSans", StringComparison.Ordinal)).Select(file => FontCoverage.Of(Read(file))).Aggregate((all, font) => { all.IntersectWith(font); return all; }),
+        LazyThreadSafetyMode.ExecutionAndPublication);
+
+    private static readonly Lazy<HashSet<int>> MonoCoverage = new(() => FontCoverage.Of(Read("IBMPlexMono-Regular.ttf")), LazyThreadSafetyMode.ExecutionAndPublication);
+
     /// <summary>Registers the fonts unless done already; safe to call from several threads.</summary>
     public static void EnsureRegistered() => _ = Registration.Value;
 
@@ -44,16 +51,29 @@ internal static class PlexFonts
         };
     }
 
+    /// <summary>Whether every weight of Plex Sans, and Plex Mono when asked, has a glyph for a character.</summary>
+    /// <param name="codePoint">The character's code point.</param>
+    /// <param name="mono">Whether the text is set in Plex Mono too, as the designed PDF sets technologies.</param>
+    public static bool Covers(int codePoint, bool mono = false) =>
+        SansCoverage.Value.Contains(codePoint) && (!mono || MonoCoverage.Value.Contains(codePoint));
+
     private static bool Register()
     {
-        var assembly = typeof(PlexFonts).Assembly;
         foreach (var file in Files)
         {
-            using var stream = assembly.GetManifestResourceStream($"Sipos.Resume.Documents.Pdf.Fonts.{file}")
-                ?? throw new InvalidOperationException($"The embedded font {file} is missing from the package.");
+            using var stream = new MemoryStream(Read(file));
             FontManager.RegisterFontFromStream(stream);
         }
 
         return true;
+    }
+
+    private static byte[] Read(string file)
+    {
+        using var stream = typeof(PlexFonts).Assembly.GetManifestResourceStream($"Sipos.Resume.Documents.Pdf.Fonts.{file}")
+            ?? throw new InvalidOperationException($"The embedded font {file} is missing from the package.");
+        using var copy = new MemoryStream();
+        stream.CopyTo(copy);
+        return copy.ToArray();
     }
 }
