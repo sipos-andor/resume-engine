@@ -40,6 +40,12 @@ public static class ResumeReader
             }
 
             var issues = EmailGuard.Check(source, document.RootElement).ToList();
+            var nulls = NullItems(document.RootElement, "").Select(pointer => new ValidationIssue(source, pointer, "Must not be null; leave the entry out instead.")).ToList();
+            if (nulls.Count > 0)
+            {
+                return new ReadResult(null, [.. issues, .. nulls]);
+            }
+
             try
             {
                 var resume = document.RootElement.Deserialize(ResumeJsonContext.Default.JsonResume);
@@ -61,6 +67,46 @@ public static class ResumeReader
     /// </remarks>
     public static ReadOnlyMemory<byte> WithoutByteOrderMark(ReadOnlyMemory<byte> utf8) =>
         utf8.Span.StartsWith((ReadOnlySpan<byte>)[0xEF, 0xBB, 0xBF]) ? utf8[3..] : utf8;
+
+    // A null entry of a list, such as "work": [null], would reach the validator as an item without members.
+    private static IEnumerable<string> NullItems(JsonElement element, string pointer)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (var property in element.EnumerateObject())
+                {
+                    foreach (var found in NullItems(property.Value, $"{pointer}/{property.Name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal)}"))
+                    {
+                        yield return found;
+                    }
+                }
+
+                break;
+            case JsonValueKind.Array:
+                var index = 0;
+                foreach (var item in element.EnumerateArray())
+                {
+                    if (item.ValueKind == JsonValueKind.Null)
+                    {
+                        yield return $"{pointer}/{index}";
+                    }
+                    else
+                    {
+                        foreach (var found in NullItems(item, $"{pointer}/{index}"))
+                        {
+                            yield return found;
+                        }
+                    }
+
+                    index++;
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
 
     // System.Text.Json reports paths like $.work[2].startDate; issues use JSON pointers like /work/2/startDate.
     private static string ToPointer(string path) =>

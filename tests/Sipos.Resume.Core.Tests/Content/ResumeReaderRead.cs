@@ -51,6 +51,19 @@ public class ResumeReaderRead
         result.Resume!.Basics!.Name.ShouldBe("Ann Example");
     }
 
+    // An explicit null would replace a list's empty default and fail later without a location.
+    [Theory]
+    [InlineData("""{ "work": [ { "name": "x", "highlights": null } ] }""", "/work/0/highlights")]
+    [InlineData("""{ "work": [ null ] }""", "/work/0")]
+    [InlineData("""{ "skills": [ { "keywords": ["C#", null] } ] }""", "/skills/0/keywords/1")]
+    public void ReportsNullGivenNullListOrEntry(string json, string path)
+    {
+        var result = ResumeReader.Read("resume.en.json", Encoding.UTF8.GetBytes(json));
+
+        result.Resume.ShouldBeNull();
+        result.Issues.Single().Path.ShouldBe(path);
+    }
+
     // A file may not even hold an address, whatever the field.
     [Fact]
     public void ReportsAddressGivenAddressInSummary()
