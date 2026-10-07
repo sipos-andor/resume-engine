@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Sipos.Resume.Core.Mapping;
 using Sipos.Resume.Core.Site;
 using Sipos.Resume.Core.Validation;
 using Sipos.Resume.Theme.Operandor.Tests.Helpers;
@@ -75,6 +76,20 @@ public class ResumePageRender
         ids.ShouldContain("acme");
         ids.ShouldContain("portal");
         ids.ShouldContain("skills-1");
+    }
+
+    // Anchors.IsReserved must cover every id the theme writes for itself, or an item's x-id could take one.
+    [Fact]
+    public async Task UsesOnlyReservedIdsBesideItemIdentifiersGivenPage()
+    {
+        var pages = ThemePages.Sample();
+        var document = await ThemePages.RenderAsync(pages, 0);
+        var cv = pages[0].Document;
+        var items = cv.Positions.Select(position => position.Id).Concat(cv.AllEngagements.Select(engagement => engagement.Id)).Concat(cv.Strengths.Select(strength => strength.Id)).ToHashSet();
+
+        var own = document.QuerySelectorAll("[id]").Select(element => element.Id!).Where(id => !items.Contains(id)).ToList();
+        own.ShouldNotBeEmpty();
+        own.ShouldAllBe(id => Anchors.IsReserved(id));
     }
 
     // Under <base href="/"> a bare "#experience" would lead to the root page.

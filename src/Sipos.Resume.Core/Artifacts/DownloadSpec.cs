@@ -70,11 +70,19 @@ public static class DownloadCatalog
         };
         foreach (var focus in focusIds)
         {
-            var suffix = string.Concat(focus.Split('-', StringSplitOptions.RemoveEmptyEntries).Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
+            var suffix = SuffixOf(focus);
             list.Add(new DownloadSpec(DownloadFormat.Pdf, DocumentVariant.Designed, focus, $"{stem}_{suffix}.pdf"));
             list.Add(new DownloadSpec(DownloadFormat.Docx, DocumentVariant.Designed, focus, $"{stem}_{suffix}.docx"));
         }
 
         return list;
+    }
+
+    /// <summary>The file name part of a position profile: its identifier in PascalCase, such as <c>TechLead</c>.</summary>
+    /// <param name="focusId">The profile's identifier, such as <c>tech-lead</c>.</param>
+    public static string SuffixOf(string focusId)
+    {
+        ArgumentNullException.ThrowIfNull(focusId);
+        return string.Concat(focusId.Split('-', StringSplitOptions.RemoveEmptyEntries).Select(part => char.ToUpperInvariant(part[0]) + part[1..]));
     }
 }

@@ -1,11 +1,14 @@
+using System.Text.RegularExpressions;
+using Sipos.Resume.Core.Artifacts;
 using Sipos.Resume.Core.Content;
 using Sipos.Resume.Core.Dates;
+using Sipos.Resume.Core.Evidence;
 using Sipos.Resume.Core.Mapping;
 
 namespace Sipos.Resume.Core.Validation;
 
 /// <summary>Checks one content file against what the engine needs, beyond the JSON Resume schema.</summary>
-public static class ResumeValidator
+public static partial class ResumeValidator
 {
     private static readonly string[] AvailabilityStatuses = ["available", "from", "on-request"];
 
@@ -19,9 +22,14 @@ public static class ResumeValidator
 
         CheckBasics(resume.Basics, Fail);
         var focusIds = CheckFocusProfiles(resume.FocusProfiles, Fail);
-        var workIds = CheckWork(resume.Work, focusIds, Fail);
-        CheckProjects(resume.Projects, workIds, focusIds, Fail);
-        CheckStrengths(resume.Strengths, focusIds, Fail);
+
+        // Positions, projects and strengths are anchors of one page, so they share one set of identifiers.
+        var anchors = new HashSet<string>(StringComparer.Ordinal);
+        var workIds = CheckWork(resume.Work, focusIds, anchors, Fail);
+        CheckProjects(resume.Projects, workIds, focusIds, anchors, Fail);
+        CheckStrengths(resume.Strengths, focusIds, anchors, Fail);
+        CheckAliases(resume.Aliases, Fail);
+        CheckMeta(resume.Meta, Fail);
 
         for (var i = 0; i < resume.Education.Count; i++)
         {
@@ -114,9 +122,13 @@ public static class ResumeValidator
         }
     }
 
+    // Decision: a profile's identifier must also give a file name no other download has, case aside.
+    // Why: tailored downloads are named after it (tech-lead gives _TechLead.pdf); "ats" would give _Ats.pdf next to the
+    // ATS file _ATS.pdf, and "a-b" and "ab" would give one name, which disks that ignore case cannot hold twice.
     private static HashSet<string> CheckFocusProfiles(IReadOnlyList<JsonResumeFocusProfile> profiles, Action<string, string> fail)
     {
         var ids = new HashSet<string>(StringComparer.Ordinal);
+        var suffixes = new HashSet<string>(["ATS"], StringComparer.OrdinalIgnoreCase);
         for (var i = 0; i < profiles.Count; i++)
         {
             var id = profiles[i].Id;
@@ -128,6 +140,10 @@ public static class ResumeValidator
             {
                 fail($"/x-focusProfiles/{i}/id", $"The identifier '{id}' is used twice.");
             }
+            else if (!suffixes.Add(DownloadCatalog.SuffixOf(id)))
+            {
+                fail($"/x-focusProfiles/{i}/id", $"The identifier '{id}' names its downloads like another file (…_{DownloadCatalog.SuffixOf(id)}); choose another.");
+            }
 
             CheckRequired(profiles[i].Label, $"/x-focusProfiles/{i}/label", fail);
         }
@@ -135,7 +151,7 @@ public static class ResumeValidator
         return ids;
     }
 
-    private static HashSet<string> CheckWork(IReadOnlyList<JsonResumeWork> work, HashSet<string> focusIds, Action<string, string> fail)
+    private static HashSet<string> CheckWork(IReadOnlyList<JsonResumeWork> work, HashSet<string> focusIds, HashSet<string> anchors, Action<string, string> fail)
     {
         var ids = new HashSet<string>(StringComparer.Ordinal);
         for (var i = 0; i < work.Count; i++)
@@ -145,7 +161,12 @@ public static class ResumeValidator
             CheckRequired(item.Name, $"{path}/name", fail);
             CheckPeriod(item.StartDate, item.EndDate, path, required: true, fail);
             CheckUrl(item.Url, $"{path}/url", fail);
-            CheckIdentifier(Identifiers.Of(item), item.Id is not null, ids, $"{path}/x-id", fail);
+            var id = Identifiers.Of(item);
+            if (CheckIdentifier(id, item.Id is not null, anchors, $"{path}/x-id", fail))
+            {
+                ids.Add(id);
+            }
+
             CheckFocus(item.Focus, focusIds, $"{path}/x-focus", fail);
             CheckShortHighlights(item.ShortHighlights, item.Highlights.Count, $"{path}/x-shortHighlights", fail);
         }
@@ -153,9 +174,8 @@ public static class ResumeValidator
         return ids;
     }
 
-    private static void CheckProjects(IReadOnlyList<JsonResumeProject> projects, HashSet<string> workIds, HashSet<string> focusIds, Action<string, string> fail)
+    private static void CheckProjects(IReadOnlyList<JsonResumeProject> projects, HashSet<string> workIds, HashSet<string> focusIds, HashSet<string> anchors, Action<string, string> fail)
     {
-        var ids = new HashSet<string>(workIds, StringComparer.Ordinal);
         for (var i = 0; i < projects.Count; i++)
         {
             var item = projects[i];
@@ -163,7 +183,7 @@ public static class ResumeValidator
             CheckRequired(item.Name, $"{path}/name", fail);
             CheckPeriod(item.StartDate, item.EndDate, path, required: false, fail);
             CheckUrl(item.Url, $"{path}/url", fail);
-            CheckIdentifier(Identifiers.Of(item), item.Id is not null, ids, $"{path}/x-id", fail);
+            CheckIdentifier(Identifiers.Of(item), item.Id is not null, anchors, $"{path}/x-id", fail);
             if (item.Work is { } work && !workIds.Contains(work))
             {
                 fail($"{path}/x-work", $"No position has the identifier '{work}'.");
@@ -174,37 +194,79 @@ public static class ResumeValidator
         }
     }
 
-    private static void CheckStrengths(IReadOnlyList<JsonResumeStrength> strengths, HashSet<string> focusIds, Action<string, string> fail)
+    private static void CheckStrengths(IReadOnlyList<JsonResumeStrength> strengths, HashSet<string> focusIds, HashSet<string> anchors, Action<string, string> fail)
     {
-        var ids = new HashSet<string>(StringComparer.Ordinal);
         for (var i = 0; i < strengths.Count; i++)
         {
             var path = $"/x-strengths/{i}";
             CheckRequired(strengths[i].Title, $"{path}/title", fail);
-            if (strengths[i].Id is not { } id || !Identifiers.IsValid(id))
+            if (strengths[i].Id is not { } id)
             {
                 fail($"{path}/id", "Needs an identifier of lowercase letters, digits and hyphens.");
             }
-            else if (!ids.Add(id))
+            else
             {
-                fail($"{path}/id", $"The identifier '{id}' is used twice.");
+                CheckIdentifier(id, given: true, anchors, $"{path}/id", fail);
             }
 
             CheckFocus(strengths[i].Focus, focusIds, $"{path}/focus", fail);
         }
     }
 
-    private static void CheckIdentifier(string id, bool given, HashSet<string> ids, string path, Action<string, string> fail)
+    // Returns whether the identifier is valid and new, so a position's projects can be checked against it.
+    private static bool CheckIdentifier(string id, bool given, HashSet<string> ids, string path, Action<string, string> fail)
     {
         if (!Identifiers.IsValid(id))
         {
             fail(path, given ? "Must be lowercase letters, digits and hyphens, at most 64 characters." : "Cannot make an identifier from the name; give x-id.");
+            return false;
         }
-        else if (!ids.Add(id))
+
+        if (Anchors.IsReserved(id))
+        {
+            fail(path, $"The identifier '{id}' is one the page uses for itself (a section, a generated anchor, cv-… or …-title); give the item another x-id.");
+            return false;
+        }
+
+        if (!ids.Add(id))
         {
             fail(path, $"The identifier '{id}' is used twice; give the item its own x-id.");
+            return false;
+        }
+
+        return true;
+    }
+
+    // Two terms whose spellings fold to one key would be one technology twice, with two alias lists.
+    private static void CheckAliases(IReadOnlyDictionary<string, IReadOnlyList<string>> aliases, Action<string, string> fail)
+    {
+        var keys = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var term in aliases.Keys)
+        {
+            var key = Keys.Of(term);
+            if (key.Length == 0)
+            {
+                fail($"/x-aliases/{Pointer(term)}", "The term has no letters or digits to match.");
+            }
+            else if (!keys.TryAdd(key, term))
+            {
+                fail($"/x-aliases/{Pointer(term)}", $"Is the same term as '{keys[key]}'; merge their aliases into one entry.");
+            }
         }
     }
+
+    private static void CheckMeta(JsonResumeMeta? meta, Action<string, string> fail)
+    {
+        if (meta?.Path is { } path && !PathSegment().IsMatch(path))
+        {
+            fail("/meta/x-path", "Must be one URL path segment of lowercase letters, digits and hyphens, such as sr.");
+        }
+    }
+
+    private static string Pointer(string name) => name.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
+
+    [GeneratedRegex("^[a-z0-9]+(-[a-z0-9]+)*$", RegexOptions.CultureInvariant)]
+    private static partial Regex PathSegment();
 
     private static void CheckFocus(IReadOnlyList<string> focus, HashSet<string> focusIds, string path, Action<string, string> fail)
     {
