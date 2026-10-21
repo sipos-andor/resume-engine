@@ -39,7 +39,8 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-facts__row{display:grid;grid-template-columns:18px minmax(0,1fr);gap:12px;align-items:start}
 .cv-facts dt{color:var(--text-muted);padding-top:4px;margin:0}
 .cv-facts dd{margin:0;color:var(--text-body);overflow-wrap:anywhere}
-.cv-facts__profile + .cv-facts__profile::before{content:"·";color:var(--text-subtle);margin:0 8px}
+/* The separator closes the item before it, so a wrapped line ends with the dot instead of starting with it. */
+.cv-facts__profile:not(:last-child)::after{content:"·";color:var(--text-subtle);margin:0 8px}
 .cv-hero__all-downloads{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-subtle);width:100%;font-weight:var(--fw-medium)}
 
 /* Tools */
@@ -89,7 +90,7 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-item__title{font-size:var(--fs-h4);line-height:var(--lh-tight);font-weight:var(--fw-semibold);color:var(--text-heading);margin:0}
 .cv-item__org,.cv-item__client{display:block;font-size:var(--fs-body);font-weight:var(--fw-medium);color:var(--accent);margin-top:4px}
 .cv-item__meta{grid-column:1;display:flex;flex-wrap:wrap;gap:2px 0;margin:6px 0 0;font-size:var(--fs-body-sm);color:var(--text-muted)}
-.cv-item__meta > span + span::before{content:"·";margin:0 10px;color:var(--text-subtle)}
+.cv-item__meta > span:not(:last-child)::after{content:"·";margin:0 10px;color:var(--text-subtle)}
 .cv-item__head .cv-anchor{grid-column:2;grid-row:1}
 .cv-item__note{margin:6px 0 0;font-size:var(--fs-body-sm);font-style:italic;color:var(--text-muted)}
 .cv-item__summary{margin:12px 0 0;max-width:var(--measure-prose)}
@@ -102,21 +103,24 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-engagements__title{font-size:var(--fs-micro);font-weight:var(--fw-medium);text-transform:uppercase;letter-spacing:var(--ls-eyebrow);color:var(--text-muted);margin:0}
 .cv-engagement .cv-item__title{font-size:var(--fs-body-lg)}
 
-/* Timeline */
-.cv-timeline{margin:0 0 48px}
-.cv-timeline__chart{display:block;width:100%;height:auto;overflow:visible}
+/* Timeline: the chart is as wide as the column and as tall as its height attribute, so its text keeps its size. The
+   position bars' and their labels' colours are properties, which the legend's key shares and the dark theme sets. */
+.cv-timeline{--cv-bar-position:var(--slate-500);--cv-bar-label:var(--n-0);margin:0 0 48px}
+.cv-timeline__chart{display:block;width:100%;overflow:visible}
 .cv-timeline__tick{stroke:var(--border-subtle);stroke-width:1}
 .cv-timeline__year{fill:var(--text-subtle);font-family:var(--font-mono);font-size:12px}
 .cv-timeline__bar{transition:opacity var(--dur-fast)}
-.cv-timeline__bar--position{fill:var(--slate-500)}
+.cv-timeline__bar--position{fill:var(--cv-bar-position)}
 .cv-timeline__bar--engagement{fill:var(--accent)}
 .cv-timeline__link:hover .cv-timeline__bar,.cv-timeline__bar.is-dim{opacity:0.35}
 .cv-timeline__link:hover .cv-timeline__bar{opacity:0.8}
-.cv-timeline__label{fill:var(--n-0);font-family:var(--font-body);font-size:12px;font-weight:var(--fw-medium);pointer-events:none}
-.cv-timeline__caption{margin-top:10px;font-size:var(--fs-caption);color:var(--text-muted)}
-:root[data-theme="dark"] .cv-timeline__bar--position{fill:var(--slate-300)}
-:root[data-theme="dark"] .cv-timeline__label{fill:var(--n-950)}
-@media (prefers-color-scheme:dark){:root:not([data-theme]) .cv-timeline__bar--position{fill:var(--slate-300)} :root:not([data-theme]) .cv-timeline__label{fill:var(--n-950)}}
+.cv-timeline__label{fill:var(--cv-bar-label);font-family:var(--font-body);font-size:12px;font-weight:var(--fw-medium);pointer-events:none}
+.cv-timeline__legend{margin-top:10px;display:flex;flex-wrap:wrap;gap:4px 20px;font-size:var(--fs-caption);color:var(--text-muted)}
+.cv-timeline__key{display:inline-flex;align-items:center;gap:8px}
+.cv-timeline__key::before{content:"";width:14px;height:8px;border-radius:2px;background:var(--cv-bar-position)}
+.cv-timeline__key--engagement::before{background:var(--accent)}
+:root[data-theme="dark"] .cv-timeline{--cv-bar-position:var(--slate-300);--cv-bar-label:var(--n-950)}
+@media (prefers-color-scheme:dark){:root:not([data-theme]) .cv-timeline{--cv-bar-position:var(--slate-300);--cv-bar-label:var(--n-950)}}
 
 /* Skills */
 .cv-skill-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:32px 48px}
@@ -155,15 +159,22 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
 .cv-download-group__title{font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--text-heading);margin:0}
 .cv-download-group__hint{margin:6px 0 14px;font-size:var(--fs-caption);color:var(--text-muted)}
 .cv-download-group__files{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.cv-download{display:inline-flex;align-items:center;gap:8px;font-weight:var(--fw-medium)}
+/* The icon sits on a label's first line, which may wrap. */
+.cv-download{display:inline-flex;align-items:flex-start;gap:8px;font-weight:var(--fw-medium)}
+.cv-download .op-icon{margin-top:calc((1lh - 16px) / 2)}
 .cv-download:hover{color:var(--text-link-hover)}
+/* A tailored version: the profile, then its formats on one line. */
+.cv-download-row{display:grid;gap:2px}
+.cv-download-row__label{font-size:var(--fs-body-sm);color:var(--text-body)}
+.cv-download-row__files{display:flex;flex-wrap:wrap;gap:2px 20px}
 
 /* The script's states. */
 .cv-main[data-cv-view="short"] [data-cv-short="false"],.cv-main[data-cv-view="short"] [data-cv-extra]{display:none}
 .cv-dim{opacity:0.35}
 .cv-dim:hover,.cv-dim:focus-within{opacity:0.75}
-.cv-hit{box-shadow:-14px 0 0 -11px var(--accent)}
-.cv-focus{box-shadow:-16px 0 0 -13px var(--accent)}
+/* A search hit's or a profile's item: a bar in the gutter, apart from the text. */
+.cv-hit,.cv-focus{position:relative}
+.cv-hit::before,.cv-focus::before{content:"";position:absolute;left:-14px;top:2px;bottom:2px;width:3px;border-radius:var(--radius-full);background:var(--accent)}
 .op-tag.cv-tag--match,.op-tag.cv-tag--ad{border-color:var(--accent);background:var(--surface-accent-tint);color:var(--text-on-accent-tint)}
 .cv-skill--match .cv-skill__name,.cv-skill--ad .cv-skill__name{color:var(--accent);font-weight:var(--fw-medium)}
 
@@ -173,25 +184,28 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
 }
 @media (max-width:640px){
   .cv-sections{gap:56px}
+  /* In a column the search field's flex basis would become its height. */
   .cv-tools__row{flex-direction:column;align-items:stretch}
+  .cv-field--search{flex:none}
   .cv-field .op-select{max-width:none}
+  .cv-switch__option{flex:1 1 0}
+  .cv-tools__row > .op-btn{align-self:flex-start}
   .cv-skill-groups{grid-template-columns:1fr}
-  .cv-skill__row{grid-template-columns:minmax(0,1fr) auto}
-  .cv-skill__level{grid-column:1/-1;text-align:left;margin-top:-6px}
+  .cv-skill__row{grid-template-columns:minmax(0,1fr) auto 8ch;gap:10px}
   .cv-engagements{padding-left:14px}
   .cv-list__item{grid-template-columns:1fr}
   .cv-list__date{grid-column:1;grid-row:auto}
   .cv-timeline__label{display:none}
 }
 
-/* Print: the reader's current view (full or one page, with a focus) in the light theme, without the site's chrome.
-   The downloads hold the designed PDF; this is the page as the reader arranged it. */
 /* Not-found page: operandor.io's own rules, which live in its site stylesheet, not in the design system's */
 .op-notfound{display:flex;flex-direction:column;align-items:center;text-align:center}
 .op-notfound__drawing{width:min(100%,560px);height:auto}
 .op-notfound__number{font-family:var(--font-mono);font-weight:500;font-size:clamp(4.5rem,3rem + 6vw,8rem);line-height:1;letter-spacing:-0.04em;color:var(--text-heading);margin:28px 0 0}
 .op-notfound__languages{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:40px}
 
+/* Print: the reader's current view (full or one page, with a focus) in the light theme, without the site's chrome.
+   The downloads hold the designed PDF; this is the page as the reader arranged it. */
 @media print{
   :root,:root[data-theme="dark"],:root:not([data-theme]){--surface-page:#fff;--surface-card:#fff;--surface-accent-tint:#F1FBE6;--text-heading:#14181C;--text-body:#333833;--text-muted:#636A61;--text-subtle:#7F857C;--text-link:#2D7612;--text-on-accent-tint:#164B10;--border-subtle:#E8EAE6;--border-default:#D6D9D3;--accent:#2D7612;--brand-mark:#3E891A;color-scheme:light}
   @page{margin:14mm 14mm 16mm}

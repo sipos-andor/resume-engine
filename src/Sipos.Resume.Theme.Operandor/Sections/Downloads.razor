@@ -10,7 +10,7 @@
                            Items="@View.Page.Downloads.Where(d => d.FocusId is null && d.Variant == DocumentVariant.Designed && d.Format is DownloadFormat.Pdf or DownloadFormat.Docx).ToList()" />
             <DownloadGroup Title="@View.Text["DownloadsAts"]" Hint="@View.Text["DownloadsAtsHint"]"
                            Items="@View.Page.Downloads.Where(d => d.FocusId is null && d.Variant == DocumentVariant.Ats).ToList()" />
-            <DownloadGroup Title="@View.Text["DownloadsTailored"]" Hint="@View.Text["DownloadsTailoredHint"]"
+            <DownloadGroup Title="@View.Text["DownloadsTailored"]" Hint="@View.Text["DownloadsTailoredHint"]" ByProfile="true"
                            Items="@View.Page.Downloads.Where(d => d.FocusId is not null).ToList()" />
             <DownloadGroup Title="@View.Text["DownloadsData"]" Hint="@View.Text["DownloadsDataHint"]"
                            Items="@View.Page.Downloads.Where(d => d.FocusId is null && d.Format is DownloadFormat.Markdown or DownloadFormat.JsonResume).ToList()" />

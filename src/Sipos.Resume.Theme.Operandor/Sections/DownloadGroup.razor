@@ -1,19 +1,35 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
+@* A group of files. By profile, each position profile is one row, its name and then its formats, so the formats are
+   short words side by side; a screen reader still hears the profile in every link. *@
 @if (Items.Count > 0)
 {
     <div class="cv-download-group">
         <h3 class="cv-download-group__title">@Title</h3>
         <p class="cv-download-group__hint">@Hint</p>
         <ul class="cv-download-group__files">
-            @foreach (var download in Items)
+            @if (ByProfile)
             {
-                <li>
-                    <a class="cv-download" href="@ResumeView.Href(download.Path)" download="@download.FileName" type="@download.MediaType" data-cv-focus-file="@download.FocusId">
-                        <OpIcon Name="download" Size="16" />
-                        <span class="cv-download__name">@download.Describe(View.FocusLabel(download.FocusId))</span>
-                    </a>
-                </li>
+                @foreach (var profile in Items.GroupBy(download => download.FocusId))
+                {
+                    var label = View.FocusLabel(profile.Key) ?? profile.Key;
+                    <li class="cv-download-row">
+                        <span class="cv-download-row__label">@label</span>
+                        <span class="cv-download-row__files">
+                            @foreach (var download in profile)
+                            {
+                                @File(download, download.FormatName, label)
+                            }
+                        </span>
+                    </li>
+                }
+            }
+            else
+            {
+                @foreach (var download in Items)
+                {
+                    <li>@File(download, download.Describe(View.FocusLabel(download.FocusId)))</li>
+                }
             }
         </ul>
     </div>
@@ -30,4 +46,17 @@
 
     /// <summary>The files.</summary>
     [Parameter, EditorRequired] public IReadOnlyList<DownloadSpec> Items { get; set; } = [];
+
+    /// <summary>Whether the files are listed in a row per position profile.</summary>
+    [Parameter] public bool ByProfile { get; set; }
+
+    // A file's link: its name, and for a row's link the profile for screen readers only.
+    private static RenderFragment File(DownloadSpec download, string name, string? profile = null) =>
+        @<a class="cv-download" href="@ResumeView.Href(download.Path)" download="@download.FileName" type="@download.MediaType" data-cv-focus-file="@download.FocusId">
+            <OpIcon Name="download" Size="16" />
+            <span class="cv-download__name">@name@if (profile is not null)
+                {
+                    <span class="op-visually-hidden"> · @profile</span>
+                }</span>
+        </a>;
 }
