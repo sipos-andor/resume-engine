@@ -33,6 +33,7 @@
   <data name="UsedIn" xml:space="preserve"><value>Használat: {0} · {1} munkahely és projekt</value></data>
   <data name="UsedBetween" xml:space="preserve"><value>Használat: {0}–{1} · {2} munkahely és projekt</value></data>
   <data name="UsedItems" xml:space="preserve"><value>{0} munkahely és projekt</value></data>
+  <data name="TimelinePositions" xml:space="preserve"><value>Munkahelyek</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>Önéletrajz</value></data>
   <data name="DownloadsDesignedHint" xml:space="preserve"><value>Az önéletrajz az oldal megjelenésével, olvasásra és nyomtatásra.</value></data>
   <data name="DownloadsAts" xml:space="preserve"><value>Jelentkezési rendszerekhez (ATS)</value></data>

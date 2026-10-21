@@ -1,13 +1,23 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
+@using Sipos.Resume.Core.Timeline
 
 @* The positions and projects on one time axis (the engine's TimelineModel, drawn by TimelineSvg). It repeats the
-   list below it, so the whole figure, caption included, is hidden from screen readers and its links from the
-   keyboard; the list carries the facts. *@
-@if (View.Page.Insights.Timeline.Bars.Count > 0)
+   list below it, so the whole figure, legend included, is hidden from screen readers and its links from the
+   keyboard; the list carries the facts. The legend names the bars' colours, each only when the chart has such bars. *@
+@if (View.Page.Insights.Timeline.Bars is { Count: > 0 } bars)
 {
     <figure class="cv-timeline" aria-hidden="true">
         @((MarkupString)TimelineSvg.Draw(View.Page.Insights.Timeline, View.Anchor, View.Period))
-        <figcaption class="cv-timeline__caption">@View.Labels.Timeline</figcaption>
+        <figcaption class="cv-timeline__legend">
+            @if (bars.Any(bar => bar.Kind == TimelineBarKind.Position))
+            {
+                <span class="cv-timeline__key cv-timeline__key--position">@View.Text["TimelinePositions"]</span>
+            }
+            @if (bars.Any(bar => bar.Kind == TimelineBarKind.Engagement))
+            {
+                <span class="cv-timeline__key cv-timeline__key--engagement">@View.Labels.Projects</span>
+            }
+        </figcaption>
     </figure>
 }
 

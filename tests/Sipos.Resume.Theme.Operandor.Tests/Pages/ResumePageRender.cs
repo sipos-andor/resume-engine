@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Sipos.Resume.Core.Mapping;
 using Sipos.Resume.Core.Site;
 using Sipos.Resume.Core.Validation;
@@ -288,6 +289,28 @@ public class ResumePageRender
 
         document.QuerySelectorAll("#downloads a.cv-download").Select(link => link.GetAttribute("href"))
             .ShouldBe(pages[1].Downloads.Select(download => download.Path), ignoreOrder: true);
+    }
+
+    // A tailored version is a row: its profile once, then its formats side by side, each link still naming the profile.
+    [Fact]
+    public async Task ListsTailoredFilesInRowPerProfileGivenFocusProfile()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var row = document.QuerySelectorAll("#downloads .cv-download-row").ShouldHaveSingleItem();
+        row.QuerySelector(".cv-download-row__label")!.TextContent.ShouldBe("Software architect");
+        row.QuerySelectorAll("a.cv-download").Select(link => Regex.Replace(link.TextContent, @"\s+", " ").Trim())
+            .ShouldBe(["PDF · Software architect", "DOCX · Software architect"]);
+    }
+
+    // The legend names the chart's two colours, as the sample has positions and a dated project.
+    [Fact]
+    public async Task NamesBarKindsInLegendGivenPositionsAndProjects()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        document.QuerySelectorAll("figure.cv-timeline .cv-timeline__key").Select(key => key.TextContent)
+            .ShouldBe(["Positions", "Projects"]);
     }
 
     [Fact]

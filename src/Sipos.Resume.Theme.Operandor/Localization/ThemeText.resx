@@ -33,6 +33,7 @@
   <data name="UsedIn" xml:space="preserve"><value>Used in {0} · {1} positions and projects</value></data>
   <data name="UsedBetween" xml:space="preserve"><value>Used {0}–{1} · {2} positions and projects</value></data>
   <data name="UsedItems" xml:space="preserve"><value>{0} positions and projects</value></data>
+  <data name="TimelinePositions" xml:space="preserve"><value>Positions</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>CV</value></data>
   <data name="DownloadsDesignedHint" xml:space="preserve"><value>The CV in this page's design, to read and print.</value></data>
   <data name="DownloadsAts" xml:space="preserve"><value>For application portals (ATS)</value></data>

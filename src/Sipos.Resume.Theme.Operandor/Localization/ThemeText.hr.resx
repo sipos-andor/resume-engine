@@ -33,6 +33,7 @@
   <data name="UsedIn" xml:space="preserve"><value>Korišteno {0}. · pozicija i projekata: {1}</value></data>
   <data name="UsedBetween" xml:space="preserve"><value>Korišteno {0}.–{1}. · pozicija i projekata: {2}</value></data>
   <data name="UsedItems" xml:space="preserve"><value>Pozicija i projekata: {0}</value></data>
+  <data name="TimelinePositions" xml:space="preserve"><value>Radna mjesta</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>Životopis</value></data>
   <data name="DownloadsDesignedHint" xml:space="preserve"><value>Životopis u izgledu ove stranice, za čitanje i ispis.</value></data>
   <data name="DownloadsAts" xml:space="preserve"><value>Za sustave za zapošljavanje (ATS)</value></data>
