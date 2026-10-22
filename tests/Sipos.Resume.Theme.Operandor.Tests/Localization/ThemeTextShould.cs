@@ -28,6 +28,14 @@ public partial class ThemeTextShould
         }
     }
 
+    // A count before a plural noun reads "1 matches" for one; the English texts put the count after a colon, as the
+    // Croatian and Serbian ones do.
+    [Fact]
+    public void PutCountsAfterLabelGivenEnglish()
+    {
+        Entries(CultureInfo.InvariantCulture).ShouldAllBe(entry => !CountBeforePlural().IsMatch(entry.Value));
+    }
+
     private static Dictionary<string, string> Entries(CultureInfo culture) =>
         Resources.GetResourceSet(culture, createIfNotExists: true, tryParents: false)!.Cast<DictionaryEntry>().ToDictionary(entry => (string)entry.Key, entry => (string)entry.Value!);
 
@@ -35,4 +43,7 @@ public partial class ThemeTextShould
 
     [GeneratedRegex(@"\{\d+\}")]
     private static partial Regex Placeholder();
+
+    [GeneratedRegex(@"\{\d+\} (matches|matching|positions)")]
+    private static partial Regex CountBeforePlural();
 }

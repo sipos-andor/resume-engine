@@ -12,12 +12,12 @@
   <data name="Tools" xml:space="preserve"><value>Explore the CV</value></data>
   <data name="Search" xml:space="preserve"><value>Search</value></data>
   <data name="SearchPlaceholder" xml:space="preserve"><value>Technology, company, role…</value></data>
-  <data name="SearchResults" xml:space="preserve"><value>{0} matches</value></data>
+  <data name="SearchResults" xml:space="preserve"><value>Matches: {0}</value></data>
   <data name="SearchNoResults" xml:space="preserve"><value>No matches</value></data>
   <data name="FocusAll" xml:space="preserve"><value>Whole CV</value></data>
   <data name="Technology" xml:space="preserve"><value>Technology</value></data>
   <data name="AllTechnologies" xml:space="preserve"><value>All technologies</value></data>
-  <data name="TechnologyItems" xml:space="preserve"><value>{0}: {1} positions and projects</value></data>
+  <data name="TechnologyItems" xml:space="preserve"><value>{0} – positions and projects: {1}</value></data>
   <data name="View" xml:space="preserve"><value>View</value></data>
   <data name="ViewFull" xml:space="preserve"><value>Full</value></data>
   <data name="ViewShort" xml:space="preserve"><value>One page</value></data>
@@ -28,11 +28,11 @@
   <data name="MatchButton" xml:space="preserve"><value>Compare</value></data>
   <data name="MatchFound" xml:space="preserve"><value>In the CV ({0})</value></data>
   <data name="MatchNone" xml:space="preserve"><value>No technology or skill of the CV appears in the text.</value></data>
-  <data name="MatchCoverage" xml:space="preserve"><value>{0} matching technologies and skills</value></data>
-  <data name="UsedSince" xml:space="preserve"><value>Used since {0} · {1} positions and projects</value></data>
-  <data name="UsedIn" xml:space="preserve"><value>Used in {0} · {1} positions and projects</value></data>
-  <data name="UsedBetween" xml:space="preserve"><value>Used {0}–{1} · {2} positions and projects</value></data>
-  <data name="UsedItems" xml:space="preserve"><value>{0} positions and projects</value></data>
+  <data name="MatchCoverage" xml:space="preserve"><value>Matching technologies and skills: {0}</value></data>
+  <data name="UsedSince" xml:space="preserve"><value>Used since {0} · positions and projects: {1}</value></data>
+  <data name="UsedIn" xml:space="preserve"><value>Used in {0} · positions and projects: {1}</value></data>
+  <data name="UsedBetween" xml:space="preserve"><value>Used {0}–{1} · positions and projects: {2}</value></data>
+  <data name="UsedItems" xml:space="preserve"><value>Positions and projects: {0}</value></data>
   <data name="TimelinePositions" xml:space="preserve"><value>Positions</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>CV</value></data>
   <data name="DownloadsDesignedHint" xml:space="preserve"><value>The CV in this page's design, to read and print.</value></data>
