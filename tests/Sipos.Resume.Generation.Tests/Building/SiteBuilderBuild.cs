@@ -32,6 +32,17 @@ public class SiteBuilderBuild
         folder.Read("dist/llms-full.txt").ShouldContain("# Example Ann");
     }
 
+    // Every page loads the same files, so every page carries the same version of them.
+    [Fact]
+    public async Task GivesEveryPageOneAssetVersionGivenAssets()
+    {
+        using var folder = new TempFolder();
+
+        var pages = await Sites.BuildAsync(folder, new FakeTheme(), Writers());
+
+        pages.Select(page => page.AssetVersion).Distinct().ShouldHaveSingleItem().ShouldNotBeNull().ShouldMatch("^[0-9a-f]{12}$");
+    }
+
     // A download is offered only when a writer can write it, so the page never links to a missing file.
     [Fact]
     public async Task OffersOnlyDownloadsWithWriterGivenNoPdfOrDocxWriter()

@@ -4,7 +4,8 @@
    and the theme script synchronously before the stylesheets, so the stored theme applies before the first paint.
    Every path is root-relative and the page has no <base>, so a bare #anchor stays on the page with its query
    (?focus=, ?tech=, ?view=) instead of loading the page again without it. HeadOutlet writes the title, description, canonical and hreflang links,
-   share tags and structured data of the page's SeoHead. *@
+   share tags and structured data of the page's SeoHead. Every file the page loads carries the build's asset version
+   (?v=), so a browser fetches the files again after a deploy that changed them. *@
 <!DOCTYPE html>
 <html lang="@Lang">
 <head>
@@ -12,28 +13,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <meta http-equiv="Content-Security-Policy" content="@ContentSecurityPolicy.For(Settings)" />
-    <script src="/site-config.js" suppress-error="BL9992"></script>
-    <script src="/_content/Operandor.SharedKernel.UI/theme.js" suppress-error="BL9992"></script>
-    <link rel="stylesheet" href="/_content/Operandor.DesignSystem/operandor.css" />
-    <link rel="stylesheet" href="/_content/Sipos.Resume.Theme.Operandor/css/cv.css" />
-    <link rel="icon" type="image/svg+xml" href="/_content/Sipos.Resume.Theme.Operandor/favicon.svg" />
+    <script src="@Asset("/site-config.js")" suppress-error="BL9992"></script>
+    <script src="@Asset("/_content/Operandor.SharedKernel.UI/theme.js")" suppress-error="BL9992"></script>
+    <link rel="stylesheet" href="@Asset("/_content/Operandor.DesignSystem/operandor.css")" />
+    <link rel="stylesheet" href="@Asset("/_content/Sipos.Resume.Theme.Operandor/css/cv.css")" />
+    <link rel="icon" type="image/svg+xml" href="@Asset("/_content/Sipos.Resume.Theme.Operandor/favicon.svg")" />
     @Head
     <HeadOutlet />
 </head>
 <body>
     @* First in <body>: the head with the hreflang links is parsed, nothing is painted yet, and a visitor who enters on
        the root page is sent to the version in their browser's language (the shared kernel's script). *@
-    <script src="/_content/Operandor.SharedKernel.UI/language.js" suppress-error="BL9992"></script>
+    <script src="@Asset("/_content/Operandor.SharedKernel.UI/language.js")" suppress-error="BL9992"></script>
     @ChildContent
     @if (Interactive)
     {
-        <script type="module" src="/_content/Sipos.Resume.Theme.Operandor/js/cv.js" suppress-error="BL9992"></script>
+        <script type="module" src="@Asset("/_content/Sipos.Resume.Theme.Operandor/js/cv.js")" suppress-error="BL9992"></script>
     }
     @if (Settings.AnalyticsToken is not null)
     {
         @* Cloudflare Web Analytics is cookieless and needs no consent; the script loads the beacon with the token
            from site-config.js. *@
-        <script src="/_content/Operandor.SharedKernel.UI/analytics/cloudflare-web-analytics.js" suppress-error="BL9992"></script>
+        <script src="@Asset("/_content/Operandor.SharedKernel.UI/analytics/cloudflare-web-analytics.js")" suppress-error="BL9992"></script>
     }
 </body>
 </html>
@@ -51,6 +52,11 @@
     /// <summary>Whether the page loads the script of the interactive features.</summary>
     [Parameter] public bool Interactive { get; set; } = true;
 
+    /// <summary>The version of the static files (the page's <see cref="SitePage.AssetVersion"/>), or <see langword="null"/> for plain addresses.</summary>
+    [Parameter] public string? AssetVersion { get; set; }
+
     /// <summary>The body.</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private string Asset(string path) => AssetVersion is null ? path : $"{path}?v={Uri.EscapeDataString(AssetVersion)}";
 }

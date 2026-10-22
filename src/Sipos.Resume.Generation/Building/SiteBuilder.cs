@@ -94,12 +94,16 @@ internal sealed partial class SiteBuilder(IResumeTheme theme, IReadOnlyList<IDoc
         return pages;
     }
 
-    /// <summary>Lays out the pages: each language's insights, the downloads a writer can write and its share image.</summary>
+    /// <summary>
+    /// Lays out the pages: each language's insights, the downloads a writer can write, its share image and the version of
+    /// the static files it loads.
+    /// </summary>
     /// <param name="set">The checked content.</param>
     public IReadOnlyList<SitePage> Plan(ResumeSet set)
     {
         ArgumentNullException.ThrowIfNull(set);
         var languages = set.Languages;
+        var assetVersion = AssetVersion.Of(options.AssetsRoot, theme.RequiredAssets, theme.Files(set.Settings));
         return [.. set.Editions.Select(edition =>
         {
             var document = edition.Document;
@@ -107,7 +111,7 @@ internal sealed partial class SiteBuilder(IResumeTheme theme, IReadOnlyList<IDoc
                 .Where(download => WriterFor(download) is not null)
                 .ToList();
             var image = shareImages is null ? null : $"/og/{document.Language.Tag.ToLowerInvariant()}.png";
-            return new SitePage(document, ResumeInsights.Analyze(document, options.Today), languages, downloads, set.Settings, image);
+            return new SitePage(document, ResumeInsights.Analyze(document, options.Today), languages, downloads, set.Settings, image, assetVersion);
         })];
     }
 
