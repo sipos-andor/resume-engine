@@ -23,6 +23,7 @@ public class ResumeDataJson
         json.GetProperty("vocabulary").GetArrayLength().ShouldBe(page.Insights.Vocabulary.Terms.Count);
         json.GetProperty("text").GetProperty("SwitchToDark").GetString().ShouldBe("Dark");
         json.GetProperty("text").GetProperty("LinkCopied").GetString().ShouldBe("[LinkCopied]");
+        json.GetProperty("text").GetProperty("ViewNoteLead").GetString().ShouldBe("[ViewNoteLead]");
     }
 
     // No text of the CV can close the data element, and accented words stay readable.

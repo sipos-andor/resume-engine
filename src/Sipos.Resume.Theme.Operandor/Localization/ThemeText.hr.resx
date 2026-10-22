@@ -23,6 +23,14 @@
   <data name="ViewShort" xml:space="preserve"><value>Jedna stranica</value></data>
   <data name="Print" xml:space="preserve"><value>Ispis</value></data>
   <data name="LinkCopied" xml:space="preserve"><value>Poveznica je kopirana</value></data>
+  <data name="FilterButton" xml:space="preserve"><value>Filtriranje</value></data>
+  <data name="PanelTitle" xml:space="preserve"><value>Filtriranje i prikaz</value></data>
+  <data name="Close" xml:space="preserve"><value>Zatvori</value></data>
+  <data name="ClearFilters" xml:space="preserve"><value>Poništi filtre</value></data>
+  <data name="ActiveSettings" xml:space="preserve"><value>Aktivne postavke: {0}</value></data>
+  <data name="ViewNoteLead" xml:space="preserve"><value>Prilagođeni prikaz:</value></data>
+  <data name="ViewNoteShort" xml:space="preserve"><value>jedna stranica</value></data>
+  <data name="ViewNoteTechnology" xml:space="preserve"><value>istaknuto: {0}</value></data>
   <data name="MatchTitle" xml:space="preserve"><value>Usporedba s oglasom za posao</value></data>
   <data name="MatchHint" xml:space="preserve"><value>Zalijepite tekst oglasa za posao: stranica će označiti tehnologije i vještine koje se nalaze i u ovom životopisu. Tekst ostaje u vašem pregledniku.</value></data>
   <data name="MatchButton" xml:space="preserve"><value>Usporedi</value></data>

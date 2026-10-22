@@ -1,13 +1,14 @@
 // The page's interactive features. The build derives everything (search index, technologies, position profiles, job ad
 // vocabulary) and writes it into the #cv-data block; this script only applies it. Without the script the whole CV
 // shows and the tools stay hidden.
-// The page loads this module with the build's asset version (?v=); text.js comes with the same query, so a deploy
-// that changed it reaches the browser at once instead of after the cached copy expires.
-const { find, key, match } = await import(`./text.js${new URL(import.meta.url).search}`);
+// The page loads this module with the build's asset version (?v=); text.js and view.js come with the same query, so a
+// deploy that changed one reaches the browser at once instead of after the cached copy expires.
+const version = new URL(import.meta.url).search;
+const { find, key, match } = await import(`./text.js${version}`);
+const { format } = await import(`./view.js${version}`);
 
 const data = JSON.parse(document.getElementById("cv-data")?.textContent ?? "null");
 const words = data?.text ?? {};
-const format = (template, ...values) => (template ?? "").replace(/\{(\d+)\}/g, (_, index) => String(values[Number(index)]));
 
 // A polite live region for confirmations such as "Link copied".
 const live = document.createElement("p");

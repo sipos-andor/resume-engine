@@ -42,6 +42,7 @@ public sealed class OperandorTheme : IResumeTheme
         AssetRoot + "/css/cv.css",
         AssetRoot + "/js/cv.js",
         AssetRoot + "/js/text.js",
+        AssetRoot + "/js/view.js",
         AssetRoot + "/favicon.svg",
     ];
 
