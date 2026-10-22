@@ -1,0 +1,33 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* The publications, which the one-page view leaves out; ids match the engine's search index. *@
+@if (View.Document.Publications.Count > 0)
+{
+    <CvSection Id="publications" Title="@View.Labels.Publications" Short="false">
+        <ul class="cv-list">
+            @for (var index = 0; index < View.Document.Publications.Count; index++)
+            {
+                var publication = View.Document.Publications[index];
+                <li class="cv-list__item" id="publication-@(index + 1)" data-cv-id="publication-@(index + 1)">
+                    <span class="cv-list__title">@if (publication.Url is { } url) { <a href="@url">@publication.Name</a> } else { @publication.Name }</span>
+                    @if (publication.Publisher is { } publisher)
+                    {
+                        <span class="cv-list__detail">@publisher</span>
+                    }
+                    @if (publication.Released is { } date)
+                    {
+                        <span class="cv-list__date">@View.Date(date)</span>
+                    }
+                    @if (publication.Summary is { } summary)
+                    {
+                        <span class="cv-list__summary">@summary</span>
+                    }
+                </li>
+            }
+        </ul>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

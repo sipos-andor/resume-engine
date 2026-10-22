@@ -60,7 +60,7 @@ public class DocxDocumentWriterWrite
         var bytes = Write("en", DocumentVariant.Ats);
         var paragraphs = Paragraphs(bytes).Select(paragraph => paragraph.Text).ToList();
 
-        Texts(bytes, "Heading1").ShouldBe(["Summary", "Skills", "Work Experience", "Projects", "Education", "Certifications", "Awards", "Languages"]);
+        Texts(bytes, "Heading1").ShouldBe(["Summary", "Skills", "Work Experience", "Projects", "Education", "Certifications", "Awards", "Publications", "Volunteer Experience", "Languages"]);
         Texts(bytes, "Heading2").ShouldContain("Engineer – Initech");
         paragraphs.ShouldContain("03/2015 – 10/2022");
         paragraphs.ShouldContain("Expert: C#, LINQ");
@@ -336,5 +336,37 @@ public class DocxDocumentWriterWrite
     {
         using var zip = new ZipArchive(new MemoryStream(bytes));
         return [.. zip.Entries.Select(entry => entry.LastWriteTime.DateTime)];
+    }
+
+    [Fact]
+    public void WritesUsageLevelsAfterSkillsAndScaleNoteGivenAtsLayout()
+    {
+        var paragraphs = Paragraphs(Write(Context(SampleDocuments.Usage(), DocumentVariant.Ats))).Select(paragraph => paragraph.Text).ToList();
+
+        paragraphs.ShouldContain("C#, LINQ (Usage: core and recurring)");
+        paragraphs.ShouldContain("Blazor (Usage: project-specific)");
+        paragraphs.ShouldContain("Scores describe usage, not proficiency.");
+    }
+
+    // As in the designed PDF: the steps with their meters, then what the ratings mean, before the groups.
+    [Fact]
+    public void WritesScaleLegendBeforeSkillGroupsGivenDesignedLayout()
+    {
+        var paragraphs = Paragraphs(Write(Context(SampleDocuments.Usage(), DocumentVariant.Designed)));
+        var legend = paragraphs.FindIndex(paragraph => paragraph.Text == "●●●●● Usage: core and recurring · ●●●○○ Usage: project-specific");
+
+        legend.ShouldBeGreaterThan(0);
+        paragraphs[legend + 1].Text.ShouldBe("Scores describe usage, not proficiency.");
+        paragraphs[legend + 2].Style.ShouldBe("SkillGroup");
+    }
+
+    [Fact]
+    public void WritesPublicationsVolunteeringAndStudyDetailsGivenDesignedLayout()
+    {
+        var bullets = Texts(Write("en", DocumentVariant.Designed), "ListBullet");
+
+        bullets.ShouldContain(text => text.StartsWith("Practical .NET – Example Press", StringComparison.Ordinal) && text.EndsWith("Wrote two chapters.", StringComparison.Ordinal));
+        bullets.ShouldContain(text => text.StartsWith("Volunteer – Food Bank", StringComparison.Ordinal) && text.EndsWith("Sorted donations.", StringComparison.Ordinal));
+        bullets.ShouldContain(text => text.EndsWith("Grade: 4.5/5 · Courses: Databases, Networks", StringComparison.Ordinal));
     }
 }

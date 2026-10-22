@@ -303,4 +303,34 @@ public class PdfDocumentWriterWrite
         start.ShouldBeGreaterThanOrEqualTo(0);
         return xmp.Substring(start, 60);
     }
+
+    // A usage level is a remark after the skills, where its own colon does not double; the note says what is rated.
+    [Fact]
+    public void WritesUsageLevelsAfterSkillsAndScaleNoteGivenAtsLayout()
+    {
+        var text = PdfSamples.Text(PdfSamples.Write(PdfSamples.Context(SampleDocuments.Usage(), DocumentVariant.Ats)));
+
+        text.ShouldContain("C#, LINQ (Usage: core and recurring)");
+        text.ShouldContain("Scores describe usage, not proficiency.");
+        text.ShouldNotContain("Usage: core and recurring:");
+    }
+
+    [Fact]
+    public void WritesScaleNoteUnderSkillsGivenDesignedLayout() =>
+        PdfSamples.Text(PdfSamples.Write(PdfSamples.Context(SampleDocuments.Usage(), DocumentVariant.Designed))).ShouldContain("Scores describe usage, not proficiency.");
+
+    [Theory]
+    [InlineData(DocumentVariant.Designed, "Volunteering")]
+    [InlineData(DocumentVariant.Ats, "Volunteer Experience")]
+    public void WritesPublicationsVolunteeringAndStudyDetailsGivenLayout(DocumentVariant variant, string volunteering)
+    {
+        var text = PdfSamples.Text(PdfSamples.Write(variant));
+
+        text.ShouldContain("Publications");
+        text.ShouldContain("Practical .NET");
+        text.ShouldContain("Example Press");
+        text.ShouldContain(volunteering);
+        text.ShouldContain("Food Bank");
+        text.ShouldContain("Grade: 4.5/5 · Courses: Databases, Networks");
+    }
 }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Sipos.Resume.Core.Dates;
 using Sipos.Resume.Core.Focus;
 using Sipos.Resume.Core.Localization;
@@ -32,6 +33,12 @@ public enum DocumentSection
     /// <summary>The awards.</summary>
     Awards,
 
+    /// <summary>The publications.</summary>
+    Publications,
+
+    /// <summary>The volunteer work.</summary>
+    Volunteering,
+
     /// <summary>The spoken languages.</summary>
     Languages,
 }
@@ -64,16 +71,21 @@ public sealed class DocumentOutline
     /// <summary>How many highlights a tailored document keeps of a position or project its focus does not put forward.</summary>
     public const int UnfocusedHighlights = 2;
 
+    /// <summary>The longest level in words that fits the layouts' usual level column, such as <c>Proficient</c>.</summary>
+    public const int ShortLevelLength = 12;
+
     private static readonly DocumentSection[] DesignedSections =
     [
         DocumentSection.Profile, DocumentSection.Strengths, DocumentSection.Experience, DocumentSection.Projects,
-        DocumentSection.Skills, DocumentSection.Education, DocumentSection.Awards, DocumentSection.Languages,
+        DocumentSection.Skills, DocumentSection.Education, DocumentSection.Awards, DocumentSection.Publications,
+        DocumentSection.Volunteering, DocumentSection.Languages,
     ];
 
     private static readonly DocumentSection[] AtsSections =
     [
         DocumentSection.Profile, DocumentSection.Skills, DocumentSection.Experience, DocumentSection.Projects,
-        DocumentSection.Education, DocumentSection.Certificates, DocumentSection.Awards, DocumentSection.Languages,
+        DocumentSection.Education, DocumentSection.Certificates, DocumentSection.Awards, DocumentSection.Publications,
+        DocumentSection.Volunteering, DocumentSection.Languages,
     ];
 
     private DocumentOutline(ResumeDocument document, DocumentVariant variant, FocusView? focus)
@@ -88,6 +100,7 @@ public sealed class DocumentOutline
             : [.. focus.StrengthOrder.Select(id => document.Strengths.First(strength => strength.Id == id))];
         SkillGroups = focus is null ? document.SkillGroups : [.. focus.SkillGroupOrder.Select(index => document.SkillGroups[index])];
         Sections = [.. (variant == DocumentVariant.Ats ? AtsSections : DesignedSections).Where(HasContent)];
+        HasLongLevels = HasLongLevelsIn(document);
     }
 
     /// <summary>The CV.</summary>
@@ -113,6 +126,9 @@ public sealed class DocumentOutline
 
     /// <summary>The skill groups, those with the focus's skills first.</summary>
     public IReadOnlyList<SkillGroup> SkillGroups { get; }
+
+    /// <summary>Whether a level in words is longer than <see cref="ShortLevelLength"/>, so the layouts widen the level column.</summary>
+    public bool HasLongLevels { get; }
 
     /// <summary>The style the layout writes dates in.</summary>
     public DateStyle DateStyle => Variant == DocumentVariant.Ats ? DateStyle.Numeric : DateStyle.Long;
@@ -146,6 +162,8 @@ public sealed class DocumentOutline
         (DocumentVariant.Ats, DocumentSection.Education) => Labels.AtsEducation,
         (DocumentVariant.Ats, DocumentSection.Certificates) => Labels.AtsCertifications,
         (DocumentVariant.Ats, DocumentSection.Awards) => Labels.AtsAwards,
+        (DocumentVariant.Ats, DocumentSection.Publications) => Labels.AtsPublications,
+        (DocumentVariant.Ats, DocumentSection.Volunteering) => Labels.AtsVolunteering,
         (DocumentVariant.Ats, DocumentSection.Languages) => Labels.AtsLanguages,
         (_, DocumentSection.Profile) => Labels.Profile,
         (_, DocumentSection.Strengths) => Labels.Strengths,
@@ -155,7 +173,10 @@ public sealed class DocumentOutline
         (_, DocumentSection.Education) => Labels.Education,
         (_, DocumentSection.Certificates) => Labels.Certificates,
         (_, DocumentSection.Awards) => Labels.Awards,
-        _ => Labels.Languages,
+        (_, DocumentSection.Publications) => Labels.Publications,
+        (_, DocumentSection.Volunteering) => Labels.Volunteering,
+        (_, DocumentSection.Languages) => Labels.Languages,
+        _ => throw new UnreachableException($"No heading for the section {section}."),
     };
 
     /// <summary>Whether the focus puts a position, project or strength forward; always <see langword="false"/> without a focus.</summary>
@@ -194,6 +215,64 @@ public sealed class DocumentOutline
         return skill.Level ?? (skill.Rating is { } rating ? Labels.Rating(rating) : null);
     }
 
+    /// <summary>
+    /// The skills of one level as the ATS layouts write them: <c>Expert: C#, LINQ</c>, or for usage ratings
+    /// <c>C#, LINQ (Usage: core and recurring)</c>; the names alone without a level.
+    /// </summary>
+    /// <param name="level">The level in words, or <see langword="null"/> or empty for none.</param>
+    /// <param name="skills">The skills at that level.</param>
+    /// <remarks>
+    /// Decision: a usage rating follows the skills, a proficiency rating leads them.
+    /// Why: "Expert: C#" reads as a heading for what follows; a usage level is a remark on the skills, and its own words
+    /// often end in a colon already ("Usage: core and recurring"), which a leading level would double.
+    /// </remarks>
+    public static string SkillLine(string? level, IReadOnlyList<Skill> skills)
+    {
+        ArgumentNullException.ThrowIfNull(skills);
+        var names = string.Join(", ", skills.Select(skill => skill.Name));
+        if (string.IsNullOrEmpty(level))
+        {
+            return names;
+        }
+
+        return skills.Any(skill => skill.Kind == RatingKind.Usage) ? $"{names} ({level})" : $"{level}: {names}";
+    }
+
+    /// <summary>
+    /// A study's grade and courses on one line, such as <c>Grade: 8.11/10 · Courses: Databases, .NET</c>, or
+    /// <see langword="null"/> when the CV names neither.
+    /// </summary>
+    /// <param name="study">The study.</param>
+    public string? StudyDetails(Study study)
+    {
+        ArgumentNullException.ThrowIfNull(study);
+        var parts = new List<string>(2);
+        if (study.Score is { } score)
+        {
+            parts.Add($"{Labels.Grade}: {score}");
+        }
+
+        if (study.Courses.Count > 0)
+        {
+            parts.Add($"{Labels.Courses}: {string.Join(", ", study.Courses)}");
+        }
+
+        return parts.Count == 0 ? null : string.Join(" · ", parts);
+    }
+
+    /// <summary>Whether a CV writes a level longer than <see cref="ShortLevelLength"/>, so the layouts widen the level column.</summary>
+    /// <param name="document">The CV.</param>
+    /// <remarks>
+    /// Decision: the engine's own level words never count; only a CV's own words can be long.
+    /// Why: the engine's words (Expert, Proficient, Ismerkedő) all fit the usual column, so a CV that writes none keeps
+    /// its layout exactly.
+    /// </remarks>
+    public static bool HasLongLevelsIn(ResumeDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        return document.AllSkills.Any(skill => skill.Level is { Length: > ShortLevelLength });
+    }
+
     private List<string> Keep(string id, IReadOnlyList<string> highlights) =>
         Focus is null || IsEmphasized(id) ? [.. highlights] : [.. highlights.Take(UnfocusedHighlights)];
 
@@ -207,6 +286,9 @@ public sealed class DocumentOutline
         DocumentSection.Education => Document.Education.Count > 0 || (Variant == DocumentVariant.Designed && Document.Certificates.Count > 0),
         DocumentSection.Certificates => Document.Certificates.Count > 0,
         DocumentSection.Awards => Document.Awards.Count > 0,
-        _ => Document.Languages.Count > 0,
+        DocumentSection.Publications => Document.Publications.Count > 0,
+        DocumentSection.Volunteering => Document.Volunteering.Count > 0,
+        DocumentSection.Languages => Document.Languages.Count > 0,
+        _ => throw new UnreachableException($"No content rule for the section {section}."),
     };
 }

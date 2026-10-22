@@ -55,6 +55,9 @@ internal sealed record ResumeView(SitePage Page, IStringLocalizer<ThemeText> Tex
     /// <param name="skill">The skill.</param>
     public string? Level(Skill skill) => skill.Level ?? (skill.Rating is { } rating ? Labels.Rating(rating) : null);
 
+    /// <summary>Whether the CV writes a level in more than a word, so the skills get a wider level column.</summary>
+    public bool HasLongLevels { get; } = DocumentOutline.HasLongLevelsIn(Page.Document);
+
     /// <summary>The download of a format and layout without a focus, or <see langword="null"/>.</summary>
     /// <param name="format">The format.</param>
     /// <param name="variant">The layout.</param>

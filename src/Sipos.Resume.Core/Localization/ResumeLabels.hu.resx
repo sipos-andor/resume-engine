@@ -13,6 +13,8 @@
   <data name="Education" xml:space="preserve"><value>Tanulmányok, tanúsítványok és képzések</value></data>
   <data name="Certificates" xml:space="preserve"><value>Tanúsítványok és képzések</value></data>
   <data name="Awards" xml:space="preserve"><value>Díjak és versenyek</value></data>
+  <data name="Publications" xml:space="preserve"><value>Publikációk</value></data>
+  <data name="Volunteering" xml:space="preserve"><value>Önkéntes munka</value></data>
   <data name="Languages" xml:space="preserve"><value>Nyelvtudás</value></data>
   <data name="Timeline" xml:space="preserve"><value>Idővonal</value></data>
   <data name="Contact" xml:space="preserve"><value>Kapcsolat</value></data>
@@ -24,6 +26,8 @@
   <data name="AtsEducation" xml:space="preserve"><value>Tanulmányok</value></data>
   <data name="AtsCertifications" xml:space="preserve"><value>Tanúsítványok</value></data>
   <data name="AtsAwards" xml:space="preserve"><value>Díjak</value></data>
+  <data name="AtsPublications" xml:space="preserve"><value>Publikációk</value></data>
+  <data name="AtsVolunteering" xml:space="preserve"><value>Önkéntes munka</value></data>
   <data name="AtsLanguages" xml:space="preserve"><value>Nyelvtudás</value></data>
   <data name="Rating5" xml:space="preserve"><value>Szakértő</value></data>
   <data name="Rating4" xml:space="preserve"><value>Haladó</value></data>
@@ -35,6 +39,8 @@
   <data name="Client" xml:space="preserve"><value>Ügyfél</value></data>
   <data name="Role" xml:space="preserve"><value>Szerep</value></data>
   <data name="Technologies" xml:space="preserve"><value>Technológiák</value></data>
+  <data name="Grade" xml:space="preserve"><value>Eredmény</value></data>
+  <data name="Courses" xml:space="preserve"><value>Tantárgyak</value></data>
   <data name="Phone" xml:space="preserve"><value>Telefon</value></data>
   <data name="Web" xml:space="preserve"><value>Online önéletrajz</value></data>
   <data name="Location" xml:space="preserve"><value>Helyszín</value></data>

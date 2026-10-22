@@ -125,7 +125,15 @@ a.cv-availability:hover{border-color:var(--accent)}
 @media (prefers-color-scheme:dark){:root:not([data-theme]) .cv-timeline{--cv-bar-position:var(--slate-300);--cv-bar-label:var(--n-950)}}
 
 /* Skills */
+/* The legend sits close under the heading, whose margin is for content. */
+.cv-scale{display:grid;gap:8px;margin:-12px 0 28px;font-size:var(--fs-caption);color:var(--text-muted)}
+.cv-scale__steps{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px 24px}
+.cv-scale__step{display:inline-flex;align-items:center;gap:8px}
+.cv-scale__note{margin:0;max-width:var(--measure-prose)}
 .cv-skill-groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:32px 48px}
+/* Levels written in more than a word: a wider level column, and wider groups to keep room for the name. */
+.cv-skill-groups--long-levels{grid-template-columns:repeat(auto-fill,minmax(380px,1fr))}
+.cv-skill-groups--long-levels .cv-skill__row{grid-template-columns:minmax(0,1fr) auto 20ch}
 .cv-skill-group__title{font-size:var(--fs-body);font-weight:var(--fw-semibold);color:var(--text-heading);margin:0 0 8px}
 .cv-skills{list-style:none;margin:0;padding:0}
 .cv-skill{border-bottom:1px solid var(--border-subtle)}
@@ -150,6 +158,7 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
 .cv-list__detail{grid-column:1;font-size:var(--fs-body-sm)}
 .cv-list__date{grid-column:2;grid-row:1;font-size:var(--fs-body-sm);font-family:var(--font-mono);color:var(--text-muted);white-space:nowrap}
 .cv-list__summary{grid-column:1/-1;font-size:var(--fs-body-sm);color:var(--text-muted)}
+.cv-list__points{grid-column:1/-1;margin:4px 0 0;padding-left:20px;font-size:var(--fs-body-sm);color:var(--text-muted)}
 .cv-languages{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px 32px}
 .cv-languages__row{border-bottom:1px solid var(--border-subtle);padding-bottom:8px}
 .cv-languages dt{font-weight:var(--fw-medium);color:var(--text-heading)}
@@ -194,6 +203,10 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
   .cv-tools__row > .op-btn{align-self:flex-start}
   .cv-skill-groups{grid-template-columns:1fr}
   .cv-skill__row{grid-template-columns:minmax(0,1fr) auto 8ch;gap:10px}
+  /* A long level goes on its own line under the name, where it has the row's whole width. */
+  .cv-skill-groups--long-levels{grid-template-columns:1fr}
+  .cv-skill-groups--long-levels .cv-skill__row{grid-template-columns:minmax(0,1fr) auto;row-gap:2px}
+  .cv-skill-groups--long-levels .cv-skill__level{grid-column:1/-1;text-align:left}
   .cv-engagements{padding-left:14px}
   .cv-list__item{grid-template-columns:1fr}
   .cv-list__date{grid-column:1;grid-row:auto}

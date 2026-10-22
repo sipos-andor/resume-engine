@@ -13,6 +13,8 @@ public static partial class ResumeValidator
 {
     private static readonly string[] AvailabilityStatuses = ["available", "from", "on-request"];
 
+    private static readonly string[] RatingKinds = ["proficiency", "usage"];
+
     // The characters XML 1.0 cannot hold: the C0 controls but tab and the line breaks, and the two noncharacters.
     private static readonly SearchValues<char> NotInDocuments = SearchValues.Create(
         [.. Enumerable.Range(0, 32).Where(code => code is not ('\t' or '\n' or '\r')).Select(code => (char)code), '\uFFFE', '\uFFFF']);
@@ -67,6 +69,30 @@ public static partial class ResumeValidator
             CheckOptionalDate(resume.Awards[i].Date, $"/awards/{i}/date", Fail);
         }
 
+        // The formats of volunteer work and publications are PreservedResumeValidator's; these are what rendering adds:
+        // an item needs a title, ends after it starts and links only to a web page.
+        for (var i = 0; i < resume.Volunteer.Count; i++)
+        {
+            var work = resume.Volunteer[i];
+            if (string.IsNullOrWhiteSpace(work.Position) && string.IsNullOrWhiteSpace(work.Organization))
+            {
+                Fail($"/volunteer/{i}/position", "Needs a position or an organization to name the work by.");
+            }
+
+            if (PartialDate.TryParse(work.StartDate, out var first) && PartialDate.TryParse(work.EndDate, out var last) && last.LastDay < first.FirstDay)
+            {
+                Fail($"/volunteer/{i}/endDate", $"Ends ({work.EndDate}) before it starts ({work.StartDate}).");
+            }
+
+            CheckLinkScheme(work.Url, $"/volunteer/{i}/url", Fail);
+        }
+
+        for (var i = 0; i < resume.Publications.Count; i++)
+        {
+            CheckRequired(resume.Publications[i].Name, $"/publications/{i}/name", Fail);
+            CheckLinkScheme(resume.Publications[i].Url, $"/publications/{i}/url", Fail);
+        }
+
         for (var i = 0; i < resume.Skills.Count; i++)
         {
             var skill = resume.Skills[i];
@@ -75,7 +101,14 @@ public static partial class ResumeValidator
             {
                 Fail($"/skills/{i}/x-rating", "Must be a whole number from 1 to 5.");
             }
+
+            if (skill.RatingKind is { } kind && !RatingKinds.Contains(kind))
+            {
+                Fail($"/skills/{i}/x-ratingKind", $"Must be one of {string.Join(", ", RatingKinds)}.");
+            }
         }
+
+        CheckSkillsAssessment(resume, Fail);
 
         for (var i = 0; i < resume.Languages.Count; i++)
         {
@@ -275,6 +308,65 @@ public static partial class ResumeValidator
         return true;
     }
 
+    // The scale is the skills' legend: one step per rating, each with its words. An association names a skill the CV
+    // lists and a position or project it has, so a typo cannot record a use that is nowhere.
+    private static void CheckSkillsAssessment(JsonResume resume, Action<string, string> fail)
+    {
+        if (resume.SkillsAssessment is not { } assessment)
+        {
+            return;
+        }
+
+        const string path = "/x-skillsAssessment";
+        CheckOptionalDate(assessment.AssessedOn, $"{path}/assessedOn", fail);
+        var values = new HashSet<int>();
+        for (var i = 0; i < assessment.Scale.Count; i++)
+        {
+            var step = assessment.Scale[i];
+            if (step.Value is not ({ } value and >= 1 and <= 5))
+            {
+                fail($"{path}/scale/{i}/value", "Must be a whole number from 1 to 5.");
+            }
+            else if (!values.Add(value))
+            {
+                fail($"{path}/scale/{i}/value", $"The rating {value} has a step already.");
+            }
+
+            CheckRequired(step.Label, $"{path}/scale/{i}/label", fail);
+        }
+
+        var skills = resume.Skills.SelectMany(skill => skill.Keywords).ToHashSet(StringComparer.Ordinal);
+        var workIds = resume.Work.Select(Identifiers.Of).ToHashSet(StringComparer.Ordinal);
+        var projectIds = resume.Projects.Select(Identifiers.Of).ToHashSet(StringComparer.Ordinal);
+        for (var i = 0; i < assessment.ConfirmedAssociations.Count; i++)
+        {
+            var association = assessment.ConfirmedAssociations[i];
+            var item = $"{path}/confirmedAssociations/{i}";
+            if (string.IsNullOrWhiteSpace(association.Skill))
+            {
+                fail($"{item}/skill", "Is required.");
+            }
+            else if (!skills.Contains(association.Skill))
+            {
+                fail($"{item}/skill", $"No skills entry lists '{association.Skill}'.");
+            }
+
+            switch (association.Work, association.Project)
+            {
+                case (null, null):
+                case ({ }, { }):
+                    fail(item, "Needs either work (a position's identifier) or project (a project's identifier).");
+                    break;
+                case ({ } work, null) when !workIds.Contains(work):
+                    fail($"{item}/work", $"No position has the identifier '{work}'.");
+                    break;
+                case (null, { } project) when !projectIds.Contains(project):
+                    fail($"{item}/project", $"No project has the identifier '{project}'.");
+                    break;
+            }
+        }
+    }
+
     // Two terms whose spellings fold to one key would be one technology twice, with two alias lists; an alias that is
     // another term, or another term's alias too, would count as one technology in the filter (the first term takes
     // it) but match both in the job ad matcher.
@@ -415,6 +507,16 @@ public static partial class ResumeValidator
         if (url is { Length: > 0 } && !(Uri.TryCreate(url, UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp) && uri.UserInfo.Length == 0))
         {
             fail(path, "Must be an absolute http or https address without credentials.");
+        }
+    }
+
+    // For a preserved field PreservedResumeValidator already refuses a relative address and the URL guard credentials;
+    // what is left is the scheme, as the page links to the address.
+    private static void CheckLinkScheme(string? url, string path, Action<string, string> fail)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp)
+        {
+            fail(path, "Must be an http or https address; the page links to it.");
         }
     }
 }

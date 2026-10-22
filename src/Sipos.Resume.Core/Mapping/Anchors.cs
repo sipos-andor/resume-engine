@@ -4,7 +4,8 @@ namespace Sipos.Resume.Core.Mapping;
 
 /// <summary>
 /// The element ids a CV's page uses for itself, which an item's identifier must not take: the sections, the generated
-/// anchors of skill groups, studies, certificates and awards, and the prefixes and suffixes themes keep for their own.
+/// anchors of skill groups, studies, certificates, awards, publications and volunteer work, and the prefixes and
+/// suffixes themes keep for their own.
 /// </summary>
 /// <remarks>
 /// Decision: one reserved set in the core, checked against every identifier of the content.
@@ -18,7 +19,7 @@ public static partial class Anchors
     public static IReadOnlySet<string> Sections { get; } = new HashSet<string>(StringComparer.Ordinal)
     {
         "main", "top", "tools", "profile", "strengths", "experience", "projects", "skills", "education", "certificates",
-        "awards", "languages", "downloads", "timeline", "contact",
+        "awards", "publications", "volunteer", "languages", "downloads", "timeline", "contact",
     };
 
     /// <summary>Whether an identifier is one the page uses for itself.</summary>
@@ -29,6 +30,6 @@ public static partial class Anchors
         return Sections.Contains(id) || Generated().IsMatch(id) || id.StartsWith("cv-", StringComparison.Ordinal) || id.EndsWith("-title", StringComparison.Ordinal);
     }
 
-    [GeneratedRegex("^(skills|education|certificate|award)-[0-9]+$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex("^(skills|education|certificate|award|publication|volunteer)-[0-9]+$", RegexOptions.CultureInvariant)]
     private static partial Regex Generated();
 }

@@ -15,7 +15,10 @@ public sealed record SearchEntry(string Id, string Title);
 /// <param name="Tokens">For each folded token, the indexes of the entries that contain it, ascending.</param>
 public sealed record SearchIndex(IReadOnlyList<SearchEntry> Entries, IReadOnlyDictionary<string, IReadOnlyList<int>> Tokens)
 {
-    /// <summary>Builds the index of a CV: strengths, positions, projects, skill groups, studies, certificates and awards.</summary>
+    /// <summary>
+    /// Builds the index of a CV: strengths, positions, projects, skill groups, studies, certificates, awards,
+    /// publications and volunteer work.
+    /// </summary>
     /// <param name="document">The CV.</param>
     public static SearchIndex Build(ResumeDocument document)
     {
@@ -42,7 +45,7 @@ public sealed record SearchIndex(IReadOnlyList<SearchEntry> Entries, IReadOnlyDi
         for (var i = 0; i < document.Education.Count; i++)
         {
             var study = document.Education[i];
-            items.Add((new SearchEntry($"education-{i + 1}", study.Institution), $"{study.Institution} {study.Area} {study.StudyType}"));
+            items.Add((new SearchEntry($"education-{i + 1}", study.Institution), string.Join(' ', [study.Institution, study.Area, study.StudyType, .. study.Courses])));
         }
 
         for (var i = 0; i < document.Certificates.Count; i++)
@@ -53,6 +56,18 @@ public sealed record SearchIndex(IReadOnlyList<SearchEntry> Entries, IReadOnlyDi
         for (var i = 0; i < document.Awards.Count; i++)
         {
             items.Add((new SearchEntry($"award-{i + 1}", document.Awards[i].Title), $"{document.Awards[i].Title} {document.Awards[i].Awarder} {document.Awards[i].Summary}"));
+        }
+
+        for (var i = 0; i < document.Publications.Count; i++)
+        {
+            var publication = document.Publications[i];
+            items.Add((new SearchEntry($"publication-{i + 1}", publication.Name), $"{publication.Name} {publication.Publisher} {publication.Summary}"));
+        }
+
+        for (var i = 0; i < document.Volunteering.Count; i++)
+        {
+            var work = document.Volunteering[i];
+            items.Add((new SearchEntry($"volunteer-{i + 1}", work.Title), string.Join(' ', [work.Position, work.Organization, work.Summary, .. work.Highlights])));
         }
 
         var tokens = new SortedDictionary<string, SortedSet<int>>(StringComparer.Ordinal);

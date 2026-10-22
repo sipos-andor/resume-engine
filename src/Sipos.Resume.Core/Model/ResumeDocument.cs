@@ -11,8 +11,11 @@ namespace Sipos.Resume.Core.Model;
 /// <param name="Education">The studies.</param>
 /// <param name="Certificates">The certificates.</param>
 /// <param name="Awards">The awards.</param>
+/// <param name="Publications">The publications.</param>
+/// <param name="Volunteering">The volunteer work.</param>
 /// <param name="Languages">The spoken languages.</param>
 /// <param name="SkillGroups">The skills by group, in the CV's order.</param>
+/// <param name="SkillScale">The skills' legend, or <see langword="null"/> when the CV explains no scale.</param>
 /// <param name="FocusProfiles">The position profiles a reader can focus the CV on.</param>
 /// <param name="Aliases">Other spellings of skills and keywords, by their CV spelling.</param>
 /// <param name="LastModified">When the content last changed, or <see langword="null"/> when the file does not say.</param>
@@ -25,12 +28,18 @@ public sealed record ResumeDocument(
     IReadOnlyList<Study> Education,
     IReadOnlyList<Certificate> Certificates,
     IReadOnlyList<Award> Awards,
+    IReadOnlyList<Publication> Publications,
+    IReadOnlyList<Volunteering> Volunteering,
     IReadOnlyList<SpokenLanguage> Languages,
     IReadOnlyList<SkillGroup> SkillGroups,
+    SkillScale? SkillScale,
     IReadOnlyList<FocusProfile> FocusProfiles,
     IReadOnlyDictionary<string, IReadOnlyList<string>> Aliases,
     DateOnly? LastModified)
 {
     /// <summary>Every project, those of the positions first, in the CV's order.</summary>
     public IEnumerable<Engagement> AllEngagements => Positions.SelectMany(position => position.Engagements).Concat(Projects);
+
+    /// <summary>Every skill, group by group, in the CV's order.</summary>
+    public IEnumerable<Skill> AllSkills => SkillGroups.SelectMany(group => group.Skills);
 }

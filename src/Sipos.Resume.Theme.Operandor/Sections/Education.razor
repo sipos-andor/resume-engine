@@ -1,6 +1,7 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
-@* Studies and, under one heading as in the documents, certificates and courses; ids match the engine's search index. *@
+@* Studies, each with its grade and courses when the CV names them, and, under one heading as in the documents,
+   certificates and training; ids match the engine's search index. *@
 @if (View.Document.Education.Count > 0 || View.Document.Certificates.Count > 0)
 {
     <CvSection Id="education" Title="@View.Labels.Education">
@@ -12,13 +13,17 @@
                     var study = View.Document.Education[index];
                     <li class="cv-list__item" id="education-@(index + 1)" data-cv-id="education-@(index + 1)">
                         <span class="cv-list__title">@if (study.Url is { } url) { <a href="@url">@study.Institution</a> } else { @study.Institution }</span>
-                        @if (study.StudyType is not null || study.Area is not null)
+                        @if (study.StudyType is not null || study.Area is not null || study.Score is not null)
                         {
-                            <span class="cv-list__detail">@string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>())</span>
+                            <span class="cv-list__detail">@Detail(study)</span>
                         }
                         @if (study.Period is { } period)
                         {
                             <span class="cv-list__date">@View.Period(period)</span>
+                        }
+                        @if (study.Courses.Count > 0)
+                        {
+                            <span class="cv-list__summary">@View.Labels.Courses: @string.Join(", ", study.Courses)</span>
                         }
                     </li>
                 }
@@ -50,4 +55,12 @@
 
 @code {
     [CascadingParameter] internal ResumeView View { get; set; } = default!;
+
+    // The degree and field, then the grade: "BSc, Informatics · Grade: 8.11/10".
+    private string Detail(Study study)
+    {
+        var degree = string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>());
+        var grade = study.Score is { } score ? $"{View.Labels.Grade}: {score}" : null;
+        return string.Join(" · ", new[] { degree, grade }.Where(part => !string.IsNullOrEmpty(part)));
+    }
 }

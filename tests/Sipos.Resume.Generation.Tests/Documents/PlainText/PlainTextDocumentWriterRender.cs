@@ -62,4 +62,21 @@ public class PlainTextDocumentWriterRender
         new PlainTextDocumentWriter().Supports(DocumentVariant.Ats).ShouldBeTrue();
         new PlainTextDocumentWriter().Supports(DocumentVariant.Designed).ShouldBeFalse();
     }
+
+    [Fact]
+    public void WritesScaleNoteBeforeSkillGroupsGivenAssessment() =>
+        PlainTextDocumentWriter.Render(Contexts.For(SampleDocuments.Usage(), DownloadFormat.PlainText, DocumentVariant.Ats))
+            .ShouldContain("Scores describe usage, not proficiency.\n.NET platform: C# (Usage: core and recurring)");
+
+    [Fact]
+    public void WritesPublicationsVolunteeringAndStudyDetailsGivenSample()
+    {
+        var text = English();
+
+        text.ShouldContain("\nPUBLICATIONS\nPractical .NET | Example Press | ");
+        text.ShouldContain(": Wrote two chapters.\n");
+        text.ShouldContain("\nVOLUNTEER EXPERIENCE\nVolunteer | Food Bank | ");
+        text.ShouldContain(": Sorted donations.\n");
+        text.ShouldContain(" | Grade: 4.5/5 · Courses: Databases, Networks\n");
+    }
 }

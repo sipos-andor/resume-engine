@@ -3,11 +3,32 @@
 
 @* The skills by group, each with its level and, opened, the evidence behind it: the positions and projects that used
    it and when. Group ids match the engine's search index (skills-1, skills-2, …). A group is a <div>, not a
-   <section>: only the CV's own sections are landmarks, so a group named "Languages" does not repeat one. *@
+   <section>: only the CV's own sections are landmarks, so a group named "Languages" does not repeat one.
+   The CV's scale, when it explains one, comes first and stays out of the groups a focus reorders: its steps as text
+   next to their meters, since the meters alone say nothing about what is measured. Levels written in more than a word
+   get a wider column. *@
 @if (View.Document.SkillGroups.Count > 0)
 {
     <CvSection Id="skills" Title="@View.Labels.Skills">
-        <div class="cv-skill-groups" data-cv-order="skill-groups">
+        @if (View.Document.SkillScale is { } scale)
+        {
+            <div class="cv-scale">
+                @if (scale.Steps.Count > 0)
+                {
+                    <ul class="cv-scale__steps">
+                        @foreach (var step in scale.Steps)
+                        {
+                            <li class="cv-scale__step"><SkillMeter Rating="step.Rating" /><span>@step.Label</span></li>
+                        }
+                    </ul>
+                }
+                @if (scale.Note is { } note)
+                {
+                    <p class="cv-scale__note">@note</p>
+                }
+            </div>
+        }
+        <div class="@(View.HasLongLevels ? "cv-skill-groups cv-skill-groups--long-levels" : "cv-skill-groups")" data-cv-order="skill-groups">
             @for (var index = 0; index < View.Document.SkillGroups.Count; index++)
             {
                 var group = View.Document.SkillGroups[index];
