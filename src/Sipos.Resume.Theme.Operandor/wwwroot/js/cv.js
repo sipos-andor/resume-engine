@@ -1,7 +1,9 @@
 // The page's interactive features. The build derives everything (search index, technologies, position profiles, job ad
 // vocabulary) and writes it into the #cv-data block; this script only applies it. Without the script the whole CV
 // shows and the tools stay hidden.
-import { find, key, match } from "./text.js";
+// The page loads this module with the build's asset version (?v=); text.js comes with the same query, so a deploy
+// that changed it reaches the browser at once instead of after the cached copy expires.
+const { find, key, match } = await import(`./text.js${new URL(import.meta.url).search}`);
 
 const data = JSON.parse(document.getElementById("cv-data")?.textContent ?? "null");
 const words = data?.text ?? {};

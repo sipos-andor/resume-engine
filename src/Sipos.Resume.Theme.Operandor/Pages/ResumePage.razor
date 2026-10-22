@@ -5,7 +5,7 @@
 @* A CV page in one language: the hero, the reader's tools and the sections, in the design system's header and footer.
    Every item carries data-cv-* attributes and the page one JSON data block, which the script applies; without the
    script the whole CV reads the same. *@
-<CvDocument Lang="@Page.Document.Language.Tag" Settings="@Page.Settings">
+<CvDocument Lang="@Page.Document.Language.Tag" Settings="@Page.Settings" AssetVersion="@Page.AssetVersion">
     <Head>
         <link rel="alternate" type="text/markdown" href="@ResumeView.Href(Page.MarkdownPath)" title="Markdown" />
         <link rel="alternate" type="application/json" href="@ResumeView.Href(Page.JsonResumePath)" title="JSON Resume" />

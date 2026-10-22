@@ -353,7 +353,24 @@ public class ResumePageRender
 
         document.QuerySelector("meta[name=robots]")!.GetAttribute("content").ShouldBe("noindex, follow");
         document.QuerySelectorAll(".op-notfound__languages a").Select(link => (link.GetAttribute("href"), link.GetAttribute("hreflang"))).ShouldBe([("/", "en"), ("/hu/", "hu")]);
-        document.Scripts.ShouldNotContain(script => script.Source != null && script.Source.EndsWith("cv.js", StringComparison.Ordinal));
+        document.Scripts.ShouldNotContain(script => script.Source != null && script.Source.Contains("/js/cv.js", StringComparison.Ordinal));
+    }
+
+    // Every file the page loads carries the build's asset version, so a deploy that changed one reaches a returning
+    // reader at once; without a version the addresses stay plain.
+    [Fact]
+    public async Task VersionsLoadedFilesGivenAssetVersion()
+    {
+        var pages = ThemePages.Sample().Select(page => page with { AssetVersion = "0123456789ab" }).ToList();
+
+        var versioned = await ThemePages.RenderAsync(pages, 0);
+        var plain = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var addresses = versioned.QuerySelectorAll("link[rel=stylesheet], link[rel=icon], script[src]")
+            .Select(element => element.GetAttribute("href") ?? element.GetAttribute("src")!).ToList();
+        addresses.Count.ShouldBeGreaterThanOrEqualTo(6);
+        addresses.ShouldAllBe(address => address.StartsWith('/') && address.EndsWith("?v=0123456789ab", StringComparison.Ordinal));
+        plain.QuerySelector("link[rel=stylesheet][href$='cv.css']")!.GetAttribute("href").ShouldBe("/_content/Sipos.Resume.Theme.Operandor/css/cv.css");
     }
 
     // The stylesheet lets the not-found page's one band fill its main area, so no strip of the page's background shows
