@@ -355,4 +355,15 @@ public class ResumePageRender
         document.QuerySelectorAll(".op-notfound__languages a").Select(link => (link.GetAttribute("href"), link.GetAttribute("hreflang"))).ShouldBe([("/", "en"), ("/hu/", "hu")]);
         document.Scripts.ShouldNotContain(script => script.Source != null && script.Source.EndsWith("cv.js", StringComparison.Ordinal));
     }
+
+    // The stylesheet lets the not-found page's one band fill its main area, so no strip of the page's background shows
+    // above the footer on a tall window.
+    [Fact]
+    public async Task MarksMainForFillingBandGivenNotFoundPage()
+    {
+        var document = await ThemePages.RenderNotFoundAsync(ThemePages.Sample());
+
+        var main = document.QuerySelector("main.cv-main--notfound")!;
+        main.Children.ShouldHaveSingleItem().ClassList.ShouldContain("op-band");
+    }
 }

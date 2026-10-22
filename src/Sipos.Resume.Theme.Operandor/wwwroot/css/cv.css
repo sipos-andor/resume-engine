@@ -59,9 +59,11 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-tools__status{margin:10px 0 0;min-height:1.4em;font-size:var(--fs-caption);color:var(--text-muted)}
 .cv-search-results{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px}
 .cv-search-results[hidden]{display:none}
-.cv-search-results a{font-size:var(--fs-body-sm);padding:4px 10px;border:1px solid var(--border-default);border-radius:var(--radius-full);background:var(--surface-card)}
+/* A long title wraps on a phone, which a pill's round ends would squeeze. */
+.cv-search-results a{font-size:var(--fs-body-sm);padding:4px 10px;border:1px solid var(--border-default);border-radius:var(--radius-4);background:var(--surface-card)}
 .cv-match{margin-top:8px;border-top:1px solid var(--border-subtle);padding-top:12px}
-.cv-match__summary{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-weight:var(--fw-medium);color:var(--text-heading)}
+.cv-match__summary{display:inline-flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:var(--fw-medium);color:var(--text-heading)}
+.cv-match__summary .op-icon{margin-top:calc((1lh - 18px) / 2)}
 .cv-match__body{display:grid;gap:10px;margin-top:12px}
 .cv-match__body .op-btn{justify-self:start}
 .cv-match__result{font-size:var(--fs-body-sm)}
@@ -198,7 +200,10 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
   .cv-timeline__label{display:none}
 }
 
-/* Not-found page: operandor.io's own rules, which live in its site stylesheet, not in the design system's */
+/* Not-found page: operandor.io's own rules, which live in its site stylesheet, not in the design system's. Its one band
+   fills the main area, which grows to the window's height, so no strip of the page's background shows above the footer. */
+.cv-main--notfound{display:flex;flex-direction:column}
+.cv-main--notfound > .op-band{flex:1}
 .op-notfound{display:flex;flex-direction:column;align-items:center;text-align:center}
 .op-notfound__drawing{width:min(100%,560px);height:auto}
 .op-notfound__number{font-family:var(--font-mono);font-weight:500;font-size:clamp(4.5rem,3rem + 6vw,8rem);line-height:1;letter-spacing:-0.04em;color:var(--text-heading);margin:28px 0 0}
