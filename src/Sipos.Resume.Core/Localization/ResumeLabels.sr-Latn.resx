@@ -13,6 +13,8 @@
   <data name="Education" xml:space="preserve"><value>Obrazovanje, sertifikati i obuke</value></data>
   <data name="Certificates" xml:space="preserve"><value>Sertifikati i obuke</value></data>
   <data name="Awards" xml:space="preserve"><value>Nagrade i takmičenja</value></data>
+  <data name="Publications" xml:space="preserve"><value>Publikacije</value></data>
+  <data name="Volunteering" xml:space="preserve"><value>Volontiranje</value></data>
   <data name="Languages" xml:space="preserve"><value>Jezici</value></data>
   <data name="Timeline" xml:space="preserve"><value>Vremenska linija</value></data>
   <data name="Contact" xml:space="preserve"><value>Kontakt</value></data>
@@ -24,6 +26,8 @@
   <data name="AtsEducation" xml:space="preserve"><value>Obrazovanje</value></data>
   <data name="AtsCertifications" xml:space="preserve"><value>Sertifikati</value></data>
   <data name="AtsAwards" xml:space="preserve"><value>Nagrade</value></data>
+  <data name="AtsPublications" xml:space="preserve"><value>Publikacije</value></data>
+  <data name="AtsVolunteering" xml:space="preserve"><value>Volonterski rad</value></data>
   <data name="AtsLanguages" xml:space="preserve"><value>Jezici</value></data>
   <data name="Rating5" xml:space="preserve"><value>Ekspert</value></data>
   <data name="Rating4" xml:space="preserve"><value>Napredno</value></data>
@@ -35,6 +39,8 @@
   <data name="Client" xml:space="preserve"><value>Klijent</value></data>
   <data name="Role" xml:space="preserve"><value>Uloga</value></data>
   <data name="Technologies" xml:space="preserve"><value>Tehnologije</value></data>
+  <data name="Grade" xml:space="preserve"><value>Ocena</value></data>
+  <data name="Courses" xml:space="preserve"><value>Predmeti</value></data>
   <data name="Phone" xml:space="preserve"><value>Telefon</value></data>
   <data name="Web" xml:space="preserve"><value>Onlajn biografija</value></data>
   <data name="Location" xml:space="preserve"><value>Lokacija</value></data>

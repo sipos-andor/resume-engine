@@ -1,0 +1,44 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* The volunteer work, which the one-page view leaves out: named by the position, or by the organization when the CV
+   gives none, which then links to the organization's site. Ids match the engine's search index. *@
+@if (View.Document.Volunteering.Count > 0)
+{
+    <CvSection Id="volunteer" Title="@View.Labels.Volunteering" Short="false">
+        <ul class="cv-list">
+            @for (var index = 0; index < View.Document.Volunteering.Count; index++)
+            {
+                var work = View.Document.Volunteering[index];
+                var organizationIsTitle = work.Position is null;
+                <li class="cv-list__item" id="volunteer-@(index + 1)" data-cv-id="volunteer-@(index + 1)">
+                    <span class="cv-list__title">@if (organizationIsTitle && work.Url is { } titleUrl) { <a href="@titleUrl">@work.Title</a> } else { @work.Title }</span>
+                    @if (!organizationIsTitle && work.Organization is { } organization)
+                    {
+                        <span class="cv-list__detail">@if (work.Url is { } organizationUrl) { <a href="@organizationUrl">@organization</a> } else { @organization }</span>
+                    }
+                    @if (work.Period is { } period)
+                    {
+                        <span class="cv-list__date">@View.Period(period)</span>
+                    }
+                    @if (work.Summary is { } summary)
+                    {
+                        <span class="cv-list__summary">@summary</span>
+                    }
+                    @if (work.Highlights.Count > 0)
+                    {
+                        <ul class="cv-list__points">
+                            @foreach (var highlight in work.Highlights)
+                            {
+                                <li>@highlight</li>
+                            }
+                        </ul>
+                    }
+                </li>
+            }
+        </ul>
+    </CvSection>
+}
+
+@code {
+    [CascadingParameter] internal ResumeView View { get; set; } = default!;
+}

@@ -367,4 +367,83 @@ public class ResumeValidatorValidate
 
         PathsOf(resume with { Work = work, Projects = projects }).ShouldBeEmpty();
     }
+
+    [Fact]
+    public void FindsNothingGivenUsageSample() => PathsOf(Samples.Read(Samples.Usage)).ShouldBeEmpty();
+
+    [Fact]
+    public void RefusesRatingKindGivenUnknownKind()
+    {
+        var resume = Samples.Read(Samples.English);
+        var skills = resume.Skills.ToList();
+        skills[1] = skills[1] with { RatingKind = "frequency" };
+
+        PathsOf(resume with { Skills = skills }).ShouldBe(["/skills/1/x-ratingKind"]);
+    }
+
+    // The scale is the skills' legend: one step per rating from 1 to 5, each in words.
+    [Fact]
+    public void RefusesScaleStepGivenRatingOutOfRangeTwiceOrWithoutWords()
+    {
+        var resume = Samples.Read(Samples.Usage);
+        var assessment = resume.SkillsAssessment! with
+        {
+            Scale = [new() { Value = 6, Label = "Six" }, new() { Value = 3, Label = "Three" }, new() { Value = 3, Label = "Again" }, new() { Value = 2, Label = " " }],
+        };
+
+        PathsOf(resume with { SkillsAssessment = assessment }).ShouldBe(["/x-skillsAssessment/scale/0/value", "/x-skillsAssessment/scale/2/value", "/x-skillsAssessment/scale/3/label"]);
+    }
+
+    // A confirmed use names a skill the CV lists and one position or project it has, so a typo records no use.
+    [Fact]
+    public void RefusesAssociationGivenUnknownSkillOrItemOrBothItems()
+    {
+        var resume = Samples.Read(Samples.Usage);
+        var assessment = resume.SkillsAssessment! with
+        {
+            ConfirmedAssociations =
+            [
+                new() { Skill = "Cobol", Work = "acme" },
+                new() { Skill = "Azure", Work = "globex" },
+                new() { Skill = "Azure", Project = "nowhere" },
+                new() { Skill = "Azure", Work = "acme", Project = "portal" },
+                new() { Skill = "Azure", Project = "portal" },
+            ],
+        };
+
+        PathsOf(resume with { SkillsAssessment = assessment }).ShouldBe(
+        [
+            "/x-skillsAssessment/confirmedAssociations/0/skill",
+            "/x-skillsAssessment/confirmedAssociations/1/work",
+            "/x-skillsAssessment/confirmedAssociations/2/project",
+            "/x-skillsAssessment/confirmedAssociations/3",
+        ]);
+    }
+
+    // The page names volunteer work by its position or, failing that, its organization.
+    [Fact]
+    public void RefusesVolunteerWorkGivenNeitherPositionNorOrganization()
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Volunteer = [resume.Volunteer[0] with { Position = null, Organization = " " }] }).ShouldBe(["/volunteer/0/position"]);
+    }
+
+    [Fact]
+    public void RefusesVolunteerWorkGivenEndBeforeStart()
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Volunteer = [resume.Volunteer[0] with { StartDate = "2014", EndDate = "2013-06" }] }).ShouldBe(["/volunteer/0/endDate"]);
+    }
+
+    // The page links a publication's title to its address, so the address must be a web page.
+    [Fact]
+    public void RefusesPublicationGivenNoNameOrNoWebAddress()
+    {
+        var resume = Samples.Read(Samples.English);
+
+        PathsOf(resume with { Publications = [resume.Publications[0] with { Name = null, Url = "javascript:alert(1)" }] })
+            .ShouldBe(["/publications/0/name", "/publications/0/url"]);
+    }
 }

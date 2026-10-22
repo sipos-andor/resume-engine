@@ -86,6 +86,11 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
 
                     break;
                 case DocumentSection.Skills:
+                    if (context.Document.SkillScale?.Note is { } note)
+                    {
+                        text.AppendLine(MarkdownText.EscapeBlock(note)).AppendLine();
+                    }
+
                     foreach (var group in outline.SkillGroups)
                     {
                         text.Append("### ").AppendLine(MarkdownText.Escape(group.Name)).AppendLine();
@@ -111,6 +116,31 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
                         text.Append("- **").Append(MarkdownText.Escape(award.Title)).Append("**");
                         text.Append(string.Concat(new[] { award.Awarder, award.Date is { } date ? outline.Date(date) : null }.OfType<string>().Select(part => ", " + MarkdownText.Escape(part))));
                         text.AppendLine(award.Summary is null ? "" : " – " + MarkdownText.Escape(award.Summary));
+                    }
+
+                    text.AppendLine();
+                    break;
+                case DocumentSection.Publications:
+                    foreach (var publication in context.Document.Publications)
+                    {
+                        var name = MarkdownText.Escape(publication.Name);
+                        text.Append("- **").Append(publication.Url is null ? name : $"[{name}]({MarkdownText.Destination(publication.Url)})").Append("**");
+                        text.Append(string.Concat(new[] { publication.Publisher, publication.Released is { } date ? outline.Date(date) : null }.OfType<string>().Select(part => ", " + MarkdownText.Escape(part))));
+                        text.AppendLine(publication.Summary is null ? "" : " – " + MarkdownText.Escape(publication.Summary));
+                    }
+
+                    text.AppendLine();
+                    break;
+                case DocumentSection.Volunteering:
+                    foreach (var work in context.Document.Volunteering)
+                    {
+                        text.Append("- **").Append(MarkdownText.Escape(work.Title)).Append("**");
+                        text.Append(string.Concat(new[] { work.Position is null ? null : work.Organization, work.Period is { } period ? outline.Period(period) : null }.OfType<string>().Select(part => ", " + MarkdownText.Escape(part))));
+                        text.AppendLine(work.Summary is null ? "" : " – " + MarkdownText.Escape(work.Summary));
+                        foreach (var highlight in work.Highlights)
+                        {
+                            text.Append("  - ").AppendLine(MarkdownText.EscapeBlock(highlight));
+                        }
                     }
 
                     text.AppendLine();
@@ -221,7 +251,8 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
             var parts = new[] { study.StudyType, study.Area }.OfType<string>().ToList();
             text.Append("- **").Append(MarkdownText.Escape(study.Institution)).Append("**");
             text.Append(parts.Count > 0 ? ", " + MarkdownText.Escape(string.Join(", ", parts)) : "");
-            text.AppendLine(study.Period is { } period ? " (" + MarkdownText.Escape(outline.Period(period)) + ")" : "");
+            text.Append(study.Period is { } period ? " (" + MarkdownText.Escape(outline.Period(period)) + ")" : "");
+            text.AppendLine(outline.StudyDetails(study) is { } details ? " – " + MarkdownText.Escape(details) : "");
         }
 
         text.AppendLine();

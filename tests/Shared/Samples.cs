@@ -30,9 +30,11 @@ internal static class Samples
             { "x-id": "portal", "x-work": "acme", "name": "Portal", "entity": "Globex", "roles": ["Lead"], "startDate": "2023-03", "endDate": "2023-05", "keywords": ["C#", "Azure"], "highlights": ["Built"] },
             { "x-id": "hobby", "name": "Hobby", "keywords": ["Rust"] }
           ],
-          "education": [ { "institution": "Polytechnic", "area": "Informatics", "studyType": "BSc", "endDate": "2012" } ],
+          "education": [ { "institution": "Polytechnic", "area": "Informatics", "studyType": "BSc", "endDate": "2012", "score": "4.5/5", "courses": ["Databases", "Networks"] } ],
           "certificates": [ { "name": "Programming in C#", "date": "2014" } ],
           "awards": [ { "title": "Hackathon, 2nd place", "date": "2016" } ],
+          "publications": [ { "name": "Practical .NET", "publisher": "Example Press", "releaseDate": "2019-05-01", "summary": "Wrote two chapters." } ],
+          "volunteer": [ { "organization": "Food Bank", "position": "Volunteer", "startDate": "2013-06", "endDate": "2013-06", "summary": "Sorted donations." } ],
           "skills": [
             { "name": ".NET platform", "level": "Expert", "x-rating": 5, "keywords": ["C#", "LINQ"] },
             { "name": ".NET platform", "level": "Proficient", "x-rating": 3, "keywords": ["Blazor"] },
@@ -51,6 +53,22 @@ internal static class Samples
         .Replace("Software Architect", "Szoftverarchitekt", StringComparison.Ordinal)
         .Replace("Remote from Europe", "Távmunkában, Európából", StringComparison.Ordinal)
         .Replace("\"x-ogLocale\": \"en_GB\"", "\"x-endonym\": \"Magyar\"", StringComparison.Ordinal);
+
+    /// <summary>The English CV rated by usage, with levels in several words and the scale that explains them.</summary>
+    public static readonly string Usage = English
+        .Replace("\"level\": \"Expert\", \"x-rating\": 5,", "\"level\": \"Usage: core and recurring\", \"x-rating\": 5, \"x-ratingKind\": \"usage\",", StringComparison.Ordinal)
+        .Replace("\"level\": \"Proficient\", \"x-rating\": 3,", "\"level\": \"Usage: project-specific\", \"x-rating\": 3, \"x-ratingKind\": \"usage\",", StringComparison.Ordinal)
+        .Replace("\"level\": \"Advanced\", \"x-rating\": 4,", "\"level\": \"Usage: recurring\", \"x-rating\": 4, \"x-ratingKind\": \"usage\",", StringComparison.Ordinal)
+        .Replace("\"x-aliases\":", """
+            "x-skillsAssessment": {
+              "basis": "documented-usage",
+              "assessedOn": "2026-10-07",
+              "note": "Scores describe usage, not proficiency.",
+              "scale": [ { "value": 3, "label": "Usage: project-specific" }, { "value": 5, "label": "Usage: core and recurring" } ],
+              "confirmedAssociations": [ { "skill": "Blazor", "work": "acme" } ]
+            },
+            "x-aliases":
+            """, StringComparison.Ordinal);
 
     /// <summary>The English CV with Hungarian and Croatian letters in the name and the location: í ő ű č ć š ž đ.</summary>
     public static readonly string Accented = English

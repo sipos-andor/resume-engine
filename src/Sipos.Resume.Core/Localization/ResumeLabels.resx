@@ -13,6 +13,8 @@
   <data name="Education" xml:space="preserve"><value>Education, certification and training</value></data>
   <data name="Certificates" xml:space="preserve"><value>Certificates and training</value></data>
   <data name="Awards" xml:space="preserve"><value>Awards and competitions</value></data>
+  <data name="Publications" xml:space="preserve"><value>Publications</value></data>
+  <data name="Volunteering" xml:space="preserve"><value>Volunteering</value></data>
   <data name="Languages" xml:space="preserve"><value>Languages</value></data>
   <data name="Timeline" xml:space="preserve"><value>Timeline</value></data>
   <data name="Contact" xml:space="preserve"><value>Contact</value></data>
@@ -24,6 +26,8 @@
   <data name="AtsEducation" xml:space="preserve"><value>Education</value></data>
   <data name="AtsCertifications" xml:space="preserve"><value>Certifications</value></data>
   <data name="AtsAwards" xml:space="preserve"><value>Awards</value></data>
+  <data name="AtsPublications" xml:space="preserve"><value>Publications</value></data>
+  <data name="AtsVolunteering" xml:space="preserve"><value>Volunteer Experience</value></data>
   <data name="AtsLanguages" xml:space="preserve"><value>Languages</value></data>
   <data name="Rating5" xml:space="preserve"><value>Expert</value></data>
   <data name="Rating4" xml:space="preserve"><value>Advanced</value></data>
@@ -35,6 +39,8 @@
   <data name="Client" xml:space="preserve"><value>Client</value></data>
   <data name="Role" xml:space="preserve"><value>Role</value></data>
   <data name="Technologies" xml:space="preserve"><value>Technologies</value></data>
+  <data name="Grade" xml:space="preserve"><value>Grade</value></data>
+  <data name="Courses" xml:space="preserve"><value>Courses</value></data>
   <data name="Phone" xml:space="preserve"><value>Phone</value></data>
   <data name="Web" xml:space="preserve"><value>Online CV</value></data>
   <data name="Location" xml:space="preserve"><value>Location</value></data>

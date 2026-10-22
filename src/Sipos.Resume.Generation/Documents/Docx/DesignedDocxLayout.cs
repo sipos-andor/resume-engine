@@ -95,6 +95,35 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
             case DocumentSection.Awards:
                 WriteAwards();
                 break;
+            case DocumentSection.Publications:
+                foreach (var publication in document.Publications)
+                {
+                    Docx.Add(
+                        StyleIds.ListBullet,
+                        Text(publication.Name),
+                        publication.Publisher is { } publisher ? Text($"{Dash}{publisher}", StyleIds.Muted) : null,
+                        publication.Released is null ? null : Tab(),
+                        publication.Released is { } date ? Text(Outline.Date(date), StyleIds.Date) : null,
+                        publication.Summary is null ? null : Break(),
+                        publication.Summary is { } summary ? Text(summary, StyleIds.Muted) : null);
+                }
+
+                break;
+            case DocumentSection.Volunteering:
+                foreach (var work in document.Volunteering)
+                {
+                    Docx.Add(
+                        StyleIds.ListBullet,
+                        [
+                            Text(work.Title),
+                            work.Position is not null && work.Organization is { } organization ? Text($"{Dash}{organization}", StyleIds.Muted) : null,
+                            work.Period is null ? null : Tab(),
+                            work.Period is null ? null : Text(Period(work.Period), StyleIds.Date),
+                            .. new[] { work.Summary }.Concat(work.Highlights).OfType<string>().SelectMany(line => new[] { Break(), Text(line, StyleIds.Muted) }),
+                        ]);
+                }
+
+                break;
             case DocumentSection.Languages:
                 foreach (var language in document.Languages)
                 {
@@ -180,8 +209,9 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
     /// </remarks>
     private void WriteSkills()
     {
+        WriteScale();
         var half = look.TextWidth / 2;
-        var nameWidth = half * 3 / 5;
+        var nameWidth = Outline.HasLongLevels ? half * 2 / 5 : half * 3 / 5;
         int[] widths = [nameWidth, half - nameWidth, nameWidth, look.TextWidth - half - nameWidth];
         foreach (var group in Outline.SkillGroups)
         {
@@ -223,21 +253,48 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
         }
     }
 
+    // The legend, as in the designed PDF: each step's meter with its words on one line, then what the ratings mean.
+    private void WriteScale()
+    {
+        if (Context.Document.SkillScale is not { } scale)
+        {
+            return;
+        }
+
+        if (scale.Steps.Count > 0)
+        {
+            Docx.Add(StyleIds.ItemMeta, Joined(scale.Steps.Select(step => (OpenXmlElement[])[.. Stars(step.Rating), Text($" {step.Label}", StyleIds.Muted)]), () => Text(Separator, StyleIds.Muted)));
+        }
+
+        if (scale.Note is { } note)
+        {
+            Docx.Add(StyleIds.ItemMeta, Text(note, StyleIds.Muted));
+        }
+    }
+
     private OpenXmlElement[] Meter(Skill skill) => [.. MeterRuns(skill)];
+
+    private static IEnumerable<OpenXmlElement> Stars(int rating)
+    {
+        var filled = Math.Clamp(rating, 0, 5);
+        if (filled > 0)
+        {
+            yield return Text(new string('●', filled), StyleIds.MeterFilled);
+        }
+
+        if (filled < 5)
+        {
+            yield return Text(new string('○', 5 - filled), StyleIds.MeterEmpty);
+        }
+    }
 
     private IEnumerable<OpenXmlElement> MeterRuns(Skill skill)
     {
         if (skill.Rating is { } rating)
         {
-            var filled = Math.Clamp(rating, 0, 5);
-            if (filled > 0)
+            foreach (var run in Stars(rating))
             {
-                yield return Text(new string('●', filled), StyleIds.MeterFilled);
-            }
-
-            if (filled < 5)
-            {
-                yield return Text(new string('○', 5 - filled), StyleIds.MeterEmpty);
+                yield return run;
             }
         }
 
@@ -264,12 +321,15 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
         foreach (var study in Context.Document.Education)
         {
             var title = StudyTitle(study);
+            var details = Outline.StudyDetails(study);
             Docx.Add(
                 StyleIds.ListBullet,
                 Text(title, StyleIds.Strong),
                 title == study.Institution ? null : Text($"{Dash}{study.Institution}"),
                 study.Period is null ? null : Tab(),
-                study.Period is null ? null : Text(Period(study.Period), StyleIds.Date));
+                study.Period is null ? null : Text(Period(study.Period), StyleIds.Date),
+                details is null ? null : Break(),
+                details is null ? null : Text(details, StyleIds.Muted));
         }
     }
 

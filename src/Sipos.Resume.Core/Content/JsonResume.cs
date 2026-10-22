@@ -29,6 +29,9 @@ public sealed record JsonResume
     /// <summary>The positions held, in the order the CV shows them.</summary>
     public IReadOnlyList<JsonResumeWork> Work { get; set; } = [];
 
+    /// <summary>The volunteer work.</summary>
+    public IReadOnlyList<JsonResumeVolunteer> Volunteer { get; set; } = [];
+
     /// <summary>The studies.</summary>
     public IReadOnlyList<JsonResumeEducation> Education { get; set; } = [];
 
@@ -37,6 +40,9 @@ public sealed record JsonResume
 
     /// <summary>The certificates.</summary>
     public IReadOnlyList<JsonResumeCertificate> Certificates { get; set; } = [];
+
+    /// <summary>The publications.</summary>
+    public IReadOnlyList<JsonResumePublication> Publications { get; set; } = [];
 
     /// <summary>The skills; the engine reads one entry per group and level.</summary>
     public IReadOnlyList<JsonResumeSkill> Skills { get; set; } = [];
@@ -59,9 +65,12 @@ public sealed record JsonResume
     /// <summary>Extension: other spellings of a skill or keyword, such as <c>dotnet</c> for <c>.NET</c>, for matching a job ad.</summary>
     [JsonPropertyName("x-aliases")] public IReadOnlyDictionary<string, IReadOnlyList<string>> Aliases { get; set; } = new Dictionary<string, IReadOnlyList<string>>();
 
+    /// <summary>Extension: what the skills' ratings measure and how they were assessed, shown as the skills' legend.</summary>
+    [JsonPropertyName("x-skillsAssessment")] public JsonResumeSkillsAssessment? SkillsAssessment { get; init; }
+
     /// <summary>
-    /// The file as read, with every member, those this type leaves out included, such as <c>volunteer</c>,
-    /// <c>interests</c> or <c>education[].courses</c>; <see langword="null"/> for a document built in code.
+    /// The file as read, with every member, those this type leaves out included, such as <c>interests</c>,
+    /// <c>references</c> or <c>volunteer[].location</c>; <see langword="null"/> for a document built in code.
     /// </summary>
     [JsonIgnore] public JsonElement? Original { get; init; }
 }
@@ -239,6 +248,56 @@ public sealed record JsonResumeEducation
 
     /// <summary>The last date.</summary>
     public string? EndDate { get; init; }
+
+    /// <summary>The grade, as the CV writes it, such as <c>8.11/10</c>.</summary>
+    public string? Score { get; init; }
+
+    /// <summary>The courses or subjects worth naming.</summary>
+    public IReadOnlyList<string> Courses { get; set; } = [];
+}
+
+/// <summary>Volunteer work.</summary>
+public sealed record JsonResumeVolunteer
+{
+    /// <summary>The organization; empty for work done on one's own.</summary>
+    public string? Organization { get; init; }
+
+    /// <summary>The role held.</summary>
+    public string? Position { get; init; }
+
+    /// <summary>The organization's site.</summary>
+    public string? Url { get; init; }
+
+    /// <summary>The first date.</summary>
+    public string? StartDate { get; init; }
+
+    /// <summary>The last date.</summary>
+    public string? EndDate { get; init; }
+
+    /// <summary>What the work was.</summary>
+    public string? Summary { get; init; }
+
+    /// <summary>The achievements.</summary>
+    public IReadOnlyList<string> Highlights { get; set; } = [];
+}
+
+/// <summary>A publication.</summary>
+public sealed record JsonResumePublication
+{
+    /// <summary>The publication's title.</summary>
+    public string? Name { get; init; }
+
+    /// <summary>The publisher's name, the same in every language.</summary>
+    public string? Publisher { get; init; }
+
+    /// <summary>When it was published.</summary>
+    public string? ReleaseDate { get; init; }
+
+    /// <summary>Where it can be found.</summary>
+    public string? Url { get; init; }
+
+    /// <summary>What it is, or what the person's part in it was.</summary>
+    public string? Summary { get; init; }
 }
 
 /// <summary>An award.</summary>
@@ -287,6 +346,12 @@ public sealed record JsonResumeSkill
 
     /// <summary>Extension: the level as a number from 1 to 5, the same in every language.</summary>
     [JsonPropertyName("x-rating")] public int? Rating { get; init; }
+
+    /// <summary>
+    /// Extension: what the rating measures, the same in every language: <c>proficiency</c> (how well, the default) or
+    /// <c>usage</c> (how often the skill was used across the CV's work).
+    /// </summary>
+    [JsonPropertyName("x-ratingKind")] public string? RatingKind { get; init; }
 }
 
 /// <summary>A spoken language.</summary>
@@ -406,4 +471,49 @@ public sealed record JsonResumeFocusProfile
 
     /// <summary>The skills this focus puts first, by name.</summary>
     public IReadOnlyList<string> Skills { get; set; } = [];
+}
+
+/// <summary>Extension: how the skills' ratings were assessed.</summary>
+public sealed record JsonResumeSkillsAssessment
+{
+    /// <summary>What the assessment rests on, such as <c>documented-usage</c>, the same in every language.</summary>
+    public string? Basis { get; init; }
+
+    /// <summary>When the ratings were assessed.</summary>
+    public string? AssessedOn { get; init; }
+
+    /// <summary>What the ratings mean and do not mean, in the CV's language.</summary>
+    public string? Note { get; init; }
+
+    /// <summary>The steps of the scale, each rating with its words.</summary>
+    public IReadOnlyList<JsonResumeScaleStep> Scale { get; set; } = [];
+
+    /// <summary>The skills whose use the person confirmed in a position or project its keywords may not show.</summary>
+    public IReadOnlyList<JsonResumeSkillAssociation> ConfirmedAssociations { get; set; } = [];
+}
+
+/// <summary>Extension: a step of the skills' scale.</summary>
+public sealed record JsonResumeScaleStep
+{
+    /// <summary>The rating from 1 to 5, the same in every language.</summary>
+    public int? Value { get; init; }
+
+    /// <summary>The rating in words, in the CV's language.</summary>
+    public string? Label { get; init; }
+}
+
+/// <summary>Extension: a skill used in a position or a project.</summary>
+public sealed record JsonResumeSkillAssociation
+{
+    /// <summary>The skill, as a <c>skills[].keywords</c> entry names it.</summary>
+    public string? Skill { get; init; }
+
+    /// <summary>The position's identifier, for a skill used in a position.</summary>
+    public string? Work { get; init; }
+
+    /// <summary>The project's identifier, for a skill used in a project.</summary>
+    public string? Project { get; init; }
+
+    /// <summary>How it was used, such as <c>experimental-project</c>.</summary>
+    public string? Context { get; init; }
 }

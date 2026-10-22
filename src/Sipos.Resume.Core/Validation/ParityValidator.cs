@@ -135,12 +135,25 @@ public static class ParityValidator
             Add($"/projects/{i}/x-focus", project.Focus);
         }
 
+        Add("/volunteer", resume.Volunteer.Count);
+        for (var i = 0; i < resume.Volunteer.Count; i++)
+        {
+            var work = resume.Volunteer[i];
+            Add($"/volunteer/{i}/organization", work.Organization);
+            Add($"/volunteer/{i}/url", work.Url);
+            Add($"/volunteer/{i}/startDate", work.StartDate);
+            Add($"/volunteer/{i}/endDate", work.EndDate);
+            Add($"/volunteer/{i}/highlights", work.Highlights.Count);
+        }
+
+        // A study's score is written in the language's own way (8.11/10, 8,11/10), so only the number of courses is a fact.
         Add("/education", resume.Education.Count);
         for (var i = 0; i < resume.Education.Count; i++)
         {
             Add($"/education/{i}/url", resume.Education[i].Url);
             Add($"/education/{i}/startDate", resume.Education[i].StartDate);
             Add($"/education/{i}/endDate", resume.Education[i].EndDate);
+            Add($"/education/{i}/courses", resume.Education[i].Courses.Count);
         }
 
         Add("/certificates", resume.Certificates.Count);
@@ -156,11 +169,42 @@ public static class ParityValidator
             Add($"/awards/{i}/date", resume.Awards[i].Date);
         }
 
+        Add("/publications", resume.Publications.Count);
+        for (var i = 0; i < resume.Publications.Count; i++)
+        {
+            Add($"/publications/{i}/publisher", resume.Publications[i].Publisher);
+            Add($"/publications/{i}/releaseDate", resume.Publications[i].ReleaseDate);
+            Add($"/publications/{i}/url", resume.Publications[i].Url);
+        }
+
         Add("/skills", resume.Skills.Count);
         for (var i = 0; i < resume.Skills.Count; i++)
         {
             Add($"/skills/{i}/keywords", resume.Skills[i].Keywords);
             Add($"/skills/{i}/x-rating", resume.Skills[i].Rating);
+            Add($"/skills/{i}/x-ratingKind", resume.Skills[i].RatingKind);
+        }
+
+        // The scale's words and the note are translated; the ratings, the basis and the confirmed uses are facts.
+        if (resume.SkillsAssessment is { } assessment)
+        {
+            Add("/x-skillsAssessment/basis", assessment.Basis);
+            Add("/x-skillsAssessment/assessedOn", assessment.AssessedOn);
+            Add("/x-skillsAssessment/scale", assessment.Scale.Count);
+            for (var i = 0; i < assessment.Scale.Count; i++)
+            {
+                Add($"/x-skillsAssessment/scale/{i}/value", assessment.Scale[i].Value);
+            }
+
+            Add("/x-skillsAssessment/confirmedAssociations", assessment.ConfirmedAssociations.Count);
+            for (var i = 0; i < assessment.ConfirmedAssociations.Count; i++)
+            {
+                var association = assessment.ConfirmedAssociations[i];
+                Add($"/x-skillsAssessment/confirmedAssociations/{i}/skill", association.Skill);
+                Add($"/x-skillsAssessment/confirmedAssociations/{i}/work", association.Work);
+                Add($"/x-skillsAssessment/confirmedAssociations/{i}/project", association.Project);
+                Add($"/x-skillsAssessment/confirmedAssociations/{i}/context", association.Context);
+            }
         }
 
         Add("/languages", resume.Languages.Count);
@@ -185,8 +229,6 @@ public static class ParityValidator
         }
 
         // These standard sections are republished from Original even though the domain does not render them.
-        OriginalSection("volunteer", ["organization", "url", "startDate", "endDate"], ["highlights"]);
-        OriginalSection("publications", ["publisher", "releaseDate", "url"], []);
         OriginalSection("interests", [], ["keywords"]);
         OriginalSection("references", ["name"], []);
 

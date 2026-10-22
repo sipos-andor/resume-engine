@@ -83,6 +83,12 @@ public sealed class ResumeLabels
     /// <summary>The label <c>Awards</c>.</summary>
     public string Awards => this[nameof(Awards)];
 
+    /// <summary>The label <c>Publications</c>.</summary>
+    public string Publications => this[nameof(Publications)];
+
+    /// <summary>The label <c>Volunteering</c>.</summary>
+    public string Volunteering => this[nameof(Volunteering)];
+
     /// <summary>The label <c>Languages</c>.</summary>
     public string Languages => this[nameof(Languages)];
 
@@ -116,6 +122,12 @@ public sealed class ResumeLabels
     /// <summary>The label <c>AtsAwards</c>.</summary>
     public string AtsAwards => this[nameof(AtsAwards)];
 
+    /// <summary>The label <c>AtsPublications</c>.</summary>
+    public string AtsPublications => this[nameof(AtsPublications)];
+
+    /// <summary>The label <c>AtsVolunteering</c>.</summary>
+    public string AtsVolunteering => this[nameof(AtsVolunteering)];
+
     /// <summary>The label <c>AtsLanguages</c>.</summary>
     public string AtsLanguages => this[nameof(AtsLanguages)];
 
@@ -145,6 +157,12 @@ public sealed class ResumeLabels
 
     /// <summary>The label <c>Technologies</c>.</summary>
     public string Technologies => this[nameof(Technologies)];
+
+    /// <summary>The label <c>Grade</c>, before a study's score.</summary>
+    public string Grade => this[nameof(Grade)];
+
+    /// <summary>The label <c>Courses</c>, before a study's courses.</summary>
+    public string Courses => this[nameof(Courses)];
 
     /// <summary>The label <c>Phone</c>.</summary>
     public string Phone => this[nameof(Phone)];

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -185,9 +186,21 @@ internal sealed class AtsLayout : IDocument
                     return award.Summary is { } summary ? $"{line}. {summary}" : line;
                 }));
                 break;
-            default:
+            case DocumentSection.Publications:
+                Bullets(container, _context.Document.Publications.Select(publication =>
+                {
+                    var line = Joined(publication.Name, JoinedOrNull(publication.Publisher, publication.Released is { } date ? _outline.Date(date) : null));
+                    return publication.Summary is { } summary ? $"{line}. {summary}" : line;
+                }));
+                break;
+            case DocumentSection.Volunteering:
+                Entries(container, _context.Document.Volunteering, VolunteerEntry);
+                break;
+            case DocumentSection.Languages:
                 Bullets(container, _context.Document.Languages.Select(language => Joined(language.Name, language.Fluency)));
                 break;
+            default:
+                throw new UnreachableException($"The ATS layout has no content for the section {section}.");
         }
     }
 
@@ -245,6 +258,24 @@ internal sealed class AtsLayout : IDocument
         {
             column.Item().Text(text => Secondary(text.Span(facts)));
         }
+
+        if (_outline.StudyDetails(study) is { } details)
+        {
+            column.Item().Text(details);
+        }
+    });
+
+    // Laid out like a position: the role, then the organization and the period, then what the work was.
+    private void VolunteerEntry(IContainer container, Volunteering work) => container.PreventPageBreak().Column(column =>
+    {
+        column.Item().Heading(HeadingLevel.Entry).Text(work.Title).SemiBold();
+        var facts = string.Join(" | ", new[] { work.Position is null ? null : work.Organization, work.Period is { } period ? _outline.Period(period) : null }.OfType<string>());
+        if (facts.Length > 0)
+        {
+            column.Item().Text(text => Secondary(text.Span(facts)));
+        }
+
+        Details(column, work.Summary, work.Highlights, []);
     });
 
     private void Details(ColumnDescriptor column, string? summary, IReadOnlyList<string> highlights, IReadOnlyList<string> keywords)
@@ -265,24 +296,32 @@ internal sealed class AtsLayout : IDocument
         }
     }
 
-    // Each group is a line of its levels from the highest: ".NET platform — Expert: C#, LINQ; Proficient: Blazor".
-    private void Skills(IContainer container) => container.SemanticList().Column(column =>
+    // What the ratings mean, when the CV says, then each group as a line of its levels from the highest:
+    // ".NET platform: Expert: C#, LINQ; Proficient: Blazor", or for usage ratings ".NET platform: C#, LINQ (Usage: core)".
+    private void Skills(IContainer container) => container.Column(outer =>
     {
-        column.Spacing(3);
-        foreach (var group in _outline.SkillGroups)
+        outer.Spacing(4);
+        if (_context.Document.SkillScale?.Note is { } note)
         {
-            var levels = group.Skills
-                .GroupBy(skill => _outline.Level(skill) ?? "")
-                .OrderByDescending(level => level.Max(skill => skill.Rating ?? 0))
-                .Select(level => level.Key.Length > 0
-                    ? $"{level.Key}: {string.Join(", ", level.Select(skill => skill.Name))}"
-                    : string.Join(", ", level.Select(skill => skill.Name)));
-            column.Item().PreventPageBreak().SemanticListItem().SemanticListItemBody().Text(text =>
-            {
-                text.Span($"{group.Name}: ").SemiBold();
-                text.Span(string.Join("; ", levels));
-            });
+            outer.Item().SemanticParagraph().Text(note);
         }
+
+        outer.Item().SemanticList().Column(column =>
+        {
+            column.Spacing(3);
+            foreach (var group in _outline.SkillGroups)
+            {
+                var levels = group.Skills
+                    .GroupBy(skill => _outline.Level(skill) ?? "")
+                    .OrderByDescending(level => level.Max(skill => skill.Rating ?? 0))
+                    .Select(level => DocumentOutline.SkillLine(level.Key, [.. level]));
+                column.Item().PreventPageBreak().SemanticListItem().SemanticListItemBody().Text(text =>
+                {
+                    text.Span($"{group.Name}: ").SemiBold();
+                    text.Span(string.Join("; ", levels));
+                });
+            }
+        });
     });
 
     private static void Bullets(IContainer container, IEnumerable<string> items) => container.SemanticList().Column(list =>

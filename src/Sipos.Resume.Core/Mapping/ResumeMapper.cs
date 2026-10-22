@@ -43,11 +43,14 @@ public static class ResumeMapper
             [.. resume.Strengths.Select(s => new Strength(s.Id!, s.Title!, Blank(s.Summary), s.Short, s.Focus))],
             positions,
             [.. engagements.Where(item => item.Work is null).Select(item => item.Engagement)],
-            [.. resume.Education.Select(e => new Study(e.Institution!, Blank(e.Area), Blank(e.StudyType), StudyPeriod(e.StartDate, e.EndDate), Blank(e.Url)))],
+            [.. resume.Education.Select(e => new Study(e.Institution!, Blank(e.Area), Blank(e.StudyType), StudyPeriod(e.StartDate, e.EndDate), Blank(e.Url), Blank(e.Score), [.. e.Courses.Where(course => !string.IsNullOrWhiteSpace(course))]))],
             [.. resume.Certificates.Select(c => new Certificate(c.Name!, Date(c.Date), Blank(c.Issuer), Blank(c.Url)))],
             [.. resume.Awards.Select(a => new Award(a.Title!, Date(a.Date), Blank(a.Awarder), Blank(a.Summary)))],
+            [.. resume.Publications.Select(p => new Publication(p.Name!, Blank(p.Publisher), Date(p.ReleaseDate), Blank(p.Url), Blank(p.Summary)))],
+            [.. resume.Volunteer.Select(v => new Volunteering(Blank(v.Position), Blank(v.Organization), Period(v.StartDate, v.EndDate), Blank(v.Url), Blank(v.Summary), v.Highlights))],
             [.. resume.Languages.Select(l => new SpokenLanguage(l.Language!, Blank(l.Fluency)))],
             Groups(resume.Skills),
+            Scale(resume.SkillsAssessment),
             [.. resume.FocusProfiles.Select(f => new FocusProfile(f.Id!, f.Label!, Blank(f.Summary), f.Skills))],
             resume.Aliases,
             resume.Meta?.LastModified is { Length: >= 10 } modified
@@ -94,7 +97,27 @@ public static class ResumeMapper
     private static List<SkillGroup> Groups(IReadOnlyList<JsonResumeSkill> skills) =>
         [.. skills
             .GroupBy(skill => skill.Name!, StringComparer.Ordinal)
-            .Select(group => new SkillGroup(group.Key, [.. group.SelectMany(entry => entry.Keywords.Select(keyword => new Skill(keyword, entry.Rating, Blank(entry.Level))))]))];
+            .Select(group => new SkillGroup(group.Key, [.. group.SelectMany(entry => entry.Keywords.Select(keyword => new Skill(keyword, entry.Rating, Blank(entry.Level), Kind(entry.RatingKind))))]))];
+
+    private static RatingKind Kind(string? kind) => kind == "usage" ? RatingKind.Usage : RatingKind.Proficiency;
+
+    // The legend lists the steps from the highest rating down, as a reader scans a scale; an assessment without steps
+    // or a note has nothing to show.
+    private static SkillScale? Scale(JsonResumeSkillsAssessment? assessment)
+    {
+        if (assessment is null)
+        {
+            return null;
+        }
+
+        var steps = assessment.Scale
+            .Where(step => step.Value is not null && !string.IsNullOrWhiteSpace(step.Label))
+            .OrderByDescending(step => step.Value)
+            .Select(step => new SkillScaleStep(step.Value!.Value, step.Label!))
+            .ToList();
+        var note = Blank(assessment.Note);
+        return steps.Count == 0 && note is null ? null : new SkillScale(steps, note);
+    }
 
     private static string? Location(JsonResumeLocation? location) =>
         location is null ? null : Blank(string.Join(", ", new[] { location.City, location.Region, location.CountryCode }.Where(part => !string.IsNullOrWhiteSpace(part))));

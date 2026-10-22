@@ -86,6 +86,7 @@ internal sealed class AtsDocxLayout(DocxComposer docx, DocumentContext context, 
                     var title = StudyTitle(study);
                     var rest = JoinText([title == study.Institution ? null : study.Institution], Dash, prefix: Dash) + JoinText([Period(study.Period)], Separator, prefix: Separator);
                     Docx.Add(StyleIds.Normal, Text(title, StyleIds.Strong), rest.Length > 0 ? Text(rest) : null);
+                    Docx.AddText(StyleIds.Normal, Outline.StudyDetails(study));
                 }
 
                 break;
@@ -104,6 +105,27 @@ internal sealed class AtsDocxLayout(DocxComposer docx, DocumentContext context, 
                 }
 
                 break;
+            case DocumentSection.Publications:
+                foreach (var publication in document.Publications)
+                {
+                    Docx.Add(StyleIds.ListBullet, Text(JoinText([publication.Name, publication.Publisher], Dash) + JoinText([Date(publication.Released)], Separator, prefix: Separator)));
+                    Docx.AddText(StyleIds.ListContinue, publication.Summary);
+                }
+
+                break;
+            case DocumentSection.Volunteering:
+                foreach (var work in document.Volunteering)
+                {
+                    Docx.Add(StyleIds.Heading2, Text(JoinText([work.Title, work.Position is null ? null : work.Organization], Dash)));
+                    Docx.AddText(StyleIds.ItemMeta, work.Period is null ? null : Period(work.Period));
+                    Docx.AddText(StyleIds.Normal, work.Summary);
+                    foreach (var highlight in work.Highlights)
+                    {
+                        Docx.Add(StyleIds.ListBullet, Text(highlight));
+                    }
+                }
+
+                break;
             case DocumentSection.Languages:
                 foreach (var language in document.Languages)
                 {
@@ -114,16 +136,17 @@ internal sealed class AtsDocxLayout(DocxComposer docx, DocumentContext context, 
         }
     }
 
-    // Skills in words, one line per level of a group: "Expert: C#, LINQ".
+    // What the ratings mean, when the CV says, then skills in words, one line per level of a group: "Expert: C#, LINQ",
+    // or for usage ratings "C#, LINQ (Usage: core and recurring)".
     private void WriteSkills()
     {
+        Docx.AddText(StyleIds.Normal, Context.Document.SkillScale?.Note);
         foreach (var group in Outline.SkillGroups)
         {
             Docx.Add(StyleIds.SkillGroup, Text(group.Name));
             foreach (var level in group.Skills.GroupBy(skill => Outline.Level(skill) ?? "", StringComparer.Ordinal))
             {
-                var names = string.Join(", ", level.Select(skill => skill.Name));
-                Docx.Add(StyleIds.Skill, Text(level.Key.Length == 0 ? names : $"{level.Key}: {names}"));
+                Docx.Add(StyleIds.Skill, Text(DocumentOutline.SkillLine(level.Key, [.. level])));
             }
         }
     }

@@ -14,7 +14,7 @@ public class ParityValidatorCompare
     [InlineData("publications", "releaseDate")]
     [InlineData("publications", "url")]
     [InlineData("references", "name")]
-    public void ReportsUnmodeledFactGivenChangedOrMissingValue(string section, string field)
+    public void ReportsNeutralFactOfStandardSectionGivenChangedOrMissingValue(string section, string field)
     {
         var original = Samples.Read($"{{\"{section}\":[{{\"{field}\":\"original\"}}]}}");
         foreach (var translated in new[]
@@ -216,5 +216,45 @@ public class ParityValidatorCompare
 
         paths.ShouldContain("/skills");
         paths.ShouldContain("/skills/3/keywords");
+    }
+
+    // What a rating measures and the scale's ratings are facts; a missing kind counts as a different one.
+    [Fact]
+    public void ReportsRatingKindAndScaleValueGivenDifferentFacts()
+    {
+        var english = Samples.Read(Samples.Usage);
+        var skills = english.Skills.ToList();
+        skills[0] = skills[0] with { RatingKind = null };
+        var assessment = english.SkillsAssessment! with { Scale = [english.SkillsAssessment.Scale[0] with { Value = 4 }, english.SkillsAssessment.Scale[1]] };
+
+        ParityValidator.Compare(("resume.en.json", english), [("resume.hu.json", english with { Skills = skills, SkillsAssessment = assessment })])
+            .Select(issue => issue.Path).ShouldBe(["/skills/0/x-ratingKind", "/x-skillsAssessment/scale/0/value"]);
+    }
+
+    // The scale's words, the note, a grade's notation and the courses' names are written in each language.
+    [Fact]
+    public void AcceptsTranslatedNoteLabelsScoreAndCoursesGivenSameFacts()
+    {
+        var english = Samples.Read(Samples.Usage);
+        var translated = english with
+        {
+            SkillsAssessment = english.SkillsAssessment! with
+            {
+                Note = "A számok a használatot jelzik.",
+                Scale = [.. english.SkillsAssessment.Scale.Select(step => step with { Label = "Használat" })],
+            },
+            Education = [english.Education[0] with { Score = "4,5/5", Courses = ["Adatbázisok", "Hálózatok"] }],
+        };
+
+        ParityValidator.Compare(("resume.en.json", english), [("resume.hu.json", translated)]).ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void ReportsCourseCountGivenCourseLeftOut()
+    {
+        var english = Samples.Read(Samples.English);
+
+        ParityValidator.Compare(("resume.en.json", english), [("resume.hu.json", english with { Education = [english.Education[0] with { Courses = ["Databases"] }] })])
+            .Select(issue => issue.Path).ShouldBe(["/education/0/courses"]);
     }
 }

@@ -29,16 +29,17 @@ public class JsonResumeDocumentWriterWrite
     [Fact]
     public void KeepsStandardSectionsTheEngineDoesNotShowGivenPlainJsonResume()
     {
-        var json = Samples.English.Replace("\"languages\":", "\"interests\": [ { \"name\": \"Chess\" } ], \"volunteer\": [ { \"organization\": \"Red Cross\" } ], \"languages\":", StringComparison.Ordinal)
-            .Replace("\"studyType\": \"BSc\",", "\"studyType\": \"BSc\", \"courses\": [\"Compilers\"],", StringComparison.Ordinal);
+        var json = Samples.English.Replace("\"languages\":", "\"interests\": [ { \"name\": \"Chess\" } ], \"references\": [ { \"name\": \"Jane Roe\" } ], \"languages\":", StringComparison.Ordinal)
+            .Replace("\"area\": \"Informatics\",", "\"area\": \"Informatics\", \"location\": \"Budapest\",", StringComparison.Ordinal);
         using var output = new MemoryStream();
 
         new JsonResumeDocumentWriter().Write(Contexts.For(SampleDocuments.English(), DownloadFormat.JsonResume, DocumentVariant.Designed, source: Samples.Read(json)), output);
 
         using var written = JsonDocument.Parse(output.ToArray());
         written.RootElement.GetProperty("interests")[0].GetProperty("name").GetString().ShouldBe("Chess");
-        written.RootElement.GetProperty("volunteer")[0].GetProperty("organization").GetString().ShouldBe("Red Cross");
-        written.RootElement.GetProperty("education")[0].GetProperty("courses")[0].GetString().ShouldBe("Compilers");
+        written.RootElement.GetProperty("references")[0].GetProperty("name").GetString().ShouldBe("Jane Roe");
+        written.RootElement.GetProperty("education")[0].GetProperty("location").GetString().ShouldBe("Budapest");
+        written.RootElement.GetProperty("volunteer")[0].GetProperty("organization").GetString().ShouldBe("Food Bank");
         Encoding.UTF8.GetString(output.ToArray()).ShouldNotContain('\r');
     }
 

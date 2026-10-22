@@ -48,12 +48,15 @@ The default language is served at the root, every other one under its primary su
 checks every file and compares the languages: identifiers, dates, company names, URLs, technologies, levels and the
 number of items must match the default language's, so a translation cannot drift. Plain JSON Resume (schema v1.2.1) works (see
 [`samples/plain-json-resume`](samples/plain-json-resume)); the optional `x-` extensions add identifiers, a tagline,
-a contact link, availability, strengths, position profiles (`?focus=` and tailored documents), the one-page view and
-aliases for job ad matching. They are documented on the types in `Sipos.Resume.Core.Content`.
+a contact link, availability, strengths, position profiles (`?focus=` and tailored documents), the one-page view,
+aliases for job ad matching, and what the skills' ratings measure (`x-ratingKind`: `proficiency` or `usage`) with the
+scale and note the skills section shows as its legend (`x-skillsAssessment`). They are documented on the types in
+`Sipos.Resume.Core.Content`.
 Projects whose names differ across languages must provide the same explicit `x-id` in every language; otherwise
 their identifiers are generated from their names and start dates.
-Standard sections preserved in the JSON downloads are validated too, including volunteer work, publications,
-interests, references and education courses and scores.
+The page and every document show the work, projects, skills, education with its scores and courses, certificates,
+awards, publications, volunteer work and languages; the one-page view leaves out publications and volunteer work.
+Interests and references are preserved in the JSON downloads only. Both kinds are validated against JSON Resume.
 HTTP and HTTPS content URLs must not contain user-info or credentials, including in preserved and extension fields.
 This check also covers URLs embedded in prose and Markdown. A language's optional `meta.x-path` is limited to
 32 lowercase ASCII letters, digits and hyphens.

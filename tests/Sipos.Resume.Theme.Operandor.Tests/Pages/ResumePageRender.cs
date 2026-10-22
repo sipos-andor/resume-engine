@@ -1,3 +1,4 @@
+using Sipos.Resume.Core.Model;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Sipos.Resume.Core.Mapping;
@@ -382,5 +383,60 @@ public class ResumePageRender
 
         var main = document.QuerySelector("main.cv-main--notfound")!;
         main.Children.ShouldHaveSingleItem().ClassList.ShouldContain("op-band");
+    }
+
+    // The meters alone do not say what they measure: the scale's steps stand next to them as text, then the note, and
+    // all of it stays out of the groups a focus reorders.
+    [Fact]
+    public async Task ShowsScaleStepsAndNoteBeforeGroupsGivenAssessment()
+    {
+        var scale = new SkillScale([new SkillScaleStep(5, "Usage: core and recurring"), new SkillScaleStep(3, "Usage: project-specific")], "Scores describe usage, not proficiency.");
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(change: cv => cv with { SkillScale = scale }), 0);
+
+        var legend = document.QuerySelector("#skills .cv-scale")!;
+        legend.QuerySelectorAll(".cv-scale__step").Select(step => step.TextContent.Trim()).ShouldBe(["Usage: core and recurring", "Usage: project-specific"]);
+        legend.QuerySelector(".cv-scale__step .cv-meter")!.ClassList.ShouldContain("cv-meter--5");
+        legend.QuerySelector(".cv-scale__note")!.TextContent.ShouldBe("Scores describe usage, not proficiency.");
+        legend.NextElementSibling!.GetAttribute("data-cv-order").ShouldBe("skill-groups");
+        (await ThemePages.RenderAsync(ThemePages.Sample(), 0)).QuerySelector(".cv-scale").ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task WidensLevelColumnGivenLevelInSeveralWords()
+    {
+        var pages = ThemePages.Sample(change: cv => cv with
+        {
+            SkillGroups = [.. cv.SkillGroups.Select(group => group with { Skills = [.. group.Skills.Select(skill => skill with { Level = "Usage: recurring across engagements" })] })],
+        });
+
+        (await ThemePages.RenderAsync(pages, 0)).QuerySelector(".cv-skill-groups")!.ClassList.ShouldContain("cv-skill-groups--long-levels");
+        (await ThemePages.RenderAsync(ThemePages.Sample(), 0)).QuerySelector(".cv-skill-groups")!.ClassList.ShouldNotContain("cv-skill-groups--long-levels");
+    }
+
+    // The one-page view leaves publications and volunteer work out; their items are search targets, as awards are.
+    [Fact]
+    public async Task ListsPublicationsAndVolunteerWorkAfterAwardsOutsideOnePageViewGivenSample()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var publications = document.GetElementById("publications")!;
+        var volunteer = document.GetElementById("volunteer")!;
+        publications.GetAttribute("data-cv-short").ShouldBe("false");
+        volunteer.GetAttribute("data-cv-short").ShouldBe("false");
+        publications.QuerySelector("#publication-1[data-cv-id='publication-1'] .cv-list__title")!.TextContent.ShouldBe("Practical .NET");
+        publications.QuerySelector("#publication-1 .cv-list__detail")!.TextContent.ShouldBe("Example Press");
+        volunteer.QuerySelector("#volunteer-1[data-cv-id='volunteer-1'] .cv-list__title")!.TextContent.ShouldBe("Volunteer");
+        volunteer.QuerySelector("#volunteer-1 .cv-list__detail")!.TextContent.ShouldBe("Food Bank");
+        document.GetElementById("awards")!.NextElementSibling.ShouldBe(publications);
+        publications.NextElementSibling.ShouldBe(volunteer);
+    }
+
+    [Fact]
+    public async Task ShowsGradeAndCoursesGivenStudy()
+    {
+        var study = (await ThemePages.RenderAsync(ThemePages.Sample(), 0)).GetElementById("education-1")!;
+
+        study.QuerySelector(".cv-list__detail")!.TextContent.ShouldBe("BSc, Informatics · Grade: 4.5/5");
+        study.QuerySelector(".cv-list__summary")!.TextContent.ShouldBe("Courses: Databases, Networks");
     }
 }

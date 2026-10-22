@@ -51,7 +51,7 @@ public class MarkdownDocumentWriterRender
     {
         var headings = English().Split('\n').Where(line => line.StartsWith("## ", StringComparison.Ordinal)).ToList();
 
-        headings.ShouldBe(["## Profile", "## Selected strengths", "## Professional experience", "## Projects", "## Technologies and competences", "## Education, certification and training", "## Awards and competitions", "## Languages"]);
+        headings.ShouldBe(["## Profile", "## Selected strengths", "## Professional experience", "## Projects", "## Technologies and competences", "## Education, certification and training", "## Awards and competitions", "## Publications", "## Volunteering", "## Languages"]);
     }
 
     // C# must not turn into a heading, and the phone and pages must stay clickable.
@@ -135,5 +135,21 @@ public class MarkdownDocumentWriterRender
 
         MarkdownDocumentWriter.Render(Contexts.For(english with { Person = person }, DownloadFormat.Markdown, DocumentVariant.Designed))
             .ShouldContain("Available from (May 2027)");
+    }
+
+    [Fact]
+    public void WritesScaleNoteBeforeSkillGroupsGivenAssessment() =>
+        MarkdownDocumentWriter.Render(Contexts.For(SampleDocuments.Usage(), DownloadFormat.Markdown, DocumentVariant.Designed))
+            .ShouldContain("## Technologies and competences\n\nScores describe usage, not proficiency.\n\n### .NET platform");
+
+    [Fact]
+    public void WritesPublicationsVolunteeringAndStudyDetailsGivenSample()
+    {
+        var html = Markdig.Markdown.ToHtml(English());
+
+        html.ShouldContain("<strong>Practical .NET</strong>, Example Press");
+        html.ShouldContain("Wrote two chapters.");
+        html.ShouldContain("<strong>Volunteer</strong>, Food Bank");
+        html.ShouldContain("Grade: 4.5/5 · Courses: Databases, Networks");
     }
 }

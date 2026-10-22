@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -33,6 +34,7 @@ internal sealed class DesignedLayout : IDocument
     private const float SkillWidth = (int)((ContentWidth - SkillGap) / 2);
     private const float MeterHeight = 4.4f;
     private const float LevelWidth = 58;
+    private const float LongLevelWidth = 100;
 
     private readonly DocumentContext _context;
     private readonly DocumentOutline _outline;
@@ -245,7 +247,44 @@ internal sealed class DesignedLayout : IDocument
                     }
                 }));
                 break;
-            default:
+            case DocumentSection.Publications:
+                Bullets(container, _context.Document.Publications, (item, publication) => Dated(item, publication.Released is { } date ? _outline.Date(date) : null, text =>
+                {
+                    text.Span(publication.Name).SemiBold().FontColor(Ink(_theme.Heading));
+                    if (publication.Publisher is { } publisher)
+                    {
+                        text.Span($" — {publisher}");
+                    }
+
+                    if (publication.Summary is { } summary)
+                    {
+                        text.Span($". {summary}").FontColor(Ink(_theme.Muted));
+                    }
+                }));
+                break;
+            case DocumentSection.Volunteering:
+                Bullets(container, _context.Document.Volunteering, (item, work) => item.Column(entry =>
+                {
+                    entry.Item().Element(line => Dated(line, work.Period is { } period ? _outline.Period(period) : null, text =>
+                    {
+                        text.Span(work.Title).SemiBold().FontColor(Ink(_theme.Heading));
+                        if (work.Position is not null && work.Organization is { } organization)
+                        {
+                            text.Span($" — {organization}");
+                        }
+
+                        if (work.Summary is { } summary)
+                        {
+                            text.Span($". {summary}").FontColor(Ink(_theme.Muted));
+                        }
+                    }));
+                    if (work.Highlights.Count > 0)
+                    {
+                        entry.Item().PaddingTop(2).Element(list => Bullets(list, work.Highlights, (body, highlight) => body.Text(highlight)));
+                    }
+                }));
+                break;
+            case DocumentSection.Languages:
                 Bullets(container, _context.Document.Languages, (item, language) => item.Text(text =>
                 {
                     text.Span(language.Name).SemiBold().FontColor(Ink(_theme.Heading));
@@ -255,6 +294,8 @@ internal sealed class DesignedLayout : IDocument
                     }
                 }));
                 break;
+            default:
+                throw new UnreachableException($"The designed layout has no content for the section {section}.");
         }
     }
 
@@ -352,6 +393,11 @@ internal sealed class DesignedLayout : IDocument
     private void Skills(IContainer container) => container.Column(column =>
     {
         column.Spacing(9);
+        if (_context.Document.SkillScale is { } scale)
+        {
+            column.Item().Element(item => Scale(item, scale));
+        }
+
         foreach (var group in _outline.SkillGroups)
         {
             column.Item().EnsureSpace(36).Column(block =>
@@ -381,7 +427,35 @@ internal sealed class DesignedLayout : IDocument
 
         if (_outline.Level(skill) is { } level)
         {
-            row.ConstantItem(LevelWidth).PaddingTop(0.8f).Text(level).FontSize(7.6f).LineHeight(1.35f).FontColor(Ink(_theme.Muted));
+            row.ConstantItem(_outline.HasLongLevels ? LongLevelWidth : LevelWidth).PaddingTop(0.8f).Text(level).FontSize(7.6f).LineHeight(1.35f).FontColor(Ink(_theme.Muted));
+        }
+    });
+
+    // The legend: each step's meter with its words on one wrapping line, then what the ratings mean.
+    private void Scale(IContainer container, SkillScale scale) => container.Column(column =>
+    {
+        column.Spacing(3);
+        if (scale.Steps.Count > 0)
+        {
+            column.Item().Inlined(steps =>
+            {
+                steps.HorizontalSpacing(14);
+                steps.VerticalSpacing(2);
+                foreach (var step in scale.Steps)
+                {
+                    steps.Item().Row(row =>
+                    {
+                        var width = MeterHeight * VectorMarks.MeterRatio;
+                        row.AutoItem().PaddingTop(2.8f).SemanticIgnore().Width(width).Height(MeterHeight).Svg(Meter(step.Rating));
+                        row.AutoItem().PaddingLeft(5).Text(step.Label).FontSize(7.6f).LineHeight(1.35f).FontColor(Ink(_theme.Muted));
+                    });
+                }
+            });
+        }
+
+        if (scale.Note is { } note)
+        {
+            column.Item().SemanticParagraph().Text(note).FontSize(7.6f).LineHeight(1.35f).FontColor(Ink(_theme.Muted));
         }
     });
 
@@ -400,19 +474,26 @@ internal sealed class DesignedLayout : IDocument
         column.Spacing(7);
         foreach (var study in _context.Document.Education)
         {
-            column.Item().PreventPageBreak().Element(item => EntryHeading(item, study.Period is { } period ? _outline.Period(period) : null, text =>
+            column.Item().PreventPageBreak().Column(entry =>
             {
-                var degree = string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>());
-                if (degree.Length > 0)
+                entry.Item().Element(item => EntryHeading(item, study.Period is { } period ? _outline.Period(period) : null, text =>
                 {
-                    text.Span(degree).SemiBold().FontColor(Ink(_theme.Heading));
-                    text.Span($" — {study.Institution}");
-                }
-                else
+                    var degree = string.Join(", ", new[] { study.StudyType, study.Area }.OfType<string>());
+                    if (degree.Length > 0)
+                    {
+                        text.Span(degree).SemiBold().FontColor(Ink(_theme.Heading));
+                        text.Span($" — {study.Institution}");
+                    }
+                    else
+                    {
+                        text.Span(study.Institution).SemiBold().FontColor(Ink(_theme.Heading));
+                    }
+                }));
+                if (_outline.StudyDetails(study) is { } details)
                 {
-                    text.Span(study.Institution).SemiBold().FontColor(Ink(_theme.Heading));
+                    entry.Item().PaddingTop(1).Text(details).FontSize(MetaSize).LineHeight(1.35f).FontColor(Ink(_theme.Muted));
                 }
-            }));
+            });
         }
 
         if (_context.Document.Certificates.Count > 0)

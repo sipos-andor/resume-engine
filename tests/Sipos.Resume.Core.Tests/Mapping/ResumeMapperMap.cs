@@ -94,4 +94,42 @@ public class ResumeMapperMap
 
         ResumeMapper.Map(plain, English).Positions.Select(p => p.Id).ShouldBe(["acme-2022-11", "initech-2015-03"]);
     }
+
+    [Fact]
+    public void MapsPublicationsVolunteeringAndStudyDetailsGivenSample()
+    {
+        var document = Document();
+
+        var publication = document.Publications.ShouldHaveSingleItem();
+        (publication.Name, publication.Publisher, publication.Summary).ShouldBe(("Practical .NET", "Example Press", "Wrote two chapters."));
+        publication.Released.ShouldNotBeNull().Year.ShouldBe(2019);
+        var work = document.Volunteering.ShouldHaveSingleItem();
+        (work.Title, work.Organization, work.Summary).ShouldBe(("Volunteer", "Food Bank", "Sorted donations."));
+        var period = work.Period.ShouldNotBeNull();
+        period.End.ShouldBe(period.Start);
+        document.Education[0].Score.ShouldBe("4.5/5");
+        document.Education[0].Courses.ShouldBe(["Databases", "Networks"]);
+    }
+
+    // Without a position the organization names the work.
+    [Fact]
+    public void NamesVolunteerWorkByOrganizationGivenNoPosition()
+    {
+        var resume = Samples.Read(Samples.English);
+
+        ResumeMapper.Map(resume with { Volunteer = [resume.Volunteer[0] with { Position = null }] }, English).Volunteering[0].Title.ShouldBe("Food Bank");
+    }
+
+    // The legend reads from the highest rating down, in whatever order the file lists the steps.
+    [Fact]
+    public void MapsScaleFromHighestRatingAndUsageKindGivenAssessment()
+    {
+        var usage = ResumeMapper.Map(Samples.Read(Samples.Usage), English);
+
+        usage.SkillScale!.Steps.Select(step => (step.Rating, step.Label)).ShouldBe([(5, "Usage: core and recurring"), (3, "Usage: project-specific")]);
+        usage.SkillScale.Note.ShouldBe("Scores describe usage, not proficiency.");
+        usage.AllSkills.ShouldAllBe(skill => skill.Kind == RatingKind.Usage);
+        Document().SkillScale.ShouldBeNull();
+        Document().AllSkills.ShouldAllBe(skill => skill.Kind == RatingKind.Proficiency);
+    }
 }

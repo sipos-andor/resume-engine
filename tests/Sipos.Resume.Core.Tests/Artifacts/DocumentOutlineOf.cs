@@ -11,7 +11,8 @@ public class DocumentOutlineOf
         DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Designed, focus: null).Sections.ShouldBe(
         [
             DocumentSection.Profile, DocumentSection.Strengths, DocumentSection.Experience, DocumentSection.Projects,
-            DocumentSection.Skills, DocumentSection.Education, DocumentSection.Awards, DocumentSection.Languages,
+            DocumentSection.Skills, DocumentSection.Education, DocumentSection.Awards, DocumentSection.Publications,
+            DocumentSection.Volunteering, DocumentSection.Languages,
         ]);
 
     // Applicant tracking systems know Summary, Skills, Work Experience, Education and Certifications, and score early keywords.
@@ -23,7 +24,8 @@ public class DocumentOutlineOf
         outline.Sections.ShouldBe(
         [
             DocumentSection.Profile, DocumentSection.Skills, DocumentSection.Experience, DocumentSection.Projects,
-            DocumentSection.Education, DocumentSection.Certificates, DocumentSection.Awards, DocumentSection.Languages,
+            DocumentSection.Education, DocumentSection.Certificates, DocumentSection.Awards, DocumentSection.Publications,
+            DocumentSection.Volunteering, DocumentSection.Languages,
         ]);
         outline.Heading(DocumentSection.Experience).ShouldBe("Work Experience");
         outline.Heading(DocumentSection.Certificates).ShouldBe("Certifications");
@@ -101,5 +103,43 @@ public class DocumentOutlineOf
         outline.Level(new Skill("C#", 4, null)).ShouldBe("Advanced");
         outline.Level(new Skill("C#", 4, "Strong")).ShouldBe("Strong");
         outline.Level(new Skill("C#", null, null)).ShouldBeNull();
+    }
+
+    // A proficiency level heads the skills; a usage level is a remark on them, whose words may end in a colon already.
+    [Fact]
+    public void WritesSkillLineByRatingKindGivenLevel()
+    {
+        DocumentOutline.SkillLine("Expert", [new Skill("C#", 5, "Expert"), new Skill("LINQ", 5, "Expert")]).ShouldBe("Expert: C#, LINQ");
+        DocumentOutline.SkillLine("Usage: core", [new Skill("C#", 5, "Usage: core", RatingKind.Usage), new Skill("LINQ", 5, "Usage: core", RatingKind.Usage)]).ShouldBe("C#, LINQ (Usage: core)");
+        DocumentOutline.SkillLine("", [new Skill("C#", null, null)]).ShouldBe("C#");
+    }
+
+    // The engine's own level words all fit the usual column; only a CV's own longer words widen it.
+    [Fact]
+    public void WidensLevelColumnOnlyGivenLongLevelOfCv()
+    {
+        DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Designed, focus: null).HasLongLevels.ShouldBeFalse();
+        DocumentOutline.Of(SampleDocuments.Usage(), DocumentVariant.Ats, focus: null).HasLongLevels.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void JoinsGradeAndCoursesGivenStudy()
+    {
+        var outline = DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Designed, focus: null);
+        var study = outline.Document.Education[0];
+
+        outline.StudyDetails(study).ShouldBe("Grade: 4.5/5 · Courses: Databases, Networks");
+        outline.StudyDetails(study with { Courses = [] }).ShouldBe("Grade: 4.5/5");
+        outline.StudyDetails(study with { Score = null, Courses = [] }).ShouldBeNull();
+    }
+
+    [Fact]
+    public void NamesNewSectionsGivenLayout()
+    {
+        var designed = DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Designed, focus: null);
+        var ats = DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Ats, focus: null);
+
+        (designed.Heading(DocumentSection.Publications), designed.Heading(DocumentSection.Volunteering)).ShouldBe(("Publications", "Volunteering"));
+        (ats.Heading(DocumentSection.Publications), ats.Heading(DocumentSection.Volunteering)).ShouldBe(("Publications", "Volunteer Experience"));
     }
 }

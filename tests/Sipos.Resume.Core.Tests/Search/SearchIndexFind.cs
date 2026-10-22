@@ -8,7 +8,7 @@ public class SearchIndexFind
 
     [Fact]
     public void ListsItemsInPageOrder() =>
-        Index.Entries.Select(entry => entry.Id).ShouldBe(["delivery", "acme", "portal", "initech", "hobby", "skills-1", "skills-2", "education-1", "certificate-1", "award-1"]);
+        Index.Entries.Select(entry => entry.Id).ShouldBe(["delivery", "acme", "portal", "initech", "hobby", "skills-1", "skills-2", "education-1", "certificate-1", "award-1", "publication-1", "volunteer-1"]);
 
     [Fact]
     public void FindsByPrefixGivenPartialWord() => Index.Find("glob").Select(e => e.Id).ShouldBe(["portal"]);

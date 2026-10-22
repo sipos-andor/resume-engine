@@ -4,10 +4,14 @@ using Sipos.Resume.Core.Dates;
 
 namespace Sipos.Resume.Core.Validation;
 
-/// <summary>Checks standard JSON Resume v1.2.1 fields that the typed reader does not model.</summary>
+/// <summary>
+/// Checks standard JSON Resume v1.2.1 fields as the file holds them: the sections the typed reader does not model
+/// (interests, references), and those it reads more loosely than the schema (volunteer work, publications, a study's
+/// score and courses), where a string may be null and a date any text.
+/// </summary>
 internal static partial class PreservedResumeValidator
 {
-    /// <summary>Validates preserved sections and education fields without constraining unknown extensions.</summary>
+    /// <summary>Validates these sections and education fields without constraining unknown extensions.</summary>
     public static IEnumerable<ValidationIssue> Check(string source, JsonElement original)
     {
         var issues = new List<ValidationIssue>();

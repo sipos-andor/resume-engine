@@ -91,6 +91,7 @@ public sealed class PlainTextDocumentWriter : IDocumentWriter
 
                     break;
                 case DocumentSection.Skills:
+                    Line(text, context.Document.SkillScale?.Note);
                     foreach (var group in outline.SkillGroups)
                     {
                         text.Append(group.Name).Append(": ");
@@ -118,7 +119,7 @@ public sealed class PlainTextDocumentWriter : IDocumentWriter
                 case DocumentSection.Education:
                     foreach (var study in context.Document.Education)
                     {
-                        var parts = new[] { study.StudyType, study.Area, study.Institution, study.Period is { } period ? outline.Period(period) : null };
+                        var parts = new[] { study.StudyType, study.Area, study.Institution, study.Period is { } period ? outline.Period(period) : null, outline.StudyDetails(study) };
                         text.AppendLine(string.Join(" | ", parts.OfType<string>()));
                     }
 
@@ -136,6 +137,23 @@ public sealed class PlainTextDocumentWriter : IDocumentWriter
                     {
                         var parts = new[] { award.Title, award.Awarder, award.Date is { } date ? outline.Date(date) : null };
                         text.Append(string.Join(" | ", parts.OfType<string>())).AppendLine(award.Summary is null ? "" : ": " + award.Summary);
+                    }
+
+                    break;
+                case DocumentSection.Publications:
+                    foreach (var publication in context.Document.Publications)
+                    {
+                        var parts = new[] { publication.Name, publication.Publisher, publication.Released is { } date ? outline.Date(date) : null, publication.Url };
+                        text.Append(string.Join(" | ", parts.OfType<string>())).AppendLine(publication.Summary is null ? "" : ": " + publication.Summary);
+                    }
+
+                    break;
+                case DocumentSection.Volunteering:
+                    foreach (var work in context.Document.Volunteering)
+                    {
+                        var parts = new[] { work.Title, work.Position is null ? null : work.Organization, work.Period is { } period ? outline.Period(period) : null };
+                        text.Append(string.Join(" | ", parts.OfType<string>())).AppendLine(work.Summary is null ? "" : ": " + work.Summary);
+                        Bullets(text, work.Highlights);
                     }
 
                     break;
