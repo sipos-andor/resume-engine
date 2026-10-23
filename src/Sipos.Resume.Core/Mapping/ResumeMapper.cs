@@ -51,6 +51,7 @@ public static class ResumeMapper
             [.. resume.Languages.Select(l => new SpokenLanguage(l.Language!, Blank(l.Fluency)))],
             Groups(resume.Skills),
             Scale(resume.SkillsAssessment),
+            [.. (resume.SkillsAssessment?.ConfirmedAssociations ?? []).Select(a => new SkillAssociation(a.Skill!, (a.Work ?? a.Project)!, Period(a.StartDate, a.EndDate)))],
             [.. resume.FocusProfiles.Select(f => new FocusProfile(f.Id!, f.Label!, Blank(f.Summary), f.Skills))],
             resume.Aliases,
             resume.Meta?.LastModified is { Length: >= 10 } modified

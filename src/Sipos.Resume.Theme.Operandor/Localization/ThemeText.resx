@@ -36,9 +36,6 @@
   <data name="MatchFound" xml:space="preserve"><value>In the CV ({0})</value></data>
   <data name="MatchNone" xml:space="preserve"><value>No technology or skill of the CV appears in the text.</value></data>
   <data name="MatchCoverage" xml:space="preserve"><value>Matching technologies and skills: {0}</value></data>
-  <data name="UsedSince" xml:space="preserve"><value>Used since {0} · positions and projects: {1}</value></data>
-  <data name="UsedIn" xml:space="preserve"><value>Used in {0} · positions and projects: {1}</value></data>
-  <data name="UsedBetween" xml:space="preserve"><value>Used {0}–{1} · positions and projects: {2}</value></data>
   <data name="UsedItems" xml:space="preserve"><value>Positions and projects: {0}</value></data>
   <data name="TimelinePositions" xml:space="preserve"><value>Positions</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>CV</value></data>

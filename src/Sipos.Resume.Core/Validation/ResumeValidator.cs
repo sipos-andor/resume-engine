@@ -364,6 +364,9 @@ public static partial class ResumeValidator
                     fail($"{item}/project", $"No project has the identifier '{project}'.");
                     break;
             }
+
+            // A period of its own is optional, but an end needs its start: the end alone tells nothing of the start.
+            CheckPeriod(association.StartDate, association.EndDate, item, required: !string.IsNullOrEmpty(association.EndDate), fail);
         }
     }
 

@@ -1,8 +1,8 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 @using Sipos.Resume.Core.Evidence
 
-@* The skills by group, each with its level and, opened, the evidence behind it: the positions and projects that used
-   it and when. Group ids match the engine's search index (skills-1, skills-2, …). A group is a <div>, not a
+@* The skills by group, each with its level and last use and, opened, the evidence behind it: the positions and
+   projects that used it. Group ids match the engine's search index (skills-1, skills-2, …). A group is a <div>, not a
    <section>: only the CV's own sections are landmarks, so a group named "Languages" does not repeat one.
    The CV's scale, when it explains one, comes first and stays out of the groups a focus reorders: its steps as text
    next to their meters, since the meters alone say nothing about what is measured. Levels written in more than a word
@@ -83,11 +83,8 @@
         return View.Document.AllEngagements.FirstOrDefault(engagement => engagement.Id == id) is { } engagement ? engagement.Client ?? engagement.Name : title;
     }
 
-    private string Span(SkillEvidence evidence) => (evidence.FirstYear, evidence.LastYear, evidence.Ongoing) switch
-    {
-        ({ } first, _, true) => string.Format(View.Culture, View.Text["UsedSince"], first, evidence.Items.Count),
-        ({ } first, { } last, _) when first == last => string.Format(View.Culture, View.Text["UsedIn"], first, evidence.Items.Count),
-        ({ } first, { } last, _) => string.Format(View.Culture, View.Text["UsedBetween"], first, last, evidence.Items.Count),
-        _ => string.Format(View.Culture, View.Text["UsedItems"], evidence.Items.Count),
-    };
+    // Decision: the evidence counts its items and gives no years; the row tells the last use.
+    // Why: the first year of a keyword of a position still going on is the position's start, not a year the person
+    // confirmed, so a span from it would claim more than the CV knows.
+    private string Span(SkillEvidence evidence) => string.Format(View.Culture, View.Text["UsedItems"], evidence.Items.Count);
 }

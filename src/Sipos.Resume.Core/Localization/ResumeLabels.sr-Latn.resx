@@ -35,6 +35,8 @@
   <data name="Rating2" xml:space="preserve"><value>Osnovno</value></data>
   <data name="Rating1" xml:space="preserve"><value>Početno</value></data>
   <data name="RatingOf" xml:space="preserve"><value>{0} od 5</value></data>
+  <data name="InUse" xml:space="preserve"><value>u upotrebi</value></data>
+  <data name="LastUsed" xml:space="preserve"><value>poslednja upotreba {0}.</value></data>
   <data name="Present" xml:space="preserve"><value>danas</value></data>
   <data name="Client" xml:space="preserve"><value>Klijent</value></data>
   <data name="Role" xml:space="preserve"><value>Uloga</value></data>

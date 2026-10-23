@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Sipos.Resume.Core.Dates;
+using Sipos.Resume.Core.Evidence;
 using Sipos.Resume.Core.Focus;
 using Sipos.Resume.Core.Localization;
 using Sipos.Resume.Core.Model;
@@ -88,8 +89,11 @@ public sealed class DocumentOutline
         DocumentSection.Volunteering, DocumentSection.Languages,
     ];
 
+    private readonly IReadOnlyDictionary<string, SkillEvidence> _evidence;
+
     private DocumentOutline(ResumeDocument document, DocumentVariant variant, FocusView? focus)
     {
+        _evidence = SkillEvidence.Build(document);
         Document = document;
         Variant = variant;
         Focus = focus;
@@ -216,20 +220,55 @@ public sealed class DocumentOutline
     }
 
     /// <summary>
+    /// A skill's name as the documents write it: with the year it was used last, such as
+    /// <c>Selenium (last used 2021)</c>, when no ongoing item uses it any more; the name alone while it is in use, when
+    /// no dated item shows it, or when its rating measures usage.
+    /// </summary>
+    /// <param name="skill">The skill.</param>
+    /// <remarks>
+    /// Decision: a document dates only the skills no longer in use; the page shows every skill's last use.
+    /// Why: a year after every skill makes the list twice as long to read and hides the few that say something; a
+    /// skill without a year then reads as current, which it is.
+    /// </remarks>
+    public string SkillName(Skill skill)
+    {
+        ArgumentNullException.ThrowIfNull(skill);
+        return LastUse(skill) is { } lastUse ? $"{skill.Name} ({lastUse})" : skill.Name;
+    }
+
+    /// <summary>
+    /// A skill's level in words and, when no longer in use, its last use, as the plain lists write them after the name:
+    /// <c>Expert, last used 2021</c>; <see langword="null"/> when there is neither.
+    /// </summary>
+    /// <param name="skill">The skill.</param>
+    public string? SkillDetails(Skill skill)
+    {
+        ArgumentNullException.ThrowIfNull(skill);
+        var parts = new[] { Level(skill), LastUse(skill) }.OfType<string>().ToList();
+        return parts.Count == 0 ? null : string.Join(", ", parts);
+    }
+
+    // A usage level already says how recently a skill was used ("used in earlier projects"); a year next to it would
+    // repeat it, and on the ATS line its brackets would follow the skill's own.
+    private string? LastUse(Skill skill) =>
+        skill.Kind != RatingKind.Usage && _evidence.GetValueOrDefault(skill.Name) is { Ongoing: false, LastYear: { } year } ? Labels.LastUsed(year) : null;
+
+    /// <summary>
     /// The skills of one level as the ATS layouts write them: <c>Expert: C#, LINQ</c>, or for usage ratings
     /// <c>C#, LINQ (Usage: core and recurring)</c>; the names alone without a level.
     /// </summary>
     /// <param name="level">The level in words, or <see langword="null"/> or empty for none.</param>
     /// <param name="skills">The skills at that level.</param>
+    /// <param name="name">How to write each skill, such as <see cref="SkillName"/>; the name alone by default.</param>
     /// <remarks>
     /// Decision: a usage rating follows the skills, a proficiency rating leads them.
     /// Why: "Expert: C#" reads as a heading for what follows; a usage level is a remark on the skills, and its own words
     /// often end in a colon already ("Usage: core and recurring"), which a leading level would double.
     /// </remarks>
-    public static string SkillLine(string? level, IReadOnlyList<Skill> skills)
+    public static string SkillLine(string? level, IReadOnlyList<Skill> skills, Func<Skill, string>? name = null)
     {
         ArgumentNullException.ThrowIfNull(skills);
-        var names = string.Join(", ", skills.Select(skill => skill.Name));
+        var names = string.Join(", ", skills.Select(name ?? (skill => skill.Name)));
         if (string.IsNullOrEmpty(level))
         {
             return names;

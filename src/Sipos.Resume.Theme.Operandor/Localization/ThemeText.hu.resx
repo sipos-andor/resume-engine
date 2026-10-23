@@ -36,9 +36,6 @@
   <data name="MatchFound" xml:space="preserve"><value>Szerepel az önéletrajzban ({0})</value></data>
   <data name="MatchNone" xml:space="preserve"><value>A szövegben nem szerepel az önéletrajz egyetlen technológiája vagy készsége sem.</value></data>
   <data name="MatchCoverage" xml:space="preserve"><value>{0} egyező technológia és készség</value></data>
-  <data name="UsedSince" xml:space="preserve"><value>Használat: {0} óta · {1} munkahely és projekt</value></data>
-  <data name="UsedIn" xml:space="preserve"><value>Használat: {0} · {1} munkahely és projekt</value></data>
-  <data name="UsedBetween" xml:space="preserve"><value>Használat: {0}–{1} · {2} munkahely és projekt</value></data>
   <data name="UsedItems" xml:space="preserve"><value>{0} munkahely és projekt</value></data>
   <data name="TimelinePositions" xml:space="preserve"><value>Munkahelyek</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>Önéletrajz</value></data>

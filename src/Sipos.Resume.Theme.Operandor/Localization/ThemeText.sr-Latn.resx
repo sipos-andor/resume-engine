@@ -36,9 +36,6 @@
   <data name="MatchFound" xml:space="preserve"><value>U biografiji ({0})</value></data>
   <data name="MatchNone" xml:space="preserve"><value>U tekstu se ne pojavljuje nijedna tehnologija ili veština iz biografije.</value></data>
   <data name="MatchCoverage" xml:space="preserve"><value>Podudarnih tehnologija i veština: {0}</value></data>
-  <data name="UsedSince" xml:space="preserve"><value>Koristi od {0}. · pozicija i projekata: {1}</value></data>
-  <data name="UsedIn" xml:space="preserve"><value>Korišćeno {0}. · pozicija i projekata: {1}</value></data>
-  <data name="UsedBetween" xml:space="preserve"><value>Korišćeno {0}.–{1}. · pozicija i projekata: {2}</value></data>
   <data name="UsedItems" xml:space="preserve"><value>Pozicija i projekata: {0}</value></data>
   <data name="TimelinePositions" xml:space="preserve"><value>Radna mesta</value></data>
   <data name="DownloadsDesigned" xml:space="preserve"><value>Biografija</value></data>

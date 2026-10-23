@@ -114,6 +114,57 @@ public class DocumentOutlineOf
         DocumentOutline.SkillLine("", [new Skill("C#", null, null)]).ShouldBe("C#");
     }
 
+    // A document dates a skill no longer in use: the sample used Azure only in the Portal project of 2023, and LINQ in
+    // no dated item, so LINQ has no year to give.
+    [Fact]
+    public void DatesSkillNameGivenSkillNoLongerInUse()
+    {
+        var outline = DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Ats, focus: null);
+
+        outline.SkillName(new Skill("Azure", 4, "Advanced")).ShouldBe("Azure (last used 2023)");
+        outline.SkillName(new Skill("LINQ", 5, "Expert")).ShouldBe("LINQ");
+        DocumentOutline.Of(SampleDocuments.Hungarian(), DocumentVariant.Designed, focus: null).SkillName(new Skill("Azure", 4, "Advanced")).ShouldBe("Azure (utoljára 2023)");
+    }
+
+    // A usage level already tells how recently a skill was used, and it closes the line in brackets of its own.
+    [Fact]
+    public void KeepsSkillNameGivenUsageRating()
+    {
+        var outline = DocumentOutline.Of(SampleDocuments.Usage(), DocumentVariant.Ats, focus: null);
+        var azure = outline.Document.AllSkills.Single(skill => skill.Name == "Azure");
+
+        outline.SkillName(azure).ShouldBe("Azure");
+        outline.SkillDetails(azure).ShouldBe("Usage: recurring");
+    }
+
+    // A skill still in use needs no year: the ongoing position lists Azure.
+    [Fact]
+    public void KeepsSkillNameGivenSkillInUse()
+    {
+        var document = SampleDocuments.English();
+        document = document with { Positions = [document.Positions[0] with { Keywords = ["Azure"] }, document.Positions[1]] };
+
+        DocumentOutline.Of(document, DocumentVariant.Ats, focus: null).SkillName(new Skill("Azure", 4, "Advanced")).ShouldBe("Azure");
+    }
+
+    // The plain lists put the level and the last use in one remark after the name.
+    [Fact]
+    public void JoinsLevelAndLastUseGivenSkill()
+    {
+        var outline = DocumentOutline.Of(SampleDocuments.English(), DocumentVariant.Ats, focus: null);
+
+        outline.SkillDetails(new Skill("Azure", 4, "Advanced")).ShouldBe("Advanced, last used 2023");
+        outline.SkillDetails(new Skill("Azure", null, null)).ShouldBe("last used 2023");
+        outline.SkillDetails(new Skill("LINQ", 5, "Expert")).ShouldBe("Expert");
+        outline.SkillDetails(new Skill("LINQ", null, null)).ShouldBeNull();
+    }
+
+    // The ATS line writes each skill as the caller names it, so the documents can date the ones no longer in use.
+    [Fact]
+    public void WritesSkillLineWithGivenNames() =>
+        DocumentOutline.SkillLine("Advanced", [new Skill("Azure", 4, "Advanced"), new Skill("AWS", 4, "Advanced")], skill => skill.Name == "AWS" ? "AWS (last used 2024)" : skill.Name)
+            .ShouldBe("Advanced: Azure, AWS (last used 2024)");
+
     // The engine's own level words all fit the usual column; only a CV's own longer words widen it.
     [Fact]
     public void WidensLevelColumnOnlyGivenLongLevelOfCv()

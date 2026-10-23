@@ -314,7 +314,7 @@ internal sealed class AtsLayout : IDocument
                 var levels = group.Skills
                     .GroupBy(skill => _outline.Level(skill) ?? "")
                     .OrderByDescending(level => level.Max(skill => skill.Rating ?? 0))
-                    .Select(level => DocumentOutline.SkillLine(level.Key, [.. level]));
+                    .Select(level => DocumentOutline.SkillLine(level.Key, [.. level], _outline.SkillName));
                 column.Item().PreventPageBreak().SemanticListItem().SemanticListItemBody().Text(text =>
                 {
                     text.Span($"{group.Name}: ").SemiBold();

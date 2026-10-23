@@ -146,7 +146,7 @@ internal sealed class AtsDocxLayout(DocxComposer docx, DocumentContext context, 
             Docx.Add(StyleIds.SkillGroup, Text(group.Name));
             foreach (var level in group.Skills.GroupBy(skill => Outline.Level(skill) ?? "", StringComparer.Ordinal))
             {
-                Docx.Add(StyleIds.Skill, Text(DocumentOutline.SkillLine(level.Key, [.. level])));
+                Docx.Add(StyleIds.Skill, Text(DocumentOutline.SkillLine(level.Key, [.. level], Outline.SkillName)));
             }
         }
     }

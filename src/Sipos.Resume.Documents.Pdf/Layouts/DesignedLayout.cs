@@ -418,7 +418,7 @@ internal sealed class DesignedLayout : IDocument
 
     private void Skill(IContainer container, Skill skill) => container.Row(row =>
     {
-        row.RelativeItem().Text(skill.Name).LineHeight(1.35f);
+        row.RelativeItem().Text(_outline.SkillName(skill)).LineHeight(1.35f);
         if (skill.Rating is { } rating)
         {
             var width = MeterHeight * VectorMarks.MeterRatio;

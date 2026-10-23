@@ -242,7 +242,7 @@ internal sealed class DesignedDocxLayout(DocxComposer docx, DocumentContext cont
                 {
                     var skill = column < pair.Length ? pair[column] : null;
                     row.Append(
-                        Cell(widths[2 * column], keep, skill is null ? [] : [Text(skill.Name)]),
+                        Cell(widths[2 * column], keep, skill is null ? [] : [Text(Outline.SkillName(skill))]),
                         Cell(widths[(2 * column) + 1], keep, skill is null ? [] : Meter(skill)));
                 }
 

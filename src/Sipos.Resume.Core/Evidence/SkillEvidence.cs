@@ -31,15 +31,24 @@ public sealed record SkillEvidence(string Skill, IReadOnlyList<EvidenceItem> Ite
             .Select(item => (item.Id, item.Title, item.Period, Keys: item.Keywords.Select(Key).ToHashSet(StringComparer.Ordinal)))
             .ToList();
 
+        // Decision: a confirmed use adds its item to the skill's evidence, and its own period, when it has one, stands for
+        // the item's period for that skill alone, even where the item's keywords list the skill too.
+        // Why: a position still going on would otherwise make every skill it ever used current; the person confirms
+        // when a skill was used there, which the item's dates cannot say.
+        var confirmed = document.SkillAssociations.ToLookup(association => Key(association.Skill), StringComparer.Ordinal);
         var evidence = new Dictionary<string, SkillEvidence>(StringComparer.Ordinal);
         foreach (var skill in document.SkillGroups.SelectMany(group => group.Skills))
         {
             var key = Key(skill.Name);
-            var used = items.Where(item => item.Keys.Contains(key)).ToList();
+            var used = items
+                .Select(item => (Item: item, Association: confirmed[key].FirstOrDefault(association => association.ItemId == item.Id)))
+                .Where(use => use.Item.Keys.Contains(key) || use.Association is not null)
+                .Select(use => new EvidenceItem(use.Item.Id, use.Item.Title, use.Association?.Period ?? use.Item.Period))
+                .ToList();
             var periods = used.Where(item => item.Period is not null).Select(item => item.Period!.Value).ToList();
             evidence[skill.Name] = new SkillEvidence(
                 skill.Name,
-                [.. used.Select(item => new EvidenceItem(item.Id, item.Title, item.Period))],
+                used,
                 periods.Count == 0 ? null : periods.Min(period => period.Start.Year),
                 periods.Count == 0 || periods.Any(period => period.IsOngoing) ? null : periods.Max(period => period.End!.Value.Year),
                 periods.Any(period => period.IsOngoing));

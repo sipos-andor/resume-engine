@@ -51,12 +51,17 @@ public class PdfDocumentWriterWrite
         text.ShouldContain("Work Experience");
         text.ShouldContain("Certifications");
         text.ShouldContain("03/2015 – 10/2022");
-        text.ShouldContain("Expert: C#, LINQ");
+        text.ShouldContain("Expert: C# (last used 2023), LINQ");
         text.ShouldContain("Full-stack delivery: End to end.");
         text.ShouldContain("Technologies: C#, Azure");
         text.ShouldContain("Phone: +36 30 123 4567");
         text.ShouldNotContain("Scan for the online CV");
     }
+
+    // The sample used C# last in the Portal project of 2023.
+    [Fact]
+    public void DatesSkillNoLongerInUseGivenDesignedLayout() =>
+        PdfSamples.Text(PdfSamples.Write(DocumentVariant.Designed)).ShouldContain("C# (last used 2023)");
 
     [Theory]
     [InlineData(DocumentVariant.Designed)]
