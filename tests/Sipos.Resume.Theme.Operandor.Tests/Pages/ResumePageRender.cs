@@ -276,16 +276,26 @@ public class ResumePageRender
     }
 
     // The tools need the script; without it the button and the note stay hidden, the panel closed and the whole CV shows.
+    // The script reads these hooks without a null check, so a renamed attribute fails here and not in the browser.
     [Fact]
     public async Task HidesToolsUntilScriptGivenPage()
     {
         var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
 
-        document.QuerySelector("[data-cv-filter-toggle]")!.HasAttribute("hidden").ShouldBeTrue();
+        var toggle = document.QuerySelector("[data-cv-filter-toggle]")!;
+        toggle.HasAttribute("hidden").ShouldBeTrue();
+        toggle.GetAttribute("aria-expanded").ShouldBe("false");
+        var count = document.QuerySelector("[data-cv-filter-count]")!;
+        count.GetAttribute("aria-hidden").ShouldBe("true");
+        count.HasAttribute("hidden").ShouldBeTrue();
+        document.QuerySelector("[data-cv-filter-count-text]").ShouldNotBeNull();
         var panel = document.QuerySelector("[data-cv-tools]")!;
         panel.TagName.ShouldBe("DIALOG");
         panel.HasAttribute("open").ShouldBeFalse();
-        document.QuerySelector("[data-cv-view-note]")!.HasAttribute("hidden").ShouldBeTrue();
+        document.GetElementById(panel.GetAttribute("aria-labelledby")!).ShouldNotBeNull();
+        var note = document.QuerySelector("[data-cv-view-note]")!;
+        note.HasAttribute("hidden").ShouldBeTrue();
+        note.QuerySelector("[data-cv-view-note-text]").ShouldNotBeNull();
         document.QuerySelectorAll("[data-cv-focus-download]").ShouldAllBe(button => button.HasAttribute("hidden"));
         document.QuerySelector("[data-cv-copy-view]")!.HasAttribute("hidden").ShouldBeTrue();
     }
@@ -337,6 +347,20 @@ public class ResumePageRender
             panel.QuerySelector(selector).ShouldNotBeNull(selector);
         }
         panel.QuerySelector("#cv-panel-title")!.TextContent.ShouldBe("Filter and view");
+    }
+
+    // The hits and the status line sit right under the search field, not below the other fields, where a phone's
+    // on-screen keyboard would cover them.
+    [Fact]
+    public async Task PlacesHitsUnderSearchFieldGivenPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var search = document.QuerySelector(".cv-panel__fields > .cv-field--search")!;
+        var results = search.NextElementSibling!;
+        results.Id.ShouldBe("cv-search-results");
+        results.NextElementSibling!.Id.ShouldBe("cv-search-status");
+        document.GetElementById("cv-search")!.GetAttribute("aria-describedby").ShouldBe("cv-search-status");
     }
 
     // A CV with neither position profiles nor a one-page view has no focus field and no view switch; the rest stays.

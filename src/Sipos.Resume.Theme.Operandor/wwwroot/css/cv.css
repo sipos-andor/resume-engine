@@ -63,7 +63,9 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-panel__inner{--cv-panel-pad:20px;box-sizing:border-box;height:100%;overflow-y:auto;overscroll-behavior:contain;scroll-padding-top:72px;padding:0 var(--cv-panel-pad) 24px;border-left:1px solid var(--border-subtle)}
 .cv-panel__head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 calc(var(--cv-panel-pad) * -1);padding:12px var(--cv-panel-pad);background:var(--surface-card);border-bottom:1px solid var(--border-subtle)}
 .cv-panel__title{margin:0;font-family:var(--font-heading);font-size:var(--fs-h4);line-height:var(--lh-tight);font-weight:var(--fw-semibold);color:var(--text-heading)}
-.cv-panel__fields{display:grid;gap:16px;margin-top:20px}
+/* The space between the fields is a margin, not a grid gap, so the search's status line takes none while it is empty. */
+.cv-panel__fields{display:grid;margin-top:20px}
+.cv-panel__fields > * + *{margin-top:16px}
 .cv-field{display:grid;gap:6px;min-width:0}
 .cv-field .op-select{max-width:none}
 .cv-field__label{font-size:var(--fs-caption);font-weight:var(--fw-medium);color:var(--text-muted)}
@@ -72,8 +74,10 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-switch__option + .cv-switch__option{border-left:1px solid var(--border-default)}
 .cv-switch__option[aria-pressed="true"]{background:var(--accent);color:var(--text-on-accent)}
 .cv-switch__option:focus-visible{outline:var(--border-focus) solid var(--focus-ring);outline-offset:-2px}
-.cv-tools__status{margin:10px 0 0;min-height:1.4em;font-size:var(--fs-caption);color:var(--text-muted)}
-.cv-search-results{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+/* The hits and the status line close up to the search field above them. */
+.cv-tools__status{margin:8px 0 0;font-size:var(--fs-caption);color:var(--text-muted)}
+.cv-tools__status:empty{margin:0}
+.cv-search-results{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px}
 .cv-search-results[hidden]{display:none}
 /* A long title wraps on a phone, which a pill's round ends would squeeze. */
 .cv-search-results a{font-size:var(--fs-body-sm);padding:4px 10px;border:1px solid var(--border-default);border-radius:var(--radius-4);background:var(--surface-card)}

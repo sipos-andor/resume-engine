@@ -15,6 +15,10 @@
                 <label class="cv-field__label" for="cv-search">@View.Text["Search"]</label>
                 <input id="cv-search" class="op-input" type="search" autocomplete="off" spellcheck="false" placeholder="@View.Text["SearchPlaceholder"]" aria-describedby="cv-search-status" />
             </div>
+            @* The hits and the status line belong to the search, so they sit right under it, not below every other
+               control, where a phone's on-screen keyboard would cover them. *@
+            <div class="cv-search-results" id="cv-search-results" hidden></div>
+            <p class="cv-tools__status" id="cv-search-status" role="status" aria-live="polite"></p>
             @if (View.Document.FocusProfiles.Count > 0)
             {
                 <div class="cv-field">
@@ -51,8 +55,6 @@
                 </div>
             }
         </div>
-        <div class="cv-search-results" id="cv-search-results" hidden></div>
-        <p class="cv-tools__status" id="cv-search-status" role="status" aria-live="polite"></p>
         @* The copy button needs the clipboard, which the script checks before it shows the button. *@
         <div class="cv-panel__actions">
             <OpButton Variant="secondary" Size="sm" data-cv-copy-view="" hidden="">@View.Text["CopyLink"]</OpButton>
