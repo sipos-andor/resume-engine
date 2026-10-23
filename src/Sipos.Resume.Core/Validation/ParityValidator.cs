@@ -204,6 +204,8 @@ public static class ParityValidator
                 Add($"/x-skillsAssessment/confirmedAssociations/{i}/work", association.Work);
                 Add($"/x-skillsAssessment/confirmedAssociations/{i}/project", association.Project);
                 Add($"/x-skillsAssessment/confirmedAssociations/{i}/context", association.Context);
+                Add($"/x-skillsAssessment/confirmedAssociations/{i}/startDate", association.StartDate);
+                Add($"/x-skillsAssessment/confirmedAssociations/{i}/endDate", association.EndDate);
             }
         }
 

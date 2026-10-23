@@ -95,7 +95,7 @@ public sealed class PlainTextDocumentWriter : IDocumentWriter
                     foreach (var group in outline.SkillGroups)
                     {
                         text.Append(group.Name).Append(": ");
-                        text.AppendLine(string.Join(", ", group.Skills.Select(skill => outline.Level(skill) is { } level ? $"{skill.Name} ({level})" : skill.Name)));
+                        text.AppendLine(string.Join(", ", group.Skills.Select(skill => outline.SkillDetails(skill) is { } details ? $"{skill.Name} ({details})" : skill.Name)));
                     }
 
                     break;

@@ -132,4 +132,22 @@ public class ResumeMapperMap
         Document().SkillScale.ShouldBeNull();
         Document().AllSkills.ShouldAllBe(skill => skill.Kind == RatingKind.Proficiency);
     }
+
+    // A confirmed use names its position or project, and its own period when the file gives one.
+    [Fact]
+    public void MapsConfirmedAssociationsWithPeriodGivenDates()
+    {
+        var json = Samples.Usage.Replace(
+            """{ "skill": "Blazor", "work": "acme" }""",
+            """{ "skill": "Blazor", "work": "acme", "startDate": "2024", "endDate": "2025-06" }, { "skill": "Azure", "project": "portal" }""",
+            StringComparison.Ordinal);
+
+        var associations = ResumeMapper.Map(Samples.Read(json), English).SkillAssociations;
+
+        associations.ShouldBe(
+        [
+            new SkillAssociation("Blazor", "acme", new DateRange(new PartialDate(2024), new PartialDate(2025, 6))),
+            new SkillAssociation("Azure", "portal"),
+        ]);
+    }
 }

@@ -56,6 +56,13 @@ public sealed class ResumeLabels
     /// <param name="rating">The level.</param>
     public string RatingOf(int rating) => string.Format(_culture, this["RatingOf"], rating);
 
+    /// <summary>When a skill no longer in use was used last, such as <c>last used 2021</c>.</summary>
+    /// <param name="year">The last year of use.</param>
+    public string LastUsed(int year) => string.Format(_culture, this["LastUsed"], year);
+
+    /// <summary>The label <c>in use</c>, for a skill an ongoing position or project still uses.</summary>
+    public string InUse => this[nameof(InUse)];
+
     /// <summary>The label <c>Profile</c>.</summary>
     public string Profile => this[nameof(Profile)];
 

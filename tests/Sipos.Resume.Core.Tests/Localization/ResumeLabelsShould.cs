@@ -27,7 +27,7 @@ public class ResumeLabelsShould
         var labels = new ResumeLabels(CultureInfo.GetCultureInfo("hu-HU"));
         var properties = typeof(ResumeLabels).GetProperties().Where(p => p.PropertyType == typeof(string) && p.GetIndexParameters().Length == 0).ToList();
 
-        properties.Select(p => p.Name).Order().ShouldBe(Keys(Resources.GetResourceSet(CultureInfo.InvariantCulture, true, false)!).Where(k => k != "RatingOf"));
+        properties.Select(p => p.Name).Order().ShouldBe(Keys(Resources.GetResourceSet(CultureInfo.InvariantCulture, true, false)!).Where(k => k is not ("RatingOf" or "LastUsed")));
         properties.ShouldAllBe(p => !string.IsNullOrWhiteSpace((string)p.GetValue(labels)!));
     }
 

@@ -52,6 +52,10 @@ a contact link, availability, strengths, position profiles (`?focus=` and tailor
 aliases for job ad matching, and what the skills' ratings measure (`x-ratingKind`: `proficiency` or `usage`) with the
 scale and note the skills section shows as its legend (`x-skillsAssessment`). They are documented on the types in
 `Sipos.Resume.Core.Content`.
+Each skill shows its last use ("in use" or "last used 2021"), taken from the dated positions and projects whose
+keywords name it and from the uses the CV confirms in `x-skillsAssessment.confirmedAssociations`; a confirmed use may
+give a `startDate` and `endDate` of its own, which then stand for its item's period for that skill. The documents add
+the year only to skills rated by proficiency that no ongoing item uses.
 Projects whose names differ across languages must provide the same explicit `x-id` in every language; otherwise
 their identifiers are generated from their names and start dates.
 The page and every document show the work, projects, skills, education with its scores and courses, certificates,

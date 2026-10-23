@@ -63,7 +63,7 @@ public class DocxDocumentWriterWrite
         Texts(bytes, "Heading1").ShouldBe(["Summary", "Skills", "Work Experience", "Projects", "Education", "Certifications", "Awards", "Publications", "Volunteer Experience", "Languages"]);
         Texts(bytes, "Heading2").ShouldContain("Engineer – Initech");
         paragraphs.ShouldContain("03/2015 – 10/2022");
-        paragraphs.ShouldContain("Expert: C#, LINQ");
+        paragraphs.ShouldContain("Expert: C# (last used 2023), LINQ");
         paragraphs.ShouldContain("Proficient: Blazor");
         paragraphs.ShouldContain("Technologies: C#, Azure");
         Texts(bytes, "ListBullet").ShouldContain("Full-stack delivery: End to end.");
@@ -171,6 +171,17 @@ public class DocxDocumentWriterWrite
         new[] { Theme.Heading, Theme.Body, Theme.Muted, Theme.Subtle, Theme.Accent }.ShouldBeSubsetOf(colours);
         styles.Descendants(W + "style").Single(style => style.Attribute(W + "styleId")!.Value == "Heading1")
             .Descendants(W + "bottom").Single().Attribute(W + "color")!.Value.ShouldBe(Theme.Rule);
+    }
+
+    // The sample used C# last in the Portal project of 2023; LINQ no dated item shows.
+    [Fact]
+    public void DatesSkillNoLongerInUseGivenDesignedLayout()
+    {
+        using var document = Open(Write("en", DocumentVariant.Designed));
+        var cells = document.MainDocumentPart!.Document!.Body!.Descendants<TableCell>().Select(cell => cell.InnerText).ToList();
+
+        cells.ShouldContain("C# (last used 2023)");
+        cells.ShouldContain("LINQ");
     }
 
     [Fact]

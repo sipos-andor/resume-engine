@@ -35,6 +35,8 @@
   <data name="Rating2" xml:space="preserve"><value>Alapszint</value></data>
   <data name="Rating1" xml:space="preserve"><value>Ismerkedő</value></data>
   <data name="RatingOf" xml:space="preserve"><value>5-ből {0}</value></data>
+  <data name="InUse" xml:space="preserve"><value>jelenleg is</value></data>
+  <data name="LastUsed" xml:space="preserve"><value>utoljára {0}</value></data>
   <data name="Present" xml:space="preserve"><value>jelenleg</value></data>
   <data name="Client" xml:space="preserve"><value>Ügyfél</value></data>
   <data name="Role" xml:space="preserve"><value>Szerep</value></data>

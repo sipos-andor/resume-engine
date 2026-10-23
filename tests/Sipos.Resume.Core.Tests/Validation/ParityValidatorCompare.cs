@@ -231,6 +231,18 @@ public class ParityValidatorCompare
             .Select(issue => issue.Path).ShouldBe(["/skills/0/x-ratingKind", "/x-skillsAssessment/scale/0/value"]);
     }
 
+    // When a confirmed use happened is a fact, the same in every language.
+    [Fact]
+    public void ReportsAssociationPeriodGivenDifferentDates()
+    {
+        var english = Samples.Read(Samples.Usage);
+        var dated = english.SkillsAssessment! with { ConfirmedAssociations = [english.SkillsAssessment.ConfirmedAssociations[0] with { StartDate = "2024", EndDate = "2025" }] };
+        var translated = english.SkillsAssessment with { ConfirmedAssociations = [english.SkillsAssessment.ConfirmedAssociations[0] with { StartDate = "2023" }] };
+
+        ParityValidator.Compare(("resume.en.json", english with { SkillsAssessment = dated }), [("resume.hu.json", english with { SkillsAssessment = translated })])
+            .Select(issue => issue.Path).ShouldBe(["/x-skillsAssessment/confirmedAssociations/0/endDate", "/x-skillsAssessment/confirmedAssociations/0/startDate"]);
+    }
+
     // The scale's words, the note, a grade's notation and the courses' names are written in each language.
     [Fact]
     public void AcceptsTranslatedNoteLabelsScoreAndCoursesGivenSameFacts()

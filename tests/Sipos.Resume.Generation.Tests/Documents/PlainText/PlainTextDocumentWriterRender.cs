@@ -41,7 +41,7 @@ public class PlainTextDocumentWriterRender
     }
 
     [Fact]
-    public void WritesLevelsInWordsGivenSkills() => English().ShouldContain(".NET platform: C# (Expert), LINQ (Expert), Blazor (Proficient)");
+    public void WritesLevelsInWordsGivenSkills() => English().ShouldContain(".NET platform: C# (Expert, last used 2023), LINQ (Expert), Blazor (Proficient)");
 
     [Fact]
     public void ListsStrengthsUnderSummaryGivenStrengths() => English().ShouldContain("Builds .NET systems.\n- Full-stack delivery: End to end.\n");

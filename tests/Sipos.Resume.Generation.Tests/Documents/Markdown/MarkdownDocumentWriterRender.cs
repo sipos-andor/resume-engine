@@ -142,6 +142,16 @@ public class MarkdownDocumentWriterRender
         MarkdownDocumentWriter.Render(Contexts.For(SampleDocuments.Usage(), DownloadFormat.Markdown, DocumentVariant.Designed))
             .ShouldContain("## Technologies and competences\n\nScores describe usage, not proficiency.\n\n### .NET platform");
 
+    // The sample used C# last in the Portal project of 2023; LINQ no dated item shows.
+    [Fact]
+    public void WritesLevelAndLastUseGivenSkillNoLongerInUse()
+    {
+        var markdown = English();
+
+        markdown.ShouldContain("- C# – Expert, last used 2023\n");
+        markdown.ShouldContain("- LINQ – Expert\n");
+    }
+
     [Fact]
     public void WritesPublicationsVolunteeringAndStudyDetailsGivenSample()
     {

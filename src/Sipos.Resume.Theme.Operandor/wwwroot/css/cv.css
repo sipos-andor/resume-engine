@@ -173,7 +173,9 @@ a.cv-availability:hover{border-color:var(--accent)}
 summary.cv-skill__row{cursor:pointer;list-style:none}
 summary.cv-skill__row::-webkit-details-marker{display:none}
 summary.cv-skill__row:hover .cv-skill__name{color:var(--text-link)}
+.cv-skill__label{display:flex;flex-direction:column;min-width:0}
 .cv-skill__name{color:var(--text-heading);overflow-wrap:anywhere}
+.cv-skill__used{font-size:var(--fs-caption);color:var(--text-muted)}
 summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--text-subtle);text-underline-offset:4px}
 .cv-skill__level{font-size:var(--fs-caption);color:var(--text-muted);text-align:right}
 .cv-meter{--cv-step:15px;position:relative;display:inline-block;width:calc(var(--cv-step) * 5 - 3px);height:6px;background:repeating-linear-gradient(to right,var(--border-default) 0 12px,transparent 12px var(--cv-step))}

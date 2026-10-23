@@ -420,6 +420,31 @@ public class ResumeValidatorValidate
         ]);
     }
 
+    // A confirmed use's own period is a period like an item's, and an end alone says nothing about when it began.
+    [Fact]
+    public void RefusesAssociationPeriodGivenMalformedReversedOrEndOnlyDates()
+    {
+        var resume = Samples.Read(Samples.Usage);
+        var assessment = resume.SkillsAssessment! with
+        {
+            ConfirmedAssociations =
+            [
+                new() { Skill = "Blazor", Work = "acme", StartDate = "2025", EndDate = "2024" },
+                new() { Skill = "Blazor", Work = "acme", StartDate = "last year" },
+                new() { Skill = "Blazor", Work = "acme", EndDate = "2024" },
+                new() { Skill = "Blazor", Work = "acme", StartDate = "2024", EndDate = "2025-06" },
+                new() { Skill = "Blazor", Work = "acme", StartDate = "2026" },
+            ],
+        };
+
+        PathsOf(resume with { SkillsAssessment = assessment }).ShouldBe(
+        [
+            "/x-skillsAssessment/confirmedAssociations/0/endDate",
+            "/x-skillsAssessment/confirmedAssociations/1/startDate",
+            "/x-skillsAssessment/confirmedAssociations/2/startDate",
+        ]);
+    }
+
     // The page names volunteer work by its position or, failing that, its organization.
     [Fact]
     public void RefusesVolunteerWorkGivenNeitherPositionNorOrganization()

@@ -97,7 +97,7 @@ public sealed class MarkdownDocumentWriter : IDocumentWriter
                         foreach (var skill in group.Skills)
                         {
                             text.Append("- ").Append(MarkdownText.EscapeBlock(skill.Name));
-                            text.AppendLine(outline.Level(skill) is { } level ? " – " + MarkdownText.Escape(level) : "");
+                            text.AppendLine(outline.SkillDetails(skill) is { } details ? " – " + MarkdownText.Escape(details) : "");
                         }
 
                         text.AppendLine();

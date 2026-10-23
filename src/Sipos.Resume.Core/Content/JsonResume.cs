@@ -516,4 +516,10 @@ public sealed record JsonResumeSkillAssociation
 
     /// <summary>How it was used, such as <c>experimental-project</c>.</summary>
     public string? Context { get; init; }
+
+    /// <summary>When the use began, for a use shorter than its position or project, such as <c>2025</c>.</summary>
+    public string? StartDate { get; init; }
+
+    /// <summary>When the use ended, or nothing for a use still going on.</summary>
+    public string? EndDate { get; init; }
 }

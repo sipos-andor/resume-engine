@@ -1,6 +1,12 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
-<span class="cv-skill__name">@Skill.Name</span>
+<span class="cv-skill__label">
+    <span class="cv-skill__name">@Skill.Name</span>
+    @if (LastUse is { } lastUse)
+    {
+        <span class="cv-skill__used">@lastUse</span>
+    }
+</span>
 @if (Skill.Rating is { } rating)
 {
     <SkillMeter Rating="rating" />
@@ -15,4 +21,12 @@
 
     /// <summary>The skill.</summary>
     [Parameter, EditorRequired] public Skill Skill { get; set; } = default!;
+
+    // Every skill tells when it was used last, under its name; one no dated item shows tells nothing.
+    private string? LastUse => View.Page.Insights.Evidence.GetValueOrDefault(Skill.Name) switch
+    {
+        { Ongoing: true } => View.Labels.InUse,
+        { LastYear: { } year } => View.Labels.LastUsed(year),
+        _ => null,
+    };
 }

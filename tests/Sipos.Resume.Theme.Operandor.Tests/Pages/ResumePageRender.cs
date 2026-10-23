@@ -422,6 +422,21 @@ public class ResumePageRender
         skill.QuerySelector(".cv-meter")!.GetAttribute("aria-hidden").ShouldBe("true");
     }
 
+    // Each row tells when its skill was used last, or that it is in use; the opened evidence only counts the items,
+    // as the first year of an ongoing position's keyword says nothing the person confirmed.
+    [Fact]
+    public async Task ShowsLastUseOnRowGivenSkills()
+    {
+        var pages = ThemePages.Sample(change: document => document with { Positions = [document.Positions[0] with { Keywords = ["Azure"] }, document.Positions[1]] });
+        var document = await ThemePages.RenderAsync(pages, 0);
+
+        document.QuerySelector("[data-cv-skill='c#'] .cv-skill__used")!.TextContent.ShouldBe("last used 2023");
+        document.QuerySelector("[data-cv-skill='azure'] .cv-skill__used")!.TextContent.ShouldBe("in use");
+        document.QuerySelector("[data-cv-skill='linq'] .cv-skill__used").ShouldBeNull();
+        document.QuerySelector("[data-cv-skill='c#'] .cv-evidence__span")!.TextContent.ShouldBe("Positions and projects: 1");
+        (await ThemePages.RenderAsync(pages, 1)).QuerySelector("[data-cv-skill='c#'] .cv-skill__used")!.TextContent.ShouldBe("utoljára 2023");
+    }
+
     // Only the PDFs may show the address, as an image; the page never does.
     [Fact]
     public async Task ShowsNoEmailAddressGivenAnyPage()
