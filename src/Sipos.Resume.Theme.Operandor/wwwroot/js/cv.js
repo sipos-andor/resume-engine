@@ -109,8 +109,13 @@ const panel = document.querySelector("[data-cv-tools]");
 const filterToggle = document.querySelector("[data-cv-filter-toggle]");
 const main = document.querySelector("[data-cv-view-root]");
 if (data && panel && filterToggle && main) {
-    // The panel stays closed; the button that opens it is what the script shows.
-    filterToggle.hidden = false;
+    // The panel stays closed; the button that opens it is what the script shows. Both wait for a browser that knows
+    // <dialog>: without it the panel would be a column of controls in the page, and the button would open nothing. The
+    // note under the job title works either way.
+    if (typeof panel.showModal === "function") {
+        panel.hidden = false;
+        filterToggle.hidden = false;
+    }
     panelLive = statusRegion(panel.querySelector(".cv-panel__inner") ?? panel);
     const items = [...document.querySelectorAll("[data-cv-id]")];
     const work = items.filter((item) => item.dataset.cvTech !== undefined);
@@ -135,9 +140,12 @@ if (data && panel && filterToggle && main) {
         query: "",
     };
 
+    // The parameters that name the view; an empty value means the parameter is left out.
+    const viewParams = () => [["focus", state.focus], ["tech", state.technology], ["view", state.view === "short" ? "short" : ""]];
+
     const remember = () => {
         const url = new URL(location.href);
-        for (const [name, value] of [["focus", state.focus], ["tech", state.technology], ["view", state.view === "short" ? "short" : ""]]) {
+        for (const [name, value] of viewParams()) {
             if (value) {
                 url.searchParams.set(name, value);
             } else {
@@ -271,10 +279,18 @@ if (data && panel && filterToggle && main) {
     // panel that leaves the CV usable, so the reader sees each change take effect. Both kinds of <dialog> move focus to
     // their first control, the close button, when they open.
     const phone = matchMedia("(max-width:640px)");
+    const header = document.querySelector(".op-header");
     // Whether the open panel is the modal sheet. Asking the panel for :modal would throw in a browser without it.
     let modal = false;
+    // Where the focus goes once the panel has closed. The way it was closed decides, not the page: by the time the close
+    // event comes, the dialog has already given the focus back to whatever had it when the panel opened.
+    let returnTo = null;
     const openPanel = () => {
         modal = phone.matches;
+        // The side panel starts under the sticky header, at whatever height the design system gives it.
+        if (header) {
+            panel.style.setProperty("--cv-panel-top", `${header.offsetHeight}px`);
+        }
         if (modal) {
             panel.showModal();
         } else {
@@ -283,68 +299,97 @@ if (data && panel && filterToggle && main) {
         filterToggle.setAttribute("aria-expanded", "true");
         document.documentElement.classList.add("cv-panel-open");
     };
+    // target: the element the focus goes to, or null to leave it where it is.
+    const closePanel = (target) => {
+        returnTo = target;
+        panel.close();
+    };
     filterToggle.addEventListener("click", () => {
         if (panel.open) {
-            panel.close();
+            closePanel(filterToggle);
         } else {
             openPanel();
         }
     });
-    // Every way of closing ends in this event. It hands the focus back to the button when the focus was in the panel or
-    // nowhere, but leaves a reader who closed the panel from the CV where they were. A confirmation left in the panel's
-    // status region is cleared, so it is not read out of date when the panel opens again.
+    // Every way of closing ends in this event. A confirmation left in the panel's status region is cleared, so it is not
+    // read out of date when the panel opens again. A modal sheet that closed on its own Escape named no target, and the
+    // reader goes back to the button.
     panel.addEventListener("close", () => {
-        const active = document.activeElement;
         filterToggle.setAttribute("aria-expanded", "false");
         document.documentElement.classList.remove("cv-panel-open");
         panelLive.textContent = "";
-        if (!active || active === document.body || active === filterToggle || panel.contains(active)) {
-            filterToggle.focus();
-        }
+        const target = returnTo ?? (modal ? filterToggle : null);
+        returnTo = null;
+        target?.focus({ preventScroll: true });
     });
-    document.querySelector("[data-cv-panel-close]")?.addEventListener("click", () => panel.close());
+    document.querySelector("[data-cv-panel-close]")?.addEventListener("click", () => closePanel(filterToggle));
     // A modal sheet closes on Escape by itself; the side panel is not modal and does not. It leaves the CV usable, so
-    // Escape works wherever the focus is: a reader can tab into the part of the page the panel lies over. The capture
-    // phase sees the menus before their handler above closes them, so an open menu takes the key and the panel stays.
+    // Escape works wherever the focus is: a reader can tab into the part of the page the panel lies over. From the panel
+    // the reader goes back to the button; from the CV they stay where they were. An open menu takes the key and the
+    // panel stays: the capture phase notes the menus before their handler above closes them. An Escape that ends an
+    // input method's composition, or that a control has already handled, is not for the panel either; listening in the
+    // bubble phase lets the control see it first.
     // The search field would also empty itself on Escape without telling the script, which would leave the hits of a
     // search it no longer shows, so the key's default is prevented there.
+    let menuTookEscape = false;
     document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || !panel.open || modal || openMenus().length > 0) {
+        menuTookEscape = event.key === "Escape" && openMenus().length > 0;
+    }, true);
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || event.isComposing || event.defaultPrevented || menuTookEscape || !panel.open || modal) {
             return;
         }
         if (event.target === search) {
             event.preventDefault();
         }
-        panel.close();
-    }, true);
-    // The panel's padding is on its inner element, so a click that lands on the dialog itself is on the backdrop.
+        closePanel(panel.contains(event.target) ? filterToggle : null);
+    });
+    // The panel's padding is on its inner element, so a click that lands on the dialog itself is on the backdrop. A drag
+    // that starts inside the sheet, such as selecting text, and ends on the backdrop also clicks the dialog itself, so
+    // the press has to start on the backdrop too.
+    let pressedOn = null;
+    panel.addEventListener("pointerdown", (event) => { pressedOn = event.target; });
     panel.addEventListener("click", (event) => {
-        if (event.target === panel) {
-            panel.close();
+        if (event.target === panel && pressedOn === panel) {
+            closePanel(filterToggle);
         }
     });
     // The two layouts differ in more than looks, so an open panel does not carry over from one to the other.
-    phone.addEventListener("change", () => panel.close());
-    // On a phone the sheet covers the CV: a search hit closes it, so the reader lands on the item.
+    phone.addEventListener("change", () => closePanel(null));
+    // On a phone the sheet covers the CV: a search hit closes it, and the focus goes to the item the page scrolls to, so a
+    // keyboard or screen reader user lands there too.
     results.addEventListener("click", (event) => {
-        if (event.target.closest("a") && modal) {
-            panel.close();
+        const link = event.target.closest("a");
+        if (!link || !modal) {
+            return;
         }
+        const target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
+        if (target && !target.hasAttribute("tabindex")) {
+            target.setAttribute("tabindex", "-1");
+        }
+        closePanel(target ?? filterToggle);
     });
 
-    // Copy link: the address already holds the focus, technology and view, which remember() keeps there. It is copied
-    // without a #fragment, which a search hit or a deep link leaves behind: the link opens at the top, on the note that
-    // names the view. The button says "Link copied" for a moment, as the deep links' # mark does, so a reader who
-    // cannot hear the live region sees it too.
+    // Copy link: the view's own address, the page with its focus, technology and view. It leaves out the parameters the
+    // page was opened with (a campaign's, or an id the state did not take) and the #fragment a search hit or a deep link
+    // leaves behind, so the link opens at the top, on the note that names the view. The button says "Link copied" for a
+    // moment, as the deep links' # mark does, so a reader who cannot hear the live region sees it too; its name stays
+    // "Copy link", so a screen reader hears the confirmation once, from the live region, not again as the focused
+    // button's new name.
     const copyView = document.querySelector("[data-cv-copy-view]");
     if (copyView && navigator.clipboard) {
-        const copyLabel = copyView.textContent;
+        const copyLabel = copyView.textContent.trim();
         let restoring;
+        copyView.setAttribute("aria-label", copyLabel);
         copyView.hidden = false;
         copyView.addEventListener("click", async () => {
             try {
-                const url = new URL(location.href);
-                url.hash = "";
+                const url = new URL(location.pathname, location.origin);
+                for (const [name, value] of viewParams()) {
+                    if (value) {
+                        url.searchParams.set(name, value);
+                    }
+                }
                 await navigator.clipboard.writeText(url.href);
                 announce(words.LinkCopied);
                 copyView.textContent = words.LinkCopied;

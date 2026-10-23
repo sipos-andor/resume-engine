@@ -1,10 +1,11 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
 @* The reader's tools, in the panel the header's filter button opens: search, focus on a position profile, filter by
-   technology, one-page or full view, copy link, print, the job ad matcher and clearing it all. Closed in the markup:
-   the script opens it and shows the button, so a reader without it sees no control that does nothing; the whole CV is
+   technology, one-page or full view, copy link, print, the job ad matcher and clearing it all. Closed and hidden in the
+   markup: the script shows it and the button in a browser that knows <dialog>, so a reader without either sees no
+   control that does nothing, not even in a browser that would draw an unknown <dialog> in the page; the whole CV is
    there either way. *@
-<dialog id="cv-panel" class="cv-panel" aria-labelledby="cv-panel-title" data-cv-tools="">
+<dialog id="cv-panel" class="cv-panel" aria-labelledby="cv-panel-title" data-cv-tools="" hidden>
     <div class="cv-panel__inner">
         <div class="cv-panel__head">
             <h2 id="cv-panel-title" class="cv-panel__title">@View.Text["PanelTitle"]</h2>

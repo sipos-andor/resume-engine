@@ -30,4 +30,15 @@ public class OperandorThemeFiles
         theme.Documents.SansFamily.ShouldBe("IBM Plex Sans");
         theme.RequiredAssets.ShouldContain("/_content/Operandor.DesignSystem/operandor.css");
     }
+
+    // The page script imports both modules: listed here, they are part of the asset version, so a deploy that changes
+    // only one of them reaches the browser, and the output verifier catches a missing one, which would stop the script.
+    [Fact]
+    public void ListsScriptModulesGivenTheme()
+    {
+        var assets = new OperandorTheme().RequiredAssets;
+
+        assets.ShouldContain(OperandorTheme.AssetRoot + "/js/text.js");
+        assets.ShouldContain(OperandorTheme.AssetRoot + "/js/view.js");
+    }
 }

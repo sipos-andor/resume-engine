@@ -275,7 +275,8 @@ public class ResumePageRender
         acme.QuerySelector("#portal").ShouldNotBeNull();
     }
 
-    // The tools need the script; without it the button and the note stay hidden, the panel closed and the whole CV shows.
+    // The tools need the script; without it the button and the note stay hidden, the panel closed and hidden (a browser
+    // without <dialog> would otherwise draw it in the page) and the whole CV shows.
     // The script reads these hooks without a null check, so a renamed attribute fails here and not in the browser.
     [Fact]
     public async Task HidesToolsUntilScriptGivenPage()
@@ -292,6 +293,7 @@ public class ResumePageRender
         var panel = document.QuerySelector("[data-cv-tools]")!;
         panel.TagName.ShouldBe("DIALOG");
         panel.HasAttribute("open").ShouldBeFalse();
+        panel.HasAttribute("hidden").ShouldBeTrue();
         document.GetElementById(panel.GetAttribute("aria-labelledby")!).ShouldNotBeNull();
         var note = document.QuerySelector("[data-cv-view-note]")!;
         note.HasAttribute("hidden").ShouldBeTrue();
