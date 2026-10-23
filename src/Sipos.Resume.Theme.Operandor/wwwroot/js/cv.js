@@ -4,8 +4,10 @@
 // The page loads this module with the build's asset version (?v=); text.js and view.js come with the same query, so a
 // deploy that changed one reaches the browser at once instead of after the cached copy expires.
 const version = new URL(import.meta.url).search;
-const { find, key, match } = await import(`./text.js${version}`);
-const { activeCount, format, noteText } = await import(`./view.js${version}`);
+const [{ find, key, match }, { activeCount, format, noteText }] = await Promise.all([
+    import(`./text.js${version}`),
+    import(`./view.js${version}`),
+]);
 
 const data = JSON.parse(document.getElementById("cv-data")?.textContent ?? "null");
 const words = data?.text ?? {};
@@ -269,8 +271,11 @@ if (data && panel && filterToggle && main) {
     // panel that leaves the CV usable, so the reader sees each change take effect. Both kinds of <dialog> move focus to
     // their first control, the close button, when they open.
     const phone = matchMedia("(max-width:640px)");
+    // Whether the open panel is the modal sheet. Asking the panel for :modal would throw in a browser without it.
+    let modal = false;
     const openPanel = () => {
-        if (phone.matches) {
+        modal = phone.matches;
+        if (modal) {
             panel.showModal();
         } else {
             panel.show();
@@ -285,22 +290,33 @@ if (data && panel && filterToggle && main) {
             openPanel();
         }
     });
-    // Every way of closing ends in this event, which hands the focus back to the button.
+    // Every way of closing ends in this event. It hands the focus back to the button when the focus was in the panel or
+    // nowhere, but leaves a reader who closed the panel from the CV where they were. A confirmation left in the panel's
+    // status region is cleared, so it is not read out of date when the panel opens again.
     panel.addEventListener("close", () => {
+        const active = document.activeElement;
         filterToggle.setAttribute("aria-expanded", "false");
         document.documentElement.classList.remove("cv-panel-open");
-        filterToggle.focus();
-    });
-    document.querySelector("[data-cv-panel-close]")?.addEventListener("click", () => panel.close());
-    // A modal sheet closes on Escape by itself; the side panel is not modal and does not. The default is prevented so
-    // the search field does not also empty itself without telling the script, which would leave the hits of a search
-    // it no longer shows.
-    panel.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && !panel.matches(":modal")) {
-            event.preventDefault();
-            panel.close();
+        panelLive.textContent = "";
+        if (!active || active === document.body || active === filterToggle || panel.contains(active)) {
+            filterToggle.focus();
         }
     });
+    document.querySelector("[data-cv-panel-close]")?.addEventListener("click", () => panel.close());
+    // A modal sheet closes on Escape by itself; the side panel is not modal and does not. It leaves the CV usable, so
+    // Escape works wherever the focus is: a reader can tab into the part of the page the panel lies over. The capture
+    // phase sees the menus before their handler above closes them, so an open menu takes the key and the panel stays.
+    // The search field would also empty itself on Escape without telling the script, which would leave the hits of a
+    // search it no longer shows, so the key's default is prevented there.
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || !panel.open || modal || openMenus().length > 0) {
+            return;
+        }
+        if (event.target === search) {
+            event.preventDefault();
+        }
+        panel.close();
+    }, true);
     // The panel's padding is on its inner element, so a click that lands on the dialog itself is on the backdrop.
     panel.addEventListener("click", (event) => {
         if (event.target === panel) {
@@ -311,14 +327,15 @@ if (data && panel && filterToggle && main) {
     phone.addEventListener("change", () => panel.close());
     // On a phone the sheet covers the CV: a search hit closes it, so the reader lands on the item.
     results.addEventListener("click", (event) => {
-        if (event.target.closest("a") && panel.matches(":modal")) {
+        if (event.target.closest("a") && modal) {
             panel.close();
         }
     });
 
-    // Copy link: the address already holds the focus, technology and view, which remember() keeps there. The button
-    // says "Link copied" for a moment, as the deep links' # mark does, so a reader who cannot hear the live region
-    // sees it too.
+    // Copy link: the address already holds the focus, technology and view, which remember() keeps there. It is copied
+    // without a #fragment, which a search hit or a deep link leaves behind: the link opens at the top, on the note that
+    // names the view. The button says "Link copied" for a moment, as the deep links' # mark does, so a reader who
+    // cannot hear the live region sees it too.
     const copyView = document.querySelector("[data-cv-copy-view]");
     if (copyView && navigator.clipboard) {
         const copyLabel = copyView.textContent;
@@ -326,7 +343,9 @@ if (data && panel && filterToggle && main) {
         copyView.hidden = false;
         copyView.addEventListener("click", async () => {
             try {
-                await navigator.clipboard.writeText(location.href);
+                const url = new URL(location.href);
+                url.hash = "";
+                await navigator.clipboard.writeText(url.href);
                 announce(words.LinkCopied);
                 copyView.textContent = words.LinkCopied;
                 clearTimeout(restoring);
