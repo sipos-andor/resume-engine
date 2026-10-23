@@ -1,22 +1,32 @@
 // The page's interactive features. The build derives everything (search index, technologies, position profiles, job ad
 // vocabulary) and writes it into the #cv-data block; this script only applies it. Without the script the whole CV
 // shows and the tools stay hidden.
-// The page loads this module with the build's asset version (?v=); text.js comes with the same query, so a deploy
-// that changed it reaches the browser at once instead of after the cached copy expires.
-const { find, key, match } = await import(`./text.js${new URL(import.meta.url).search}`);
+// The page loads this module with the build's asset version (?v=); text.js and view.js come with the same query, so a
+// deploy that changed one reaches the browser at once instead of after the cached copy expires.
+const version = new URL(import.meta.url).search;
+const [{ find, key, match }, { activeCount, format, noteText }] = await Promise.all([
+    import(`./text.js${version}`),
+    import(`./view.js${version}`),
+]);
 
 const data = JSON.parse(document.getElementById("cv-data")?.textContent ?? "null");
 const words = data?.text ?? {};
-const format = (template, ...values) => (template ?? "").replace(/\{(\d+)\}/g, (_, index) => String(values[Number(index)]));
 
-// A polite live region for confirmations such as "Link copied".
-const live = document.createElement("p");
-live.className = "op-visually-hidden";
-live.setAttribute("role", "status");
-document.body.append(live);
+// Polite live regions for confirmations such as "Link copied": one on the page, and one in the panel for as long as it
+// is open, because a modal sheet makes the rest of the page inert and a change outside the dialog goes unannounced.
+const statusRegion = (parent) => {
+    const region = document.createElement("p");
+    region.className = "op-visually-hidden";
+    region.setAttribute("role", "status");
+    parent.append(region);
+    return region;
+};
+const live = statusRegion(document.body);
+let panelLive;
 const announce = (message) => {
-    live.textContent = "";
-    requestAnimationFrame(() => { live.textContent = message; });
+    const region = panelLive?.closest("dialog").open ? panelLive : live;
+    region.textContent = "";
+    requestAnimationFrame(() => { region.textContent = message; });
 };
 
 // Theme switch: the design system's ThemeToggle markup driven by the shared kernel's theme.js, in the order of its
@@ -95,10 +105,18 @@ for (const anchor of document.querySelectorAll("[data-cv-copy]")) {
     });
 }
 
-const tools = document.querySelector("[data-cv-tools]");
+const panel = document.querySelector("[data-cv-tools]");
+const filterToggle = document.querySelector("[data-cv-filter-toggle]");
 const main = document.querySelector("[data-cv-view-root]");
-if (data && tools && main) {
-    tools.hidden = false;
+if (data && panel && filterToggle && main) {
+    // The panel stays closed; the button that opens it is what the script shows. Both wait for a browser that knows
+    // <dialog>: without it the panel would be a column of controls in the page, and the button would open nothing. The
+    // note under the job title works either way.
+    if (typeof panel.showModal === "function") {
+        panel.hidden = false;
+        filterToggle.hidden = false;
+    }
+    panelLive = statusRegion(panel.querySelector(".cv-panel__inner") ?? panel);
     const items = [...document.querySelectorAll("[data-cv-id]")];
     const work = items.filter((item) => item.dataset.cvTech !== undefined);
     const byId = new Map(items.map((item) => [item.dataset.cvId, item]));
@@ -109,7 +127,10 @@ if (data && tools && main) {
     const results = document.getElementById("cv-search-results");
     const status = document.getElementById("cv-search-status");
     const summary = document.querySelector("[data-cv-summary]");
-    const focusNote = document.querySelector("[data-cv-focus-note]");
+    const filterCount = document.querySelector("[data-cv-filter-count]");
+    const filterCountText = document.querySelector("[data-cv-filter-count-text]");
+    const viewNote = document.querySelector("[data-cv-view-note]");
+    const viewNoteText = document.querySelector("[data-cv-view-note-text]");
     const viewButtons = [...document.querySelectorAll("[data-cv-view]")];
     const params = new URLSearchParams(location.search);
     const state = {
@@ -119,9 +140,12 @@ if (data && tools && main) {
         query: "",
     };
 
+    // The parameters that name the view; an empty value means the parameter is left out.
+    const viewParams = () => [["focus", state.focus], ["tech", state.technology], ["view", state.view === "short" ? "short" : ""]];
+
     const remember = () => {
         const url = new URL(location.href);
-        for (const [name, value] of [["focus", state.focus], ["tech", state.technology], ["view", state.view === "short" ? "short" : ""]]) {
+        for (const [name, value] of viewParams()) {
             if (value) {
                 url.searchParams.set(name, value);
             } else {
@@ -163,10 +187,6 @@ if (data && tools && main) {
             const text = view?.summary ?? summary.dataset.cvSummaryDefault;
             summary.textContent = text ?? "";
             summary.hidden = !text;
-        }
-        if (focusNote) {
-            focusNote.hidden = !view;
-            focusNote.textContent = view ? `${focus?.labels?.[0]?.textContent ?? ""}: ${view.label}` : "";
         }
         for (const button of document.querySelectorAll("[data-cv-focus-download]")) {
             button.hidden = button.dataset.cvFocusDownload !== state.focus;
@@ -219,9 +239,22 @@ if (data && tools && main) {
         }
     };
 
+    // What the link sets shows twice: as a count on the filter button, and as a note under the job title that a
+    // recruiter on a tailored link sees without opening anything.
+    const applyActive = () => {
+        const count = activeCount(state);
+        filterCount.textContent = String(count);
+        filterCount.hidden = count === 0;
+        filterCountText.textContent = count === 0 ? "" : format(words.ActiveSettings, count);
+        const text = noteText(state, data, words);
+        viewNoteText.textContent = text;
+        viewNote.hidden = text === "";
+    };
+
     const apply = () => {
         applyFocus();
         applyView();
+        applyActive();
         const messages = [applyTechnology(), applySearch()].filter(Boolean);
         status.textContent = messages.join(" · ");
     };
@@ -242,6 +275,132 @@ if (data && tools && main) {
     }
     document.querySelector("[data-cv-print]")?.addEventListener("click", () => window.print());
 
+    // The panel: a bottom sheet with a backdrop on a phone (modal, so focus stays inside), and on a wider screen a side
+    // panel that leaves the CV usable, so the reader sees each change take effect. Both kinds of <dialog> move focus to
+    // their first control, the close button, when they open.
+    const phone = matchMedia("(max-width:640px)");
+    const header = document.querySelector(".op-header");
+    // Whether the open panel is the modal sheet. Asking the panel for :modal would throw in a browser without it.
+    let modal = false;
+    // Where the focus goes once the panel has closed. The way it was closed decides, not the page: by the time the close
+    // event comes, the dialog has already given the focus back to whatever had it when the panel opened.
+    let returnTo = null;
+    const openPanel = () => {
+        modal = phone.matches;
+        // The side panel starts under the sticky header, at whatever height the design system gives it.
+        if (header) {
+            panel.style.setProperty("--cv-panel-top", `${header.offsetHeight}px`);
+        }
+        if (modal) {
+            panel.showModal();
+        } else {
+            panel.show();
+        }
+        filterToggle.setAttribute("aria-expanded", "true");
+        document.documentElement.classList.add("cv-panel-open");
+    };
+    // target: the element the focus goes to, or null to leave it where it is.
+    const closePanel = (target) => {
+        returnTo = target;
+        panel.close();
+    };
+    filterToggle.addEventListener("click", () => {
+        if (panel.open) {
+            closePanel(filterToggle);
+        } else {
+            openPanel();
+        }
+    });
+    // Every way of closing ends in this event. A confirmation left in the panel's status region is cleared, so it is not
+    // read out of date when the panel opens again. A modal sheet that closed on its own Escape named no target, and the
+    // reader goes back to the button.
+    panel.addEventListener("close", () => {
+        filterToggle.setAttribute("aria-expanded", "false");
+        document.documentElement.classList.remove("cv-panel-open");
+        panelLive.textContent = "";
+        const target = returnTo ?? (modal ? filterToggle : null);
+        returnTo = null;
+        target?.focus({ preventScroll: true });
+    });
+    document.querySelector("[data-cv-panel-close]")?.addEventListener("click", () => closePanel(filterToggle));
+    // A modal sheet closes on Escape by itself; the side panel is not modal and does not. It leaves the CV usable, so
+    // Escape works wherever the focus is: a reader can tab into the part of the page the panel lies over. From the panel
+    // the reader goes back to the button; from the CV they stay where they were. An open menu takes the key and the
+    // panel stays: the capture phase notes the menus before their handler above closes them. An Escape that ends an
+    // input method's composition, or that a control has already handled, is not for the panel either; listening in the
+    // bubble phase lets the control see it first.
+    // The search field would also empty itself on Escape without telling the script, which would leave the hits of a
+    // search it no longer shows, so the key's default is prevented there.
+    let menuTookEscape = false;
+    document.addEventListener("keydown", (event) => {
+        menuTookEscape = event.key === "Escape" && openMenus().length > 0;
+    }, true);
+    document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || event.isComposing || event.defaultPrevented || menuTookEscape || !panel.open || modal) {
+            return;
+        }
+        if (event.target === search) {
+            event.preventDefault();
+        }
+        closePanel(panel.contains(event.target) ? filterToggle : null);
+    });
+    // The panel's padding is on its inner element, so a click that lands on the dialog itself is on the backdrop. A drag
+    // that starts inside the sheet, such as selecting text, and ends on the backdrop also clicks the dialog itself, so
+    // the press has to start on the backdrop too.
+    let pressedOn = null;
+    panel.addEventListener("pointerdown", (event) => { pressedOn = event.target; });
+    panel.addEventListener("click", (event) => {
+        if (event.target === panel && pressedOn === panel) {
+            closePanel(filterToggle);
+        }
+    });
+    // The two layouts differ in more than looks, so an open panel does not carry over from one to the other.
+    phone.addEventListener("change", () => closePanel(null));
+    // On a phone the sheet covers the CV: a search hit closes it, and the focus goes to the item the page scrolls to, so a
+    // keyboard or screen reader user lands there too.
+    results.addEventListener("click", (event) => {
+        const link = event.target.closest("a");
+        if (!link || !modal) {
+            return;
+        }
+        const target = document.getElementById(decodeURIComponent(link.getAttribute("href").slice(1)));
+        if (target && !target.hasAttribute("tabindex")) {
+            target.setAttribute("tabindex", "-1");
+        }
+        closePanel(target ?? filterToggle);
+    });
+
+    // Copy link: the view's own address, the page with its focus, technology and view. It leaves out the parameters the
+    // page was opened with (a campaign's, or an id the state did not take) and the #fragment a search hit or a deep link
+    // leaves behind, so the link opens at the top, on the note that names the view. The button says "Link copied" for a
+    // moment, as the deep links' # mark does, so a reader who cannot hear the live region sees it too; its name stays
+    // "Copy link", so a screen reader hears the confirmation once, from the live region, not again as the focused
+    // button's new name.
+    const copyView = document.querySelector("[data-cv-copy-view]");
+    if (copyView && navigator.clipboard) {
+        const copyLabel = copyView.textContent.trim();
+        let restoring;
+        copyView.setAttribute("aria-label", copyLabel);
+        copyView.hidden = false;
+        copyView.addEventListener("click", async () => {
+            try {
+                const url = new URL(location.pathname, location.origin);
+                for (const [name, value] of viewParams()) {
+                    if (value) {
+                        url.searchParams.set(name, value);
+                    }
+                }
+                await navigator.clipboard.writeText(url.href);
+                announce(words.LinkCopied);
+                copyView.textContent = words.LinkCopied;
+                clearTimeout(restoring);
+                restoring = setTimeout(() => { copyView.textContent = copyLabel; }, 1600);
+            } catch {
+                // Copying was refused, so there is nothing to announce.
+            }
+        });
+    }
+
     // A search hit, a skill's evidence or a timeline bar may lead to an item the one-page view hides: the full view
     // comes back first, so the link arrives somewhere.
     document.addEventListener("click", (event) => {
@@ -260,8 +419,7 @@ if (data && tools && main) {
     // Job ad matcher: the ad's text never leaves the browser.
     const matchText = document.getElementById("cv-match-text");
     const matchResult = document.getElementById("cv-match-result");
-    document.querySelector("[data-cv-match]")?.addEventListener("click", () => {
-        const terms = match(data.vocabulary, matchText.value);
+    const showMatch = (terms) => {
         // The ad's matches have classes of their own, so the profile and the technology filter do not undo them.
         const keys = new Set(terms.map((term) => key(term.term)));
         for (const tag of document.querySelectorAll(".cv-tags .op-tag")) {
@@ -285,6 +443,22 @@ if (data && tools && main) {
             list.append(entry);
         }
         matchResult.append(heading, list);
+    };
+    document.querySelector("[data-cv-match]")?.addEventListener("click", () => showMatch(match(data.vocabulary, matchText.value)));
+
+    // Clear: the link's settings, the search and the matcher go back to an untouched page. The matcher's text is
+    // emptied before it shows no match, so it does not report that the ad had none.
+    document.querySelector("[data-cv-clear]")?.addEventListener("click", () => {
+        Object.assign(state, { focus: "", technology: "", view: "full", query: "" });
+        search.value = "";
+        technology.value = "";
+        if (focus) {
+            focus.value = "";
+        }
+        matchText.value = "";
+        showMatch([]);
+        remember();
+        apply();
     });
 
     apply();

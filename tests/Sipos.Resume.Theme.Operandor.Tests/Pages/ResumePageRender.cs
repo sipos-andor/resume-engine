@@ -1,3 +1,4 @@
+using AngleSharp.Dom;
 using Sipos.Resume.Core.Model;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -147,16 +148,18 @@ public class ResumePageRender
     [Fact]
     public async Task OffersOnePageViewOnlyGivenMarkedItems()
     {
-        var plain = ThemePages.Sample(change: cv => cv with
-        {
-            Strengths = [.. cv.Strengths.Select(strength => strength with { IsShort = false })],
-            Positions = [.. cv.Positions.Select(position => position with { IsShort = false, Engagements = [.. position.Engagements.Select(engagement => engagement with { IsShort = false })] })],
-            Projects = [.. cv.Projects.Select(project => project with { IsShort = false })],
-        });
+        var plain = ThemePages.Sample(change: WithoutShortItems);
 
         (await ThemePages.RenderAsync(ThemePages.Sample(), 0)).QuerySelectorAll("[data-cv-view]").Length.ShouldBe(2);
         (await ThemePages.RenderAsync(plain, 0)).QuerySelectorAll("[data-cv-view]").ShouldBeEmpty();
     }
+
+    private static ResumeDocument WithoutShortItems(ResumeDocument cv) => cv with
+    {
+        Strengths = [.. cv.Strengths.Select(strength => strength with { IsShort = false })],
+        Positions = [.. cv.Positions.Select(position => position with { IsShort = false, Engagements = [.. position.Engagements.Select(engagement => engagement with { IsShort = false })] })],
+        Projects = [.. cv.Projects.Select(project => project with { IsShort = false })],
+    };
 
     // A section or a position's project list none of whose items is marked would show only its heading in that view.
     [Fact]
@@ -272,14 +275,108 @@ public class ResumePageRender
         acme.QuerySelector("#portal").ShouldNotBeNull();
     }
 
-    // The tools need the script; without it they stay hidden and the whole CV shows.
+    // The tools need the script; without it the button and the note stay hidden, the panel closed and hidden (a browser
+    // without <dialog> would otherwise draw it in the page) and the whole CV shows.
+    // The script reads these hooks without a null check, so a renamed attribute fails here and not in the browser.
     [Fact]
     public async Task HidesToolsUntilScriptGivenPage()
     {
         var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
 
-        document.QuerySelector("[data-cv-tools]")!.HasAttribute("hidden").ShouldBeTrue();
+        var toggle = document.QuerySelector("[data-cv-filter-toggle]")!;
+        toggle.HasAttribute("hidden").ShouldBeTrue();
+        toggle.GetAttribute("aria-expanded").ShouldBe("false");
+        var count = document.QuerySelector("[data-cv-filter-count]")!;
+        count.GetAttribute("aria-hidden").ShouldBe("true");
+        count.HasAttribute("hidden").ShouldBeTrue();
+        document.QuerySelector("[data-cv-filter-count-text]").ShouldNotBeNull();
+        var panel = document.QuerySelector("[data-cv-tools]")!;
+        panel.TagName.ShouldBe("DIALOG");
+        panel.HasAttribute("open").ShouldBeFalse();
+        panel.HasAttribute("hidden").ShouldBeTrue();
+        document.GetElementById(panel.GetAttribute("aria-labelledby")!).ShouldNotBeNull();
+        var note = document.QuerySelector("[data-cv-view-note]")!;
+        note.HasAttribute("hidden").ShouldBeTrue();
+        note.QuerySelector("[data-cv-view-note-text]").ShouldNotBeNull();
         document.QuerySelectorAll("[data-cv-focus-download]").ShouldAllBe(button => button.HasAttribute("hidden"));
+        document.QuerySelector("[data-cv-copy-view]")!.HasAttribute("hidden").ShouldBeTrue();
+    }
+
+    // The panel opens from the header; it is no longer a box between the hero and the sections.
+    [Fact]
+    public async Task OpensToolsFromHeaderGivenPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var toggle = document.QuerySelector(".op-header__right [data-cv-filter-toggle]")!;
+        var pdf = document.QuerySelector(".op-header__right a[download]")!;
+        toggle.CompareDocumentPosition(pdf).ShouldBe(DocumentPositions.Following);
+        toggle.GetAttribute("aria-controls").ShouldBe("cv-panel");
+        document.GetElementById("cv-panel")!.HasAttribute("data-cv-tools").ShouldBeTrue();
+        document.QuerySelector("main [data-cv-tools]").ShouldBeNull();
+    }
+
+    // The design system hides header .op-btn at ≤360 px and their icons at ≤400 px.
+    [Fact]
+    public async Task KeepsFilterToggleOutOfDesignSystemButtonsGivenHeader()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        document.QuerySelector("[data-cv-filter-toggle]")!.ClassList.ShouldNotContain("op-btn");
+    }
+
+    [Fact]
+    public async Task LeadsNoteToPlainPageGivenHungarianPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 1);
+
+        var note = document.QuerySelector(".cv-hero__title")!.NextElementSibling!;
+        note.HasAttribute("data-cv-view-note").ShouldBeTrue();
+        var full = note.QuerySelector("a[data-cv-full]")!;
+        full.GetAttribute("href").ShouldBe("/hu/");
+        full.TextContent.ShouldContain("Teljes önéletrajz");
+        document.QuerySelector("[data-cv-focus-note]").ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task HoldsEveryToolInPanelGivenPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var panel = document.GetElementById("cv-panel")!;
+        foreach (var selector in new[] { "#cv-search", "#cv-focus", "#cv-technology", "[data-cv-view]", "[data-cv-print]", "[data-cv-copy-view]", "details.cv-match", "[data-cv-clear]", "[data-cv-panel-close]" })
+        {
+            panel.QuerySelector(selector).ShouldNotBeNull(selector);
+        }
+        panel.QuerySelector("#cv-panel-title")!.TextContent.ShouldBe("Filter and view");
+    }
+
+    // The hits and the status line sit right under the search field, not below the other fields, where a phone's
+    // on-screen keyboard would cover them.
+    [Fact]
+    public async Task PlacesHitsUnderSearchFieldGivenPage()
+    {
+        var document = await ThemePages.RenderAsync(ThemePages.Sample(), 0);
+
+        var search = document.QuerySelector(".cv-panel__fields > .cv-field--search")!;
+        var results = search.NextElementSibling!;
+        results.Id.ShouldBe("cv-search-results");
+        results.NextElementSibling!.Id.ShouldBe("cv-search-status");
+        document.GetElementById("cv-search")!.GetAttribute("aria-describedby").ShouldBe("cv-search-status");
+    }
+
+    // A CV with neither position profiles nor a one-page view has no focus field and no view switch; the rest stays.
+    [Fact]
+    public async Task LeavesOutFocusAndViewInPanelGivenPlainResume()
+    {
+        var plain = ThemePages.Sample(change: cv => WithoutShortItems(cv) with { FocusProfiles = [] });
+
+        var document = await ThemePages.RenderAsync(plain, 0);
+
+        document.GetElementById("cv-focus").ShouldBeNull();
+        document.QuerySelector("[data-cv-view]").ShouldBeNull();
+        document.QuerySelector("[data-cv-filter-toggle]").ShouldNotBeNull();
+        document.GetElementById("cv-technology").ShouldNotBeNull();
     }
 
     [Fact]

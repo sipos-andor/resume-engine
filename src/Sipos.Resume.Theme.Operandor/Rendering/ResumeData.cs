@@ -149,9 +149,15 @@ internal static class ResumeData
         return Encoding.UTF8.GetString(buffer.ToArray());
     }
 
-    /// <summary>The theme's words the script shows: result counts, the copy confirmation, the matcher's results.</summary>
+    /// <summary>
+    /// The theme's words the script shows: result counts, the copy confirmation, the matcher's results, the tailored
+    /// view's note and the filter button's count.
+    /// </summary>
     public static IReadOnlyList<string> ScriptKeys { get; } =
-        ["SearchResults", "SearchNoResults", "TechnologyItems", "LinkCopied", "MatchFound", "MatchNone", "MatchCoverage"];
+    [
+        "SearchResults", "SearchNoResults", "TechnologyItems", "LinkCopied", "MatchFound", "MatchNone", "MatchCoverage",
+        "ActiveSettings", "ViewNoteLead", "ViewNoteShort", "ViewNoteTechnology",
+    ];
 
     private static void WriteStrings(Utf8JsonWriter json, string name, IEnumerable<string> values)
     {

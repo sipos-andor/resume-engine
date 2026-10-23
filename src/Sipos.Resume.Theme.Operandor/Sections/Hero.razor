@@ -1,7 +1,8 @@
 @namespace Sipos.Resume.Theme.Operandor.Sections
 
 @* The opening: availability, name, title and profile, the main download and the contact, and the facts a recruiter
-   looks for first. The tailored downloads of each position profile wait hidden until the reader picks a focus. *@
+   looks for first. The note that the view is tailored waits hidden until a link or a choice sets a focus, a technology
+   or the one-page view, and the tailored downloads of each position profile until the reader picks a focus. *@
 <div class="cv-hero">
     <div class="cv-hero__text">
         @if (View.Person.Availability is { } availability)
@@ -27,6 +28,14 @@
         {
             <p class="cv-hero__title">@title</p>
         }
+        @* Right after the title, so a recruiter on a tailored link sees on the first screen, a phone's too, that the view
+           is tailored. The way back is a link to the page's plain address: it loads the page again, which also clears
+           what the script holds. *@
+        <p class="cv-view-note" data-cv-view-note="" hidden>
+            <CvGlyph Name="target" />
+            <span data-cv-view-note-text=""></span>
+            <a class="cv-view-note__full" data-cv-full="" href="@ResumeView.Href(View.Page.Path)">@View.Text["FocusAll"]<OpIcon Name="arrow-right" Size="16" /></a>
+        </p>
         @if (View.Person.Tagline is { } tagline)
         {
             <p class="cv-hero__tagline">@tagline</p>
@@ -39,7 +48,6 @@
         {
             <p class="cv-hero__summary" data-cv-summary="" data-cv-summary-default="" hidden=""></p>
         }
-        <p class="cv-hero__focus" data-cv-focus-note="" hidden></p>
         <div class="cv-hero__actions">
             @if (View.Download(DownloadFormat.Pdf, DocumentVariant.Designed) is { } pdf)
             {

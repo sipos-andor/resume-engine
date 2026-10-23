@@ -28,7 +28,13 @@ body{font-family:var(--font-body);font-size:var(--fs-body);line-height:var(--lh-
 .cv-hero__title{font-size:var(--fs-h4);line-height:var(--lh-tight);font-weight:var(--fw-medium);color:var(--text-heading);margin:0}
 .cv-hero__tagline{font-family:var(--font-mono);font-size:var(--fs-body-sm);letter-spacing:var(--ls-mono);color:var(--text-muted);margin:8px 0 0}
 .cv-hero__summary{font-size:var(--fs-body-lg);line-height:var(--lh-body);max-width:var(--measure-prose);margin:28px 0 0}
-.cv-hero__focus{font-size:var(--fs-caption);font-weight:var(--fw-medium);text-transform:uppercase;letter-spacing:var(--ls-eyebrow);color:var(--accent);margin:20px 0 0}
+/* The tailored view's note, under the job title: a box, not a pill, as a pill's round ends would squeeze a wrapped line. */
+.cv-view-note{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 10px;width:fit-content;max-width:100%;box-sizing:border-box;margin:16px 0 8px;padding:10px 12px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);border-radius:8px;background:var(--surface-accent-tint);color:var(--text-heading);font-size:var(--fs-body-sm)}
+.cv-view-note .cv-glyph{margin-top:calc((1lh - 18px) / 2);color:var(--accent)}
+/* The text takes at most the line's width less the glyph and its gap (18px and 10px), so a long text wraps beside the
+   glyph instead of starting a line of its own under it. */
+.cv-view-note > span{min-width:0;max-width:calc(100% - 28px)}
+.cv-view-note__full{display:inline-flex;align-items:center;gap:6px;color:var(--text-link);font-weight:var(--fw-medium);white-space:nowrap}
 .cv-hero__actions{margin-top:32px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .cv-availability{display:inline-flex;align-items:center;gap:8px;margin:0;font-size:var(--fs-caption);font-weight:var(--fw-medium);color:var(--text-on-accent-tint);background:var(--surface-accent-tint);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);padding:4px 12px 4px 10px;border-radius:var(--radius-full)}
 a.cv-availability:hover{border-color:var(--accent)}
@@ -43,31 +49,57 @@ a.cv-availability:hover{border-color:var(--accent)}
 .cv-facts__profile:not(:last-child)::after{content:"·";color:var(--text-subtle);margin:0 8px}
 .cv-hero__all-downloads{display:inline-flex;align-items:center;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-subtle);width:100%;font-weight:var(--fw-medium)}
 
-/* Tools */
-.cv-tools{max-width:920px;margin:0 auto 56px;padding:20px 20px 16px;border:1px solid var(--border-subtle);border-radius:var(--radius-4);background:var(--surface-page)}
-.cv-tools[hidden]{display:none}
-.cv-tools__row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end}
-.cv-field{display:grid;gap:6px;min-width:0;flex:0 1 auto}
-.cv-field--search{flex:1 1 220px}
-.cv-field .op-select{min-width:170px;max-width:260px}
+/* Filter panel: the reader's tools in a dialog the header's button opens. On a wide screen it sits under the header, at the
+   right, and the page makes room for it; on a phone it is a bottom sheet over a backdrop (the narrow-screen rules below). */
+.cv-glyph{flex:none}
+.cv-filter-toggle{position:relative;display:inline-flex;flex:none;align-items:center;gap:8px;height:32px;padding:0 var(--sp-4);border:1px solid var(--border-default);border-radius:var(--radius-2);background:transparent;color:var(--text-heading);font-family:var(--font-body);font-size:var(--fs-caption);font-weight:var(--fw-medium);letter-spacing:var(--ls-label);white-space:nowrap;cursor:pointer;transition:background var(--dur-fast) var(--ease-standard)}
+.cv-filter-toggle:hover,.cv-filter-toggle[aria-expanded="true"]{background:var(--surface-hover)}
+.cv-filter-toggle:focus-visible{outline:var(--border-focus) solid var(--focus-ring);outline-offset:2px}
+.cv-filter-toggle__count{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;min-width:18px;min-height:18px;padding:0 5px;border-radius:var(--radius-full);background:var(--accent);color:var(--text-on-accent);font-size:var(--fs-micro);font-weight:var(--fw-semibold);letter-spacing:0;line-height:1}
+/* The script closes the panel when a click's target is the dialog itself, as a tap on a phone's backdrop is, so the dialog
+   has no padding, border or scrollbar of its own: the inner element has them all and fills it. The head sticks to the top
+   as the panel scrolls, and scroll-padding keeps a focused control from sliding under it. The panel starts under the
+   sticky header: the script measures it when the panel opens, and 73px is design system 0.2.0's 72px header and border. */
+.cv-panel[open]{position:fixed;top:var(--cv-panel-top,73px);right:0;bottom:0;left:auto;z-index:20;box-sizing:border-box;width:360px;max-width:none;height:auto;max-height:none;margin:0;padding:0;border:0;overflow:hidden;background:var(--surface-card);color:var(--text-body)}
+.cv-panel__inner{--cv-panel-pad:20px;box-sizing:border-box;height:100%;overflow-y:auto;overscroll-behavior:contain;scroll-padding-top:72px;padding:0 var(--cv-panel-pad) 24px;border-left:1px solid var(--border-subtle)}
+.cv-panel__head{position:sticky;top:0;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 calc(var(--cv-panel-pad) * -1);padding:12px var(--cv-panel-pad);background:var(--surface-card);border-bottom:1px solid var(--border-subtle)}
+.cv-panel__title{margin:0;font-family:var(--font-heading);font-size:var(--fs-h4);line-height:var(--lh-tight);font-weight:var(--fw-semibold);color:var(--text-heading)}
+/* The space between the fields is a margin, not a grid gap, so the search's status line takes none while it is empty. */
+.cv-panel__fields{display:grid;margin-top:20px}
+.cv-panel__fields > * + *{margin-top:16px}
+.cv-field{display:grid;gap:6px;min-width:0}
+.cv-field .op-select{max-width:none}
 .cv-field__label{font-size:var(--fs-caption);font-weight:var(--fw-medium);color:var(--text-muted)}
-.cv-switch{display:inline-flex;border:1px solid var(--border-default);border-radius:var(--radius-2);overflow:hidden;height:40px}
-.cv-switch__option{border:0;background:var(--surface-card);padding:0 14px;font:inherit;font-size:var(--fs-body-sm);color:var(--text-body);cursor:pointer}
+.cv-switch{display:flex;border:1px solid var(--border-default);border-radius:var(--radius-2);overflow:hidden;height:40px}
+.cv-switch__option{flex:1 1 0;border:0;background:var(--surface-card);padding:0 14px;font:inherit;font-size:var(--fs-body-sm);color:var(--text-body);cursor:pointer}
 .cv-switch__option + .cv-switch__option{border-left:1px solid var(--border-default)}
 .cv-switch__option[aria-pressed="true"]{background:var(--accent);color:var(--text-on-accent)}
 .cv-switch__option:focus-visible{outline:var(--border-focus) solid var(--focus-ring);outline-offset:-2px}
-.cv-tools__status{margin:10px 0 0;min-height:1.4em;font-size:var(--fs-caption);color:var(--text-muted)}
-.cv-search-results{margin:12px 0 0;display:flex;flex-wrap:wrap;gap:8px}
+/* The hits and the status line close up to the search field above them. */
+.cv-tools__status{margin:8px 0 0;font-size:var(--fs-caption);color:var(--text-muted)}
+.cv-tools__status:empty{margin:0}
+.cv-search-results{margin:8px 0 0;display:flex;flex-wrap:wrap;gap:8px}
 .cv-search-results[hidden]{display:none}
 /* A long title wraps on a phone, which a pill's round ends would squeeze. */
 .cv-search-results a{font-size:var(--fs-body-sm);padding:4px 10px;border:1px solid var(--border-default);border-radius:var(--radius-4);background:var(--surface-card)}
-.cv-match{margin-top:8px;border-top:1px solid var(--border-subtle);padding-top:12px}
+/* The copy button's label changes for a moment to a longer one in some languages, so the buttons wrap onto a second line
+   and a button's own text wraps before it overflows. */
+.cv-panel__actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.cv-panel__actions .op-btn{max-width:100%;height:auto;min-height:32px;padding-top:5px;padding-bottom:5px;line-height:1.3;text-align:center}
+.cv-match{margin-top:20px;border-top:1px solid var(--border-subtle);padding-top:12px}
 .cv-match__summary{display:inline-flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:var(--fw-medium);color:var(--text-heading)}
 .cv-match__summary .op-icon{margin-top:calc((1lh - 18px) / 2)}
 .cv-match__body{display:grid;gap:10px;margin-top:12px}
 .cv-match__body .op-btn{justify-self:start}
 .cv-match__result{font-size:var(--fs-body-sm)}
 .cv-match__result ul{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-wrap:wrap;gap:6px}
+.cv-panel__clear{display:block;margin-top:16px;padding:6px 0;border:0;background:none;font:inherit;font-size:var(--fs-body-sm);font-weight:var(--fw-medium);color:var(--text-link);cursor:pointer}
+.cv-panel__clear:hover{color:var(--text-link-hover);text-decoration:underline;text-underline-offset:3px}
+.cv-panel__clear:focus-visible{outline:var(--border-focus) solid var(--focus-ring);outline-offset:2px}
+/* Below 1360px the panel lies over the content, so it casts a shadow; from there up the page makes room for it beside the
+   920px column, so the reader sees each change take effect. Screen only: a zoomed print's width can pass the breakpoint. */
+@media (max-width:1359.98px){.cv-panel[open]{box-shadow:var(--shadow-raised)}}
+@media screen and (min-width:1360px){html.cv-panel-open .cv-main,html.cv-panel-open .op-footer{margin-right:360px}}
 
 /* Sections */
 .cv-sections{max-width:920px;margin:0 auto;display:grid;gap:72px}
@@ -195,12 +227,15 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
 }
 @media (max-width:640px){
   .cv-sections{gap:56px}
-  /* In a column the search field's flex basis would become its height. */
-  .cv-tools__row{flex-direction:column;align-items:stretch}
-  .cv-field--search{flex:none}
-  .cv-field .op-select{max-width:none}
-  .cv-switch__option{flex:1 1 0}
-  .cv-tools__row > .op-btn{align-self:flex-start}
+  /* The filter button shows its glyph and badge only. The label is the button's one accessible name (the badge is hidden
+     from assistive technology), so it is visually hidden with the design system's own declarations, never display:none. */
+  .cv-filter-toggle{height:30px;padding:0 8px;gap:6px}
+  .cv-filter-toggle__label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
+  /* The panel is a bottom sheet, three quarters of the screen high (vh for browsers without dvh), over a backdrop. */
+  .cv-panel[open]{top:auto;left:0;right:0;width:auto;height:75vh;height:75dvh;border-radius:var(--radius-4) var(--radius-4) 0 0}
+  .cv-panel__inner{border-left:0;border-top:1px solid var(--border-subtle);border-radius:inherit}
+  .cv-panel::backdrop{background:var(--scrim,rgba(20,24,28,.44))}
+  .cv-view-note__full{flex-basis:100%}
   .cv-skill-groups{grid-template-columns:1fr}
   .cv-skill__row{grid-template-columns:minmax(0,1fr) auto 8ch;gap:10px}
   /* A long level goes on its own line under the name, where it has the row's whole width. */
@@ -228,7 +263,12 @@ summary.cv-skill__row .cv-skill__name{text-decoration:underline dotted var(--tex
   :root,:root[data-theme="dark"],:root:not([data-theme]){--surface-page:#fff;--surface-card:#fff;--surface-accent-tint:#F1FBE6;--text-heading:#14181C;--text-body:#333833;--text-muted:#636A61;--text-subtle:#7F857C;--text-link:#2D7612;--text-on-accent-tint:#164B10;--border-subtle:#E8EAE6;--border-default:#D6D9D3;--accent:#2D7612;--brand-mark:#3E891A;color-scheme:light}
   @page{margin:14mm 14mm 16mm}
   body{background:#fff;font-size:10pt}
-  .op-header,.op-footer,.cv-tools,.cv-anchor,.cv-hero__actions,.cv-hero__all-downloads,.cv-section--downloads,.cv-skip,.cv-timeline,.cv-hero__focus[hidden]{display:none !important}
+  .op-header,.op-footer,.cv-panel,.cv-anchor,.cv-hero__actions,.cv-hero__all-downloads,.cv-section--downloads,.cv-skip,.cv-timeline,.cv-view-note__full{display:none !important}
+  /* The note prints as plain text, as the focus line did: its glyph and link are for the screen, and the text needs no
+     room for a glyph that is not there. */
+  .cv-view-note{margin:12px 0 0;padding:0;border:0;background:none}
+  .cv-view-note > span{max-width:none}
+  .cv-view-note .cv-glyph{display:none}
   .op-band{padding:0 !important;background:#fff !important}
   .cv-hero{grid-template-columns:minmax(0,1fr) 200px;gap:24px;margin-bottom:18px}
   .cv-hero__name{font-size:24pt;margin-top:0}

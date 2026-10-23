@@ -9,7 +9,6 @@
   <data name="DownloadPdf" xml:space="preserve"><value>Download PDF</value></data>
   <data name="DownloadTailoredPdf" xml:space="preserve"><value>Download tailored PDF</value></data>
   <data name="AllDownloads" xml:space="preserve"><value>All downloads</value></data>
-  <data name="Tools" xml:space="preserve"><value>Explore the CV</value></data>
   <data name="Search" xml:space="preserve"><value>Search</value></data>
   <data name="SearchPlaceholder" xml:space="preserve"><value>Technology, company, role…</value></data>
   <data name="SearchResults" xml:space="preserve"><value>Matches: {0}</value></data>
@@ -23,6 +22,14 @@
   <data name="ViewShort" xml:space="preserve"><value>One page</value></data>
   <data name="Print" xml:space="preserve"><value>Print</value></data>
   <data name="LinkCopied" xml:space="preserve"><value>Link copied</value></data>
+  <data name="FilterButton" xml:space="preserve"><value>Filter</value></data>
+  <data name="PanelTitle" xml:space="preserve"><value>Filter and view</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="ClearFilters" xml:space="preserve"><value>Clear filters</value></data>
+  <data name="ActiveSettings" xml:space="preserve"><value>Active settings: {0}</value></data>
+  <data name="ViewNoteLead" xml:space="preserve"><value>Tailored view:</value></data>
+  <data name="ViewNoteShort" xml:space="preserve"><value>one page</value></data>
+  <data name="ViewNoteTechnology" xml:space="preserve"><value>{0} highlighted</value></data>
   <data name="MatchTitle" xml:space="preserve"><value>Compare with a job ad</value></data>
   <data name="MatchHint" xml:space="preserve"><value>Paste the text of a job ad: the page marks the technologies and skills it shares with this CV. The text stays in your browser.</value></data>
   <data name="MatchButton" xml:space="preserve"><value>Compare</value></data>
