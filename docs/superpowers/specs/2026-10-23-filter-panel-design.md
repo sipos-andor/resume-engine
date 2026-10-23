@@ -1,6 +1,6 @@
 # Filter panel: the reader's tools leave the page for a header button and a side panel
 
-- Status: proposed
+- Status: accepted
 - Date: 2026-10-23
 - Theme: `Sipos.Resume.Theme.Operandor`
 
