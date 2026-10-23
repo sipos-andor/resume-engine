@@ -1,0 +1,28 @@
+@namespace Sipos.Resume.Theme.Operandor.Sections
+
+@* A glyph the design system's icons lack (version 0.2.0 has no sliders and no target), drawn for the theme in the
+   icons' own style. Decorative, as the text beside it says what it means: hidden from assistive technology, in the
+   text's colour. *@
+<svg class="cv-glyph" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+    @switch (Name)
+    {
+        case "sliders":
+            <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12" />
+            <circle cx="16" cy="6" r="2" />
+            <circle cx="10" cy="12" r="2" />
+            <circle cx="18" cy="18" r="2" />
+            break;
+        case "target":
+            <circle cx="12" cy="12" r="9" />
+            <circle cx="12" cy="12" r="5" />
+            <circle cx="12" cy="12" r="1" />
+            break;
+        default:
+            throw new ArgumentOutOfRangeException(nameof(Name), Name, "There is no such glyph.");
+    }
+</svg>
+
+@code {
+    /// <summary>The glyph: "sliders" or "target".</summary>
+    [Parameter, EditorRequired] public string Name { get; set; } = default!;
+}

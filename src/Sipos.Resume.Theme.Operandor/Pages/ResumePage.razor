@@ -2,9 +2,9 @@
 @inject IStringLocalizer<ThemeText> T
 @inject IStringLocalizer<ThemeToggle> ThemeWords
 
-@* A CV page in one language: the hero, the reader's tools and the sections, in the design system's header and footer.
-   Every item carries data-cv-* attributes and the page one JSON data block, which the script applies; without the
-   script the whole CV reads the same. *@
+@* A CV page in one language: the hero and the sections, in the design system's header and footer, and the reader's
+   tools in a panel the header's filter button opens. Every item carries data-cv-* attributes and the page one JSON
+   data block, which the script applies; without the script the whole CV reads the same. *@
 <CvDocument Lang="@Page.Document.Language.Tag" Settings="@Page.Settings" AssetVersion="@Page.AssetVersion">
     <Head>
         <link rel="alternate" type="text/markdown" href="@ResumeView.Href(Page.MarkdownPath)" title="Markdown" />
@@ -17,7 +17,7 @@
         <CascadingValue Value="_view" IsFixed="true">
             <a class="cv-skip" href="@_view.Anchor("main")">@T["SkipToContent"]</a>
             <div class="op-page cv-page">
-                @* Decision: no menu items in the header, only the name, the language menu and the PDF.
+                @* Decision: no menu items in the header, only the name, the language menu, the filter button and the PDF.
                    Why: the design system's NavLink treats a link to a section of the same page as the current page
                    (it ignores the fragment), so every item would be marked current; the page is one column a reader
                    scrolls, with a deep link at every heading. *@
@@ -38,18 +38,29 @@
                         <LanguageMenu Languages="@LanguageOptions" />
                     </LanguageSwitch>
                     <Actions>
+                        @* Decision: a plain button, not an OpButton.
+                           Why: the design system hides a header .op-btn at 360 px and narrower and its icon at 400 px
+                           and narrower, and the filter button must stay in the header bar on a phone, as an icon and
+                           a count.
+                           Considered: an OpButton, which would disappear from the narrowest phones. *@
+                        <button type="button" class="cv-filter-toggle" data-cv-filter-toggle="" aria-controls="cv-panel" aria-expanded="false" hidden>
+                            <CvGlyph Name="sliders" />
+                            <span class="cv-filter-toggle__label">@T["FilterButton"]</span>
+                            <span class="cv-filter-toggle__count" data-cv-filter-count="" aria-hidden="true" hidden></span>
+                            <span class="op-visually-hidden" data-cv-filter-count-text=""></span>
+                        </button>
                         @if (_view.Download(DownloadFormat.Pdf, DocumentVariant.Designed) is { } pdf)
                         {
                             <OpButton Size="sm" IconLeft="download" Href="@ResumeView.Href(pdf.Path)" download="@pdf.FileName" type="@pdf.MediaType">PDF</OpButton>
                         }
                     </Actions>
                 </SiteHeader>
+                <Tools />
                 <main id="main" class="cv-main" data-cv-view-root="">
                     <OpBand Tone="page" Pad="56">
                         <Hero />
                     </OpBand>
-                    <OpBand Tone="card" Pad="40" Style="padding-top:24px">
-                        <Tools />
+                    <OpBand Tone="card" Pad="40">
                         <div class="cv-sections">
                             <Strengths />
                             <Experience />

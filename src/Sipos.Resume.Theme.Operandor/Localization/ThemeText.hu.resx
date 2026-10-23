@@ -9,7 +9,6 @@
   <data name="DownloadPdf" xml:space="preserve"><value>PDF letöltése</value></data>
   <data name="DownloadTailoredPdf" xml:space="preserve"><value>Testreszabott PDF letöltése</value></data>
   <data name="AllDownloads" xml:space="preserve"><value>Minden letöltés</value></data>
-  <data name="Tools" xml:space="preserve"><value>Az önéletrajz böngészése</value></data>
   <data name="Search" xml:space="preserve"><value>Keresés</value></data>
   <data name="SearchPlaceholder" xml:space="preserve"><value>Technológia, cég, szerep…</value></data>
   <data name="SearchResults" xml:space="preserve"><value>{0} találat</value></data>
