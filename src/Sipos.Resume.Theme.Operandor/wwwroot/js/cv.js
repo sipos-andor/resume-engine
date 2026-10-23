@@ -5,7 +5,7 @@
 // deploy that changed one reaches the browser at once instead of after the cached copy expires.
 const version = new URL(import.meta.url).search;
 const { find, key, match } = await import(`./text.js${version}`);
-const { format } = await import(`./view.js${version}`);
+const { activeCount, format, noteText } = await import(`./view.js${version}`);
 
 const data = JSON.parse(document.getElementById("cv-data")?.textContent ?? "null");
 const words = data?.text ?? {};
@@ -96,10 +96,12 @@ for (const anchor of document.querySelectorAll("[data-cv-copy]")) {
     });
 }
 
-const tools = document.querySelector("[data-cv-tools]");
+const panel = document.querySelector("[data-cv-tools]");
+const filterToggle = document.querySelector("[data-cv-filter-toggle]");
 const main = document.querySelector("[data-cv-view-root]");
-if (data && tools && main) {
-    tools.hidden = false;
+if (data && panel && filterToggle && main) {
+    // The panel stays closed; the button that opens it is what the script shows.
+    filterToggle.hidden = false;
     const items = [...document.querySelectorAll("[data-cv-id]")];
     const work = items.filter((item) => item.dataset.cvTech !== undefined);
     const byId = new Map(items.map((item) => [item.dataset.cvId, item]));
@@ -110,7 +112,10 @@ if (data && tools && main) {
     const results = document.getElementById("cv-search-results");
     const status = document.getElementById("cv-search-status");
     const summary = document.querySelector("[data-cv-summary]");
-    const focusNote = document.querySelector("[data-cv-focus-note]");
+    const filterCount = document.querySelector("[data-cv-filter-count]");
+    const filterCountText = document.querySelector("[data-cv-filter-count-text]");
+    const viewNote = document.querySelector("[data-cv-view-note]");
+    const viewNoteText = document.querySelector("[data-cv-view-note-text]");
     const viewButtons = [...document.querySelectorAll("[data-cv-view]")];
     const params = new URLSearchParams(location.search);
     const state = {
@@ -165,10 +170,6 @@ if (data && tools && main) {
             summary.textContent = text ?? "";
             summary.hidden = !text;
         }
-        if (focusNote) {
-            focusNote.hidden = !view;
-            focusNote.textContent = view ? `${focus?.labels?.[0]?.textContent ?? ""}: ${view.label}` : "";
-        }
         for (const button of document.querySelectorAll("[data-cv-focus-download]")) {
             button.hidden = button.dataset.cvFocusDownload !== state.focus;
         }
@@ -220,9 +221,22 @@ if (data && tools && main) {
         }
     };
 
+    // What the link sets shows twice: as a count on the filter button, and as a note under the job title that a
+    // recruiter on a tailored link sees without opening anything.
+    const applyActive = () => {
+        const count = activeCount(state);
+        filterCount.textContent = String(count);
+        filterCount.hidden = count === 0;
+        filterCountText.textContent = count === 0 ? "" : format(words.ActiveSettings, count);
+        const text = noteText(state, data, words);
+        viewNoteText.textContent = text;
+        viewNote.hidden = text === "";
+    };
+
     const apply = () => {
         applyFocus();
         applyView();
+        applyActive();
         const messages = [applyTechnology(), applySearch()].filter(Boolean);
         status.textContent = messages.join(" · ");
     };
@@ -243,6 +257,71 @@ if (data && tools && main) {
     }
     document.querySelector("[data-cv-print]")?.addEventListener("click", () => window.print());
 
+    // The panel: a bottom sheet with a backdrop on a phone (modal, so focus stays inside), and on a wider screen a side
+    // panel that leaves the CV usable, so the reader sees each change take effect. Both kinds of <dialog> move focus to
+    // their first control, the close button, when they open.
+    const phone = matchMedia("(max-width:640px)");
+    const openPanel = () => {
+        if (phone.matches) {
+            panel.showModal();
+        } else {
+            panel.show();
+        }
+        filterToggle.setAttribute("aria-expanded", "true");
+        document.documentElement.classList.add("cv-panel-open");
+    };
+    filterToggle.addEventListener("click", () => {
+        if (panel.open) {
+            panel.close();
+        } else {
+            openPanel();
+        }
+    });
+    // Every way of closing ends in this event, which hands the focus back to the button.
+    panel.addEventListener("close", () => {
+        filterToggle.setAttribute("aria-expanded", "false");
+        document.documentElement.classList.remove("cv-panel-open");
+        filterToggle.focus();
+    });
+    document.querySelector("[data-cv-panel-close]")?.addEventListener("click", () => panel.close());
+    // A modal sheet closes on Escape by itself; the side panel is not modal and does not. The default is prevented so
+    // the search field does not also empty itself without telling the script, which would leave the hits of a search
+    // it no longer shows.
+    panel.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !panel.matches(":modal")) {
+            event.preventDefault();
+            panel.close();
+        }
+    });
+    // The panel's padding is on its inner element, so a click that lands on the dialog itself is on the backdrop.
+    panel.addEventListener("click", (event) => {
+        if (event.target === panel) {
+            panel.close();
+        }
+    });
+    // The two layouts differ in more than looks, so an open panel does not carry over from one to the other.
+    phone.addEventListener("change", () => panel.close());
+    // On a phone the sheet covers the CV: a search hit closes it, so the reader lands on the item.
+    results.addEventListener("click", (event) => {
+        if (event.target.closest("a") && panel.matches(":modal")) {
+            panel.close();
+        }
+    });
+
+    // Copy link: the address already holds the focus, technology and view, which remember() keeps there.
+    const copyView = document.querySelector("[data-cv-copy-view]");
+    if (copyView && navigator.clipboard) {
+        copyView.hidden = false;
+        copyView.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(location.href);
+                announce(words.LinkCopied);
+            } catch {
+                // Copying was refused, so there is nothing to announce.
+            }
+        });
+    }
+
     // A search hit, a skill's evidence or a timeline bar may lead to an item the one-page view hides: the full view
     // comes back first, so the link arrives somewhere.
     document.addEventListener("click", (event) => {
@@ -261,8 +340,7 @@ if (data && tools && main) {
     // Job ad matcher: the ad's text never leaves the browser.
     const matchText = document.getElementById("cv-match-text");
     const matchResult = document.getElementById("cv-match-result");
-    document.querySelector("[data-cv-match]")?.addEventListener("click", () => {
-        const terms = match(data.vocabulary, matchText.value);
+    const showMatch = (terms) => {
         // The ad's matches have classes of their own, so the profile and the technology filter do not undo them.
         const keys = new Set(terms.map((term) => key(term.term)));
         for (const tag of document.querySelectorAll(".cv-tags .op-tag")) {
@@ -286,6 +364,22 @@ if (data && tools && main) {
             list.append(entry);
         }
         matchResult.append(heading, list);
+    };
+    document.querySelector("[data-cv-match]")?.addEventListener("click", () => showMatch(match(data.vocabulary, matchText.value)));
+
+    // Clear: the link's settings, the search and the matcher go back to an untouched page. The matcher's text is
+    // emptied before it shows no match, so it does not report that the ad had none.
+    document.querySelector("[data-cv-clear]")?.addEventListener("click", () => {
+        Object.assign(state, { focus: "", technology: "", view: "full", query: "" });
+        search.value = "";
+        technology.value = "";
+        if (focus) {
+            focus.value = "";
+        }
+        matchText.value = "";
+        showMatch([]);
+        remember();
+        apply();
     });
 
     apply();
