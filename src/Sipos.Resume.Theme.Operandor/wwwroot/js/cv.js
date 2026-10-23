@@ -10,14 +10,21 @@ const { activeCount, format, noteText } = await import(`./view.js${version}`);
 const data = JSON.parse(document.getElementById("cv-data")?.textContent ?? "null");
 const words = data?.text ?? {};
 
-// A polite live region for confirmations such as "Link copied".
-const live = document.createElement("p");
-live.className = "op-visually-hidden";
-live.setAttribute("role", "status");
-document.body.append(live);
+// Polite live regions for confirmations such as "Link copied": one on the page, and one in the panel for as long as it
+// is open, because a modal sheet makes the rest of the page inert and a change outside the dialog goes unannounced.
+const statusRegion = (parent) => {
+    const region = document.createElement("p");
+    region.className = "op-visually-hidden";
+    region.setAttribute("role", "status");
+    parent.append(region);
+    return region;
+};
+const live = statusRegion(document.body);
+let panelLive;
 const announce = (message) => {
-    live.textContent = "";
-    requestAnimationFrame(() => { live.textContent = message; });
+    const region = panelLive?.closest("dialog").open ? panelLive : live;
+    region.textContent = "";
+    requestAnimationFrame(() => { region.textContent = message; });
 };
 
 // Theme switch: the design system's ThemeToggle markup driven by the shared kernel's theme.js, in the order of its
@@ -102,6 +109,7 @@ const main = document.querySelector("[data-cv-view-root]");
 if (data && panel && filterToggle && main) {
     // The panel stays closed; the button that opens it is what the script shows.
     filterToggle.hidden = false;
+    panelLive = statusRegion(panel.querySelector(".cv-panel__inner") ?? panel);
     const items = [...document.querySelectorAll("[data-cv-id]")];
     const work = items.filter((item) => item.dataset.cvTech !== undefined);
     const byId = new Map(items.map((item) => [item.dataset.cvId, item]));
@@ -308,14 +316,21 @@ if (data && panel && filterToggle && main) {
         }
     });
 
-    // Copy link: the address already holds the focus, technology and view, which remember() keeps there.
+    // Copy link: the address already holds the focus, technology and view, which remember() keeps there. The button
+    // says "Link copied" for a moment, as the deep links' # mark does, so a reader who cannot hear the live region
+    // sees it too.
     const copyView = document.querySelector("[data-cv-copy-view]");
     if (copyView && navigator.clipboard) {
+        const copyLabel = copyView.textContent;
+        let restoring;
         copyView.hidden = false;
         copyView.addEventListener("click", async () => {
             try {
                 await navigator.clipboard.writeText(location.href);
                 announce(words.LinkCopied);
+                copyView.textContent = words.LinkCopied;
+                clearTimeout(restoring);
+                restoring = setTimeout(() => { copyView.textContent = copyLabel; }, 1600);
             } catch {
                 // Copying was refused, so there is nothing to announce.
             }
